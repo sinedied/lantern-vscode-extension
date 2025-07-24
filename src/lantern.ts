@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, getTargetElement, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
+import { ColorSettings, getTargetElement, setTargetElement, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -278,8 +278,8 @@ export class Lantern {
     }
 
     // Extract color from colorSettings - we'll use any available color
-    const color = colorSettings['statusBar.background'] || 
-                  colorSettings['titleBar.activeBackground'] || 
+    const color = colorSettings['statusBar.background'] ||
+                  colorSettings['titleBar.activeBackground'] ||
                   colorSettings['activityBar.background'];
 
     if (color) {
@@ -303,6 +303,70 @@ export class Lantern {
       this.statusBarItem.dispose();
       this.statusBarItem = null;
     }
+  }
+
+  /**
+   * Switch the target element for colorization
+   */
+  async switchTargetElement(): Promise<void> {
+    const currentTargetElement = getTargetElement();
+
+    const targetOptions = [
+      { label: 'Status Bar Indicator', value: 'statusBarIndicator', description: 'Colored lantern icon in status bar (non-intrusive)' },
+      { label: 'Status Bar', value: 'statusBar', description: 'Changes status bar background color' },
+      { label: 'Title Bar', value: 'titleBar', description: 'Changes title bar background color' },
+      { label: 'Activity Bar', value: 'activityBar', description: 'Changes activity bar background color' },
+    ];
+
+    const selectedOption = await vscode.window.showQuickPick(
+      targetOptions,
+      {
+        placeHolder: `Current: ${currentTargetElement}. Choose which UI element to colorize:`,
+        ignoreFocusOut: true,
+      }
+    );
+
+    if (!selectedOption) {
+      return;
+    }
+
+    const newTargetElement = selectedOption.value as any;
+
+    if (newTargetElement === currentTargetElement) {
+      vscode.window.showInformationMessage(`Visualisation is already set to ${selectedOption.label}.`);
+      return;
+    }
+
+    // Ask user if they want to reset colors before switching
+    const resetChoice = await vscode.window.showQuickPick(
+      [
+        { label: 'Yes, reset colors first', value: 'reset' },
+        { label: 'No, keep current colors', value: 'keep' },
+      ],
+      {
+        placeHolder: 'Reset current workspace colors before switching visualisation?',
+        ignoreFocusOut: true,
+      }
+    );
+
+    if (!resetChoice) {
+      return;
+    }
+
+    // Reset colors if requested
+    if (resetChoice.value === 'reset') {
+      await this.resetColors();
+    }
+
+    // Set the new target element
+    await setTargetElement(newTargetElement);
+
+    // Apply stored colors with the new target element
+    await this.applyStoredColors();
+
+    vscode.window.showInformationMessage(
+      `Lantern: Visualisation switched to ${selectedOption.label}.${resetChoice.value === 'reset' ? ' Colors have been reset.' : ''}`
+    );
   }
 
   /**

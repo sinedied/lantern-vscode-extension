@@ -27,6 +27,7 @@ Lantern helps developers distinguish between many different VS Code windows by a
 Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) to access these commands:
 
 - **Lantern: Assign unique color** - Assigns a random color to the current workspace
+- **Lantern: Choose visualisation** - Change which UI element to colorize (with option to reset colors)
 - **Lantern: Enable Philips Hue integration** - Set up and enable Hue light synchronization
 - **Lantern: Disable Philips Hue integration** - Disable Hue light synchronization
 - **Lantern: Reset colors** - Remove color customizations for the current workspace
@@ -51,6 +52,14 @@ Configure Lantern through VS Code settings:
 3. Run "Lantern: Assign unique color"
 4. Choose where to save settings (global or workspace)
 5. Your VS Code window will now have a unique color!
+
+### Choosing Visualisation
+
+1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+2. Run "Lantern: Choose visualisation"
+3. Select which UI element you want to colorize
+4. Choose whether to reset current colors before switching
+5. The new target element will be applied to all future color assignments
 
 ### Philips Hue Setup
 

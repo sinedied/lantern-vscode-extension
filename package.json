@@ -52,12 +52,16 @@
         "title": "Lantern: Assign unique color"
       },
       {
+        "command": "lantern.switchTargetElement",
+        "title": "Lantern: Choose visualisation"
+      },
+      {
         "command": "lantern.enableHueIntegration",
-        "title": "Lantern: Enable Philips Hue integration"
+        "title": "Lantern: Enable Philips Hue"
       },
       {
         "command": "lantern.disableHueIntegration",
-        "title": "Lantern: Disable Philips Hue integration"
+        "title": "Lantern: Disable Philips Hue"
       },
       {
         "command": "lantern.resetColors",

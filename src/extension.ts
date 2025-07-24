@@ -53,12 +53,18 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('Lantern workspace color indicator');
   });
 
+  // Register the switch target element command
+  const switchTargetElementDisposable = vscode.commands.registerCommand('lantern.switchTargetElement', async () => {
+    await colorService.switchTargetElement();
+  });
+
   context.subscriptions.push(
     assignColorDisposable,
     enableHueDisposable,
     disableHueDisposable,
     resetColorsDisposable,
     statusBarIndicatorClickedDisposable,
+    switchTargetElementDisposable,
     windowStateDisposable,
     colorService,
   );

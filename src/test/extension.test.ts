@@ -55,6 +55,7 @@ suite('Lantern Extension Test Suite', () => {
 
     // Check that our commands are registered
     assert.ok(commands.includes('lantern.assignUniqueColor'));
+    assert.ok(commands.includes('lantern.switchTargetElement'));
     assert.ok(commands.includes('lantern.enableHueIntegration'));
     assert.ok(commands.includes('lantern.disableHueIntegration'));
     assert.ok(commands.includes('lantern.resetColors'));

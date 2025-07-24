@@ -46,6 +46,14 @@ export function getTargetElement(): TargetElement {
 }
 
 /**
+ * Set the target element setting
+ */
+export async function setTargetElement(targetElement: TargetElement): Promise<void> {
+  const config = getLanternConfig();
+  await config.update('targetElement', targetElement, vscode.ConfigurationTarget.Global);
+}
+
+/**
  * Get Hue integration enabled status
  */
 export function getHueIntegrationEnabled(): boolean {
