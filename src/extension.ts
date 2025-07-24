@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { ColorService } from './colorService';
 import { PhilipsHueService } from './hueService';
+import { hexToRgb } from './colorUtils';
 
 let colorService: ColorService;
 
@@ -169,6 +170,9 @@ async function selectHueLights(): Promise<void> {
 		const lightNames = selectedLights.map(light => light.label).join(', ');
 		vscode.window.showInformationMessage(`Selected lights: ${lightNames}`);
 
+		// Apply current workspace color to the selected lights
+		await applyCurrentColorToHueLights();
+
 	} catch (error: any) {
 		vscode.window.showErrorMessage(`Failed to get Hue lights: ${error.message}`);
 	}
@@ -178,6 +182,51 @@ async function disableHueIntegration(): Promise<void> {
 	const config = vscode.workspace.getConfiguration('lantern');
 	await config.update('hueIntegrationEnabled', false, vscode.ConfigurationTarget.Global);
 	vscode.window.showInformationMessage('Philips Hue integration disabled.');
+}
+
+async function applyCurrentColorToHueLights(): Promise<void> {
+	try {
+		// Check if there's a current workspace color to apply
+		const workbenchConfig = vscode.workspace.getConfiguration('workbench');
+		const colorCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+		
+		const config = vscode.workspace.getConfiguration('lantern');
+		const targetElement = config.get<string>('targetElement', 'statusBar');
+		
+		// Get the current color for the target element
+		let currentColor: string | undefined;
+		switch (targetElement) {
+			case 'statusBar':
+				currentColor = colorCustomizations['statusBar.background'];
+				break;
+			case 'titleBar':
+				currentColor = colorCustomizations['titleBar.activeBackground'];
+				break;
+			case 'activityBar':
+				currentColor = colorCustomizations['activityBar.background'];
+				break;
+		}
+
+		if (!currentColor) {
+			// No current color set, nothing to apply
+			return;
+		}
+
+		// Convert hex color to RGB
+		const rgbColor = hexToRgb(currentColor);
+
+		// Apply color to Hue lights
+		const hueService = colorService.getHueService();
+		const lightIds = config.get<string[]>('hueLightIds', []);
+		
+		if (lightIds.length > 0) {
+			await hueService.setLightColor(lightIds, rgbColor);
+			vscode.window.showInformationMessage(`Applied current workspace color ${currentColor} to Hue lights.`);
+		}
+	} catch (error: any) {
+		console.error('Failed to apply current color to Hue lights:', error);
+		vscode.window.showWarningMessage('Failed to apply current color to Hue lights.');
+	}
 }
 
 // This method is called when your extension is deactivated
