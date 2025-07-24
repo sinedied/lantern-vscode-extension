@@ -188,9 +188,36 @@ async function selectHueLights(): Promise<void> {
 }
 
 async function disableHueIntegration(): Promise<void> {
-	const config = vscode.workspace.getConfiguration('lantern');
-	await config.update('hueIntegrationEnabled', false, vscode.ConfigurationTarget.Global);
-	vscode.window.showInformationMessage('Philips Hue integration disabled.');
+	try {
+		const config = vscode.workspace.getConfiguration('lantern');
+		
+		// Get the selected lights and turn them off before disabling integration
+		const lightIds = config.get<string[]>('hueLightIds', []);
+		
+		if (lightIds.length > 0) {
+			const hueService = colorService.getHueService();
+			
+			if (hueService.isConfigured()) {
+				try {
+					await hueService.turnOffLights(lightIds);
+					vscode.window.showInformationMessage('Turned off Hue lights and disabled integration.');
+				} catch (error) {
+					console.error('Failed to turn off lights during disable:', error);
+					vscode.window.showWarningMessage('Disabled Hue integration but failed to turn off lights.');
+				}
+			} else {
+				vscode.window.showInformationMessage('Philips Hue integration disabled.');
+			}
+		} else {
+			vscode.window.showInformationMessage('Philips Hue integration disabled.');
+		}
+		
+		// Disable the integration
+		await config.update('hueIntegrationEnabled', false, vscode.ConfigurationTarget.Global);
+		
+	} catch (error: any) {
+		vscode.window.showErrorMessage(`Failed to disable Hue integration: ${error.message}`);
+	}
 }
 
 async function applyCurrentColorToHueLights(): Promise<void> {
