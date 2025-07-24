@@ -114,7 +114,10 @@ export class ColorService {
 
         // Remove from workspace settings
         const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-        const colorCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+        const currentColorCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+        
+        // Create a new object instead of modifying the existing one
+        const colorCustomizations = { ...currentColorCustomizations };
         
         const colorKeys = ['statusBar.background', 'titleBar.activeBackground', 'activityBar.background'];
         let hasChanges = false;
@@ -132,9 +135,11 @@ export class ColorService {
 
         // Remove from global settings
         const config = vscode.workspace.getConfiguration('lantern');
-        const globalSettings = config.get<any>('workspaceColors', {});
+        const currentGlobalSettings = config.get<any>('workspaceColors', {});
         
-        if (globalSettings[this.currentWorkspacePath]) {
+        if (currentGlobalSettings[this.currentWorkspacePath]) {
+            // Create a new object instead of modifying the existing one
+            const globalSettings = { ...currentGlobalSettings };
             delete globalSettings[this.currentWorkspacePath];
             await config.update('workspaceColors', globalSettings, vscode.ConfigurationTarget.Global);
         }
