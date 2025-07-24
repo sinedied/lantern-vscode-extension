@@ -262,8 +262,8 @@ export class Lantern {
     }
 
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
-    this.statusBarItem.text = '$(lightbulb)';
-    this.statusBarItem.tooltip = 'Lantern - Workspace Color Indicator';
+    this.statusBarItem.text = '  $(lantern-icon)';
+    this.statusBarItem.tooltip = 'Lantern';
     this.statusBarItem.show();
   }
 
@@ -283,9 +283,8 @@ export class Lantern {
                   colorSettings['activityBar.background'];
 
     if (color) {
-      // Use a colored block character to simulate colored background
-      // This approach doesn't modify workspace settings
-      this.statusBarItem.text = `$(circle-filled)`;
+      // Use the custom lantern icon with color
+      this.statusBarItem.text = `$(lantern-icon)`;
       this.statusBarItem.color = color;
       this.statusBarItem.tooltip = `Lantern - Workspace Color: ${color}`;
       this.statusBarItem.command = {

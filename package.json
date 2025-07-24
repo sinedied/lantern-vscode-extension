@@ -46,6 +46,15 @@
     "onStartupFinished"
   ],
   "contributes": {
+    "icons": {
+      "lantern-icon": {
+        "description": "Lantern icon",
+        "default": {
+          "fontPath": "./assets/lantern.woff",
+          "fontCharacter": "\\EA01"
+        }
+      }
+    },
     "commands": [
       {
         "command": "lantern.assignUniqueColor",
