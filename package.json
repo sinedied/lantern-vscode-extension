@@ -61,10 +61,6 @@
         "title": "Lantern: Assign unique color"
       },
       {
-        "command": "lantern.switchTargetElement",
-        "title": "Lantern: Choose visualisation"
-      },
-      {
         "command": "lantern.enableHueIntegration",
         "title": "Lantern: Enable Philips Hue"
       },
@@ -84,17 +80,6 @@
     "configuration": {
       "title": "Lantern",
       "properties": {
-        "lantern.targetElement": {
-          "type": "string",
-          "enum": [
-            "statusBarIndicator",
-            "statusBar",
-            "titleBar",
-            "activityBar"
-          ],
-          "default": "statusBarIndicator",
-          "description": "Which VS Code UI element to colorize"
-        },
         "lantern.hueIntegrationEnabled": {
           "type": "boolean",
           "default": false,

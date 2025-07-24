@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
 import { hexToRgb } from './colors';
-import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getTargetElement, getCurrentElementColor, getHueDefaultColor } from './config';
+import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getHueDefaultColor } from './config';
 
 let colorService: Lantern;
 
@@ -53,18 +53,12 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('Lantern workspace color indicator');
   });
 
-  // Register the switch target element command
-  const switchTargetElementDisposable = vscode.commands.registerCommand('lantern.switchTargetElement', async () => {
-    await colorService.switchTargetElement();
-  });
-
   context.subscriptions.push(
     assignColorDisposable,
     enableHueDisposable,
     disableHueDisposable,
     resetColorsDisposable,
     statusBarIndicatorClickedDisposable,
-    switchTargetElementDisposable,
     windowStateDisposable,
     colorService,
   );
@@ -240,10 +234,8 @@ async function applyCurrentColorToHueLights(): Promise<void> {
     // Check if there's a current workspace color to apply
     const colorCustomizations = getColorCustomizations();
 
-    const targetElement = getTargetElement();
-
-    // Get the current color for the target element
-    const currentColor = getCurrentElementColor(targetElement);
+    // Get the current color for the status bar
+    const currentColor = colorCustomizations['statusBar.background'];
 
     if (!currentColor) {
       // No current color set, nothing to apply
@@ -290,10 +282,8 @@ async function updateHueLightsOnWindowFocus(): Promise<void> {
     // Get the current workspace color
     const colorCustomizations = getColorCustomizations();
 
-    const targetElement = getTargetElement();
-
-    // Get the current color for the target element
-    let currentColor = getCurrentElementColor(targetElement);
+    // Get the current color for the status bar
+    let currentColor = colorCustomizations['statusBar.background'];
 
     // If no current workspace color, use the default color
     if (!currentColor) {

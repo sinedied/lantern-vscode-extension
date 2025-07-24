@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, getTargetElement, setTargetElement, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
+import { ColorSettings, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -32,33 +32,21 @@ export class Lantern {
       return;
     }
 
-    const targetElement = getTargetElement();
-
-    // Hide status bar indicator if it's not the target element
-    if (targetElement !== 'statusBarIndicator') {
-      this.hideStatusBarIndicator();
-    } else {
-      // For status bar indicator, always create it (even if no color is assigned)
-      this.createStatusBarIndicator();
-    }
+    // Always show the status bar indicator
+    this.createStatusBarIndicator();
 
     // Check workspace settings first
     const workspaceSettings = this.getWorkspaceSettings();
     if (workspaceSettings && hasColorSettings(workspaceSettings)) {
-      await this.applyColor(workspaceSettings, targetElement);
+      await this.applyColor(workspaceSettings);
       return;
     }
 
     // Check global settings
     const globalSettings = this.getGlobalSettings();
     if (globalSettings && hasColorSettings(globalSettings)) {
-      await this.applyColor(globalSettings, targetElement);
+      await this.applyColor(globalSettings);
       return;
-    }
-
-    // If no stored colors but target is status bar indicator, show it with default styling
-    if (targetElement === 'statusBarIndicator') {
-      this.createStatusBarIndicator();
     }
   }
 
@@ -71,10 +59,8 @@ export class Lantern {
       return;
     }
 
-    const targetElement = getTargetElement();
-
-    // Get current theme color for the target element
-    const baseColor = getCurrentThemeColor(targetElement);
+    // Get current theme color for the status bar
+    const baseColor = getCurrentThemeColor('statusBar');
 
     // Generate a random color variant
     const newColor = generateRandomColorVariant(baseColor);
@@ -96,7 +82,7 @@ export class Lantern {
     }
 
     // Create color settings
-    const colorSettings = this.createColorSettings(targetElement, hexColor);
+    const colorSettings = this.createColorSettings(hexColor);
 
     // Save settings
     if (saveLocation.value === 'workspace') {
@@ -106,7 +92,7 @@ export class Lantern {
     }
 
     // Apply the color
-    await this.applyColor(colorSettings, targetElement);
+    await this.applyColor(colorSettings);
 
     // Update Hue lights if enabled
     if (this.hueService.isEnabled() && this.hueService.isConfigured()) {
@@ -114,7 +100,7 @@ export class Lantern {
     }
 
     vscode.window.showInformationMessage(
-      `Lantern: Assigned color ${hexColor} to ${targetElement}. Settings saved to ${saveLocation.label.toLowerCase()}.`,
+      `Lantern: Assigned color ${hexColor} to status bar. Settings saved to ${saveLocation.label.toLowerCase()}.`,
     );
   }
 
@@ -127,27 +113,17 @@ export class Lantern {
       return;
     }
 
-    const targetElement = getTargetElement();
-
-    // Hide status bar indicator if it's the target element
-    if (targetElement === 'statusBarIndicator') {
-      this.hideStatusBarIndicator();
-    }
-
     // Remove from workspace settings
     const currentColorCustomizations = getColorCustomizations();
 
     // Create a new object instead of modifying the existing one
     const colorCustomizations = { ...currentColorCustomizations };
 
-    const colorKeys = ['statusBar.background', 'titleBar.activeBackground', 'activityBar.background'];
     let hasChanges = false;
 
-    for (const key of colorKeys) {
-      if (colorCustomizations[key]) {
-        delete colorCustomizations[key];
-        hasChanges = true;
-      }
+    if (colorCustomizations['statusBar.background']) {
+      delete colorCustomizations['statusBar.background'];
+      hasChanges = true;
     }
 
     if (hasChanges) {
@@ -170,23 +146,9 @@ export class Lantern {
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
   }
 
-  private createColorSettings(targetElement: string, hexColor: string): ColorSettings {
-    if (targetElement === 'statusBarIndicator') {
-      // For status bar indicator, we store the color in a custom property
-      // but for compatibility, we'll also set the statusBar.background
-      return {
-        'statusBar.background': hexColor,
-      };
-    }
-
-    const colorKeys: { [key: string]: keyof ColorSettings } = {
-      statusBar: 'statusBar.background',
-      titleBar: 'titleBar.activeBackground',
-      activityBar: 'activityBar.background',
-    };
-
+  private createColorSettings(hexColor: string): ColorSettings {
     return {
-      [colorKeys[targetElement]]: hexColor,
+      'statusBar.background': hexColor,
     };
   }
 
@@ -214,20 +176,16 @@ export class Lantern {
     await setWorkspaceColorSettings(this.currentWorkspacePath, colorSettings);
   }
 
-  private async applyColor(colorSettings: ColorSettings, targetElement: string): Promise<void> {
-    if (targetElement === 'statusBarIndicator') {
-      this.updateStatusBarIndicator(colorSettings);
-    } else {
-      const currentColorCustomizations = getColorCustomizations();
+  private async applyColor(colorSettings: ColorSettings): Promise<void> {
+    const currentColorCustomizations = getColorCustomizations();
 
-      // Create a new object instead of modifying the existing one
-      const colorCustomizations = {
-        ...currentColorCustomizations,
-        ...colorSettings,
-      };
+    // Create a new object instead of modifying the existing one
+    const colorCustomizations = {
+      ...currentColorCustomizations,
+      ...colorSettings,
+    };
 
-      await updateColorCustomizations(colorCustomizations);
-    }
+    await updateColorCustomizations(colorCustomizations);
   }
 
   private async updateHueLights(color: RgbColor): Promise<void> {
@@ -262,36 +220,13 @@ export class Lantern {
     }
 
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
-    this.statusBarItem.text = '  $(lantern-icon)';
+    this.statusBarItem.text = '$(lantern-icon)';
     this.statusBarItem.tooltip = 'Lantern';
+    this.statusBarItem.command = {
+      command: 'lantern.statusBarIndicatorClicked',
+      title: 'Lantern Status Bar Indicator'
+    };
     this.statusBarItem.show();
-  }
-
-  /**
-   * Update the status bar indicator with the given color
-   */
-  private updateStatusBarIndicator(colorSettings: ColorSettings): void {
-    this.createStatusBarIndicator();
-
-    if (!this.statusBarItem) {
-      return;
-    }
-
-    // Extract color from colorSettings - we'll use any available color
-    const color = colorSettings['statusBar.background'] ||
-                  colorSettings['titleBar.activeBackground'] ||
-                  colorSettings['activityBar.background'];
-
-    if (color) {
-      // Use the custom lantern icon with color
-      this.statusBarItem.text = `$(lantern-icon)`;
-      this.statusBarItem.color = color;
-      this.statusBarItem.tooltip = `Lantern - Workspace Color: ${color}`;
-      this.statusBarItem.command = {
-        command: 'lantern.statusBarIndicatorClicked',
-        title: 'Lantern Status Bar Indicator'
-      };
-    }
   }
 
   /**
@@ -303,70 +238,6 @@ export class Lantern {
       this.statusBarItem.dispose();
       this.statusBarItem = null;
     }
-  }
-
-  /**
-   * Switch the target element for colorization
-   */
-  async switchTargetElement(): Promise<void> {
-    const currentTargetElement = getTargetElement();
-
-    const targetOptions = [
-      { label: 'Status Bar Indicator', value: 'statusBarIndicator', description: 'Colored circle icon in status bar (non-intrusive)' },
-      { label: 'Status Bar', value: 'statusBar', description: 'Changes status bar background color' },
-      { label: 'Title Bar', value: 'titleBar', description: 'Changes title bar background color' },
-      { label: 'Activity Bar', value: 'activityBar', description: 'Changes activity bar background color' },
-    ];
-
-    const selectedOption = await vscode.window.showQuickPick(
-      targetOptions,
-      {
-        placeHolder: `Current: ${currentTargetElement}. Choose which UI element to colorize:`,
-        ignoreFocusOut: true,
-      }
-    );
-
-    if (!selectedOption) {
-      return;
-    }
-
-    const newTargetElement = selectedOption.value as any;
-
-    if (newTargetElement === currentTargetElement) {
-      vscode.window.showInformationMessage(`Visualisation is already set to ${selectedOption.label}.`);
-      return;
-    }
-
-    // Ask user if they want to reset colors before switching
-    const resetChoice = await vscode.window.showQuickPick(
-      [
-        { label: 'Yes, reset colors first', value: 'reset' },
-        { label: 'No, keep current colors', value: 'keep' },
-      ],
-      {
-        placeHolder: 'Reset current workspace colors before switching visualisation?',
-        ignoreFocusOut: true,
-      }
-    );
-
-    if (!resetChoice) {
-      return;
-    }
-
-    // Reset colors if requested
-    if (resetChoice.value === 'reset') {
-      await this.resetColors();
-    }
-
-    // Set the new target element
-    await setTargetElement(newTargetElement);
-
-    // Apply stored colors with the new target element
-    await this.applyStoredColors();
-
-    vscode.window.showInformationMessage(
-      `Lantern: Visualisation switched to ${selectedOption.label}.${resetChoice.value === 'reset' ? ' Colors have been reset.' : ''}`
-    );
   }
 
   /**

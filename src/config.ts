@@ -1,23 +1,17 @@
 import * as vscode from 'vscode';
 
-export type TargetElement = 'statusBarIndicator' | 'statusBar' | 'titleBar' | 'activityBar';
 export type StorageLocation = 'global' | 'workspace';
 
 export interface ColorSettings {
   'statusBar.background'?: string;
-  'titleBar.activeBackground'?: string;
-  'activityBar.background'?: string;
 }
 
 export interface LanternConfig {
-  targetElement: TargetElement;
   hueIntegrationEnabled: boolean;
   hueLightIds: string[];
   hueDefaultColor: string;
   workspaceColors: Record<string, ColorSettings>;
   statusBarBackground?: string;
-  titleBarActiveBackground?: string;
-  activityBarBackground?: string;
 }
 
 const LANTERN_CONFIG_KEY = 'lantern';
@@ -35,22 +29,6 @@ export function getLanternConfig(): vscode.WorkspaceConfiguration {
  */
 export function getWorkbenchConfig(): vscode.WorkspaceConfiguration {
   return vscode.workspace.getConfiguration(WORKBENCH_CONFIG_KEY);
-}
-
-/**
- * Get the target element setting
- */
-export function getTargetElement(): TargetElement {
-  const config = getLanternConfig();
-  return config.get<TargetElement>('targetElement', 'statusBarIndicator');
-}
-
-/**
- * Set the target element setting
- */
-export async function setTargetElement(targetElement: TargetElement): Promise<void> {
-  const config = getLanternConfig();
-  await config.update('targetElement', targetElement, vscode.ConfigurationTarget.Global);
 }
 
 /**
@@ -153,17 +131,9 @@ export function getWorkspaceSpecificColorSettings(): ColorSettings {
   const settings: ColorSettings = {};
 
   const statusBarBg = config.get<string>('statusBarBackground');
-  const titleBarBg = config.get<string>('titleBarActiveBackground');
-  const activityBarBg = config.get<string>('activityBarBackground');
 
   if (statusBarBg) {
     settings['statusBar.background'] = statusBarBg;
-  }
-  if (titleBarBg) {
-    settings['titleBar.activeBackground'] = titleBarBg;
-  }
-  if (activityBarBg) {
-    settings['activityBar.background'] = activityBarBg;
   }
 
   return settings;
@@ -176,21 +146,9 @@ export async function saveWorkspaceSpecificColorSettings(colorSettings: ColorSet
   const config = getLanternConfig();
 
   for (const [key, value] of Object.entries(colorSettings)) {
-    let configKey: string;
-    switch (key) {
-      case 'statusBar.background':
-        configKey = 'statusBarBackground';
-        break;
-      case 'titleBar.activeBackground':
-        configKey = 'titleBarActiveBackground';
-        break;
-      case 'activityBar.background':
-        configKey = 'activityBarBackground';
-        break;
-      default:
-        continue;
+    if (key === 'statusBar.background') {
+      await config.update('statusBarBackground', value, vscode.ConfigurationTarget.Workspace);
     }
-    await config.update(configKey, value, vscode.ConfigurationTarget.Workspace);
   }
 }
 
@@ -199,32 +157,7 @@ export async function saveWorkspaceSpecificColorSettings(colorSettings: ColorSet
  */
 export async function clearWorkspaceSpecificColorSettings(): Promise<void> {
   const config = getLanternConfig();
-  const colorKeys = ['statusBarBackground', 'titleBarActiveBackground', 'activityBarBackground'];
-
-  for (const key of colorKeys) {
-    await config.update(key, undefined, vscode.ConfigurationTarget.Workspace);
-  }
-}
-
-/**
- * Get current color for the target element
- */
-export function getCurrentElementColor(targetElement: TargetElement): string | undefined {
-  const colorCustomizations = getColorCustomizations();
-
-  switch (targetElement) {
-    case 'statusBarIndicator':
-      // For status bar indicator, we use the same color as statusBar.background
-      return colorCustomizations['statusBar.background'];
-    case 'statusBar':
-      return colorCustomizations['statusBar.background'];
-    case 'titleBar':
-      return colorCustomizations['titleBar.activeBackground'];
-    case 'activityBar':
-      return colorCustomizations['activityBar.background'];
-    default:
-      return undefined;
-  }
+  await config.update('statusBarBackground', undefined, vscode.ConfigurationTarget.Workspace);
 }
 
 /**
@@ -235,10 +168,5 @@ export function hasColorSettings(settings: ColorSettings): boolean {
     return false;
   }
 
-  const colorKeys: (keyof ColorSettings)[] = [
-    'statusBar.background',
-    'titleBar.activeBackground',
-    'activityBar.background',
-  ];
-  return colorKeys.some((key) => settings[key]);
+  return Boolean(settings['statusBar.background']);
 }

@@ -1,6 +1,6 @@
 # Lantern VS Code Extension
 
-Lantern helps developers distinguish between many different VS Code windows by allowing you to set a different color for the title bar, status bar, or activity bar of each workspace/project.
+Lantern helps developers distinguish between many different VS Code windows by setting a unique color for the status bar background of each workspace/project.
 
 ## Features
 
@@ -8,12 +8,9 @@ Lantern helps developers distinguish between many different VS Code windows by a
 
 - Assign unique colors to each VS Code workspace using the command palette
 - Colors are generated using the OKLCH color space for optimal perceptual uniformity
-- Choose to colorize different VS Code UI elements:
-  - **Status Bar Indicator** (default) - A colored circle icon in the status bar that doesn't modify workspace settings
-  - **Status Bar** - Changes the entire status bar background color
-  - **Title Bar** - Changes the title bar background color
-  - **Activity Bar** - Changes the activity bar background color
+- Colorizes the **Status Bar** background for clear workspace identification
 - Settings can be saved globally (per project path) or per workspace
+- A status bar indicator (lantern icon) is always visible for quick access to commands
 
 ### 💡 Philips Hue Integration
 
@@ -26,8 +23,7 @@ Lantern helps developers distinguish between many different VS Code windows by a
 
 Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) to access these commands:
 
-- **Lantern: Assign unique color** - Assigns a random color to the current workspace
-- **Lantern: Choose visualisation** - Change which UI element to colorize (with option to reset colors)
+- **Lantern: Assign unique color** - Assigns a random color to the current workspace status bar
 - **Lantern: Enable Philips Hue integration** - Set up and enable Hue light synchronization
 - **Lantern: Disable Philips Hue integration** - Disable Hue light synchronization
 - **Lantern: Reset colors** - Remove color customizations for the current workspace
@@ -36,7 +32,6 @@ Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) to access these command
 
 Configure Lantern through VS Code settings:
 
-- `lantern.targetElement` - Which UI element to colorize (statusBarIndicator, statusBar, titleBar, activityBar)
 - `lantern.hueIntegrationEnabled` - Enable/disable Philips Hue integration
 - `lantern.hueLightIds` - Array of Hue light IDs to control
 - `lantern.hueBridgeIp` - IP address of your Hue bridge (auto-discovered)
@@ -51,15 +46,7 @@ Configure Lantern through VS Code settings:
 2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
 3. Run "Lantern: Assign unique color"
 4. Choose where to save settings (global or workspace)
-5. Your VS Code window will now have a unique color!
-
-### Choosing Visualisation
-
-1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-2. Run "Lantern: Choose visualisation"
-3. Select which UI element you want to colorize
-4. Choose whether to reset current colors before switching
-5. The new target element will be applied to all future color assignments
+5. Your VS Code window status bar will now have a unique color!
 
 ### Philips Hue Setup
 
@@ -108,7 +95,6 @@ When saved to workspace settings, colors are stored in `.vscode/settings.json`:
 
 This extension contributes the following settings:
 
-- `lantern.targetElement`: Which VS Code UI element to colorize (default: statusBarIndicator)
 - `lantern.hueIntegrationEnabled`: Enable Philips Hue integration (default: false)
 - `lantern.hueLightIds`: List of Philips Hue light IDs to control
 - `lantern.hueBridgeIp`: IP address of the Philips Hue bridge
@@ -127,11 +113,11 @@ This extension contributes the following settings:
 
 Initial release of Lantern with:
 
-- Unique color assignment per workspace
+- Unique status bar color assignment per workspace
 - OKLCH color space for perceptual uniformity
 - Philips Hue integration
-- Configurable UI element targeting
 - Global and workspace settings support
+- Status bar indicator for quick access
 
 ## Contributing
 

@@ -127,35 +127,22 @@ export function hexToRgb(hex: string): RgbColor {
 }
 
 /**
- * Gets the current color of the specified VS Code UI element
+ * Gets the current color of the status bar
  */
-export function getCurrentThemeColor(element: string): RgbColor {
-  // Default colors based on VS Code's default dark theme
-  const defaultColors: { [key: string]: RgbColor } = {
-    statusBarIndicator: { r: 0, g: 122, b: 204 }, // VS Code blue
-    statusBar: { r: 0, g: 122, b: 204 }, // VS Code blue
-    titleBar: { r: 51, g: 51, b: 51 }, // Dark gray
-    activityBar: { r: 45, g: 45, b: 45 }, // Slightly lighter dark gray
-  };
+export function getCurrentThemeColor(_element?: string): RgbColor {
+  // Default color based on VS Code's default dark theme
+  const defaultColor: RgbColor = { r: 0, g: 122, b: 204 }; // VS Code blue
 
   // Try to get the current theme color from workbench.colorCustomizations
   const colorCustomizations = getColorCustomizations();
 
-  const colorKeys: { [key: string]: string } = {
-    statusBarIndicator: 'statusBar.background', // Use same as status bar for base color
-    statusBar: 'statusBar.background',
-    titleBar: 'titleBar.activeBackground',
-    activityBar: 'activityBar.background',
-  };
-
-  const colorKey = colorKeys[element];
-  if (colorKey && colorCustomizations[colorKey]) {
+  if (colorCustomizations['statusBar.background']) {
     try {
-      return hexToRgb(colorCustomizations[colorKey]);
+      return hexToRgb(colorCustomizations['statusBar.background']);
     } catch {
       // Fall back to default if parsing fails
     }
   }
 
-  return defaultColors[element] || defaultColors['statusBar'];
+  return defaultColor;
 }

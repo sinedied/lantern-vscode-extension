@@ -1,7 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, getCurrentThemeColor } from '../colors';
-import { getTargetElement } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -55,22 +54,17 @@ suite('Lantern Extension Test Suite', () => {
 
     // Check that our commands are registered
     assert.ok(commands.includes('lantern.assignUniqueColor'));
-    assert.ok(commands.includes('lantern.switchTargetElement'));
     assert.ok(commands.includes('lantern.enableHueIntegration'));
     assert.ok(commands.includes('lantern.disableHueIntegration'));
     assert.ok(commands.includes('lantern.resetColors'));
     assert.ok(commands.includes('lantern.statusBarIndicatorClicked'));
   });
 
-  test('Configuration and target element work correctly', () => {
-    // Test that the default target element is statusBarIndicator
-    const targetElement = getTargetElement();
-    assert.strictEqual(targetElement, 'statusBarIndicator');
-
-    // Test that getCurrentThemeColor supports the new statusBarIndicator
-    const statusBarIndicatorColor = getCurrentThemeColor('statusBarIndicator');
-    assert.ok(statusBarIndicatorColor.r !== undefined);
-    assert.ok(statusBarIndicatorColor.g !== undefined);
-    assert.ok(statusBarIndicatorColor.b !== undefined);
+  test('Configuration and color functions work correctly', () => {
+    // Test that getCurrentThemeColor works for status bar
+    const statusBarColor = getCurrentThemeColor();
+    assert.ok(statusBarColor.r !== undefined);
+    assert.ok(statusBarColor.g !== undefined);
+    assert.ok(statusBarColor.b !== undefined);
   });
 });
