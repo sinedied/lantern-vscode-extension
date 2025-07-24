@@ -21,6 +21,14 @@ export function activate(context: vscode.ExtensionContext) {
 	// Apply stored colors when the extension activates
 	colorService.applyStoredColors();
 
+	// Listen for window state changes to update Hue lights when window becomes active
+	const windowStateDisposable = vscode.window.onDidChangeWindowState(async (windowState) => {
+		if (windowState.focused) {
+			// Window became active, update Hue lights if integration is enabled
+			await updateHueLightsOnWindowFocus();
+		}
+	});
+
 	// Register the assign unique color command
 	const assignColorDisposable = vscode.commands.registerCommand('lantern.assignUniqueColor', async () => {
 		await colorService.assignUniqueColor();
@@ -45,7 +53,8 @@ export function activate(context: vscode.ExtensionContext) {
 		assignColorDisposable,
 		enableHueDisposable,
 		disableHueDisposable,
-		resetColorsDisposable
+		resetColorsDisposable,
+		windowStateDisposable
 	);
 }
 
@@ -226,6 +235,64 @@ async function applyCurrentColorToHueLights(): Promise<void> {
 	} catch (error: any) {
 		console.error('Failed to apply current color to Hue lights:', error);
 		vscode.window.showWarningMessage('Failed to apply current color to Hue lights.');
+	}
+}
+
+async function updateHueLightsOnWindowFocus(): Promise<void> {
+	try {
+		// Check if Hue integration is enabled
+		const config = vscode.workspace.getConfiguration('lantern');
+		const hueEnabled = config.get<boolean>('hueIntegrationEnabled', false);
+		
+		if (!hueEnabled) {
+			return; // Hue integration is disabled
+		}
+
+		const hueService = colorService.getHueService();
+		if (!hueService.isConfigured()) {
+			return; // Hue not configured
+		}
+
+		// Check if there are lights configured
+		const lightIds = config.get<string[]>('hueLightIds', []);
+		if (lightIds.length === 0) {
+			return; // No lights configured
+		}
+
+		// Get the current workspace color
+		const workbenchConfig = vscode.workspace.getConfiguration('workbench');
+		const colorCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+		
+		const targetElement = config.get<string>('targetElement', 'statusBar');
+		
+		// Get the current color for the target element
+		let currentColor: string | undefined;
+		switch (targetElement) {
+			case 'statusBar':
+				currentColor = colorCustomizations['statusBar.background'];
+				break;
+			case 'titleBar':
+				currentColor = colorCustomizations['titleBar.activeBackground'];
+				break;
+			case 'activityBar':
+				currentColor = colorCustomizations['activityBar.background'];
+				break;
+		}
+
+		if (!currentColor) {
+			return; // No current color set
+		}
+
+		// Convert hex color to RGB and apply to lights
+		const rgbColor = hexToRgb(currentColor);
+		await hueService.setLightColor(lightIds, rgbColor);
+		
+		// Optional: Show a subtle notification (commented out to avoid spam)
+		// vscode.window.showInformationMessage(`Updated Hue lights to workspace color ${currentColor}`);
+		
+	} catch (error: any) {
+		console.error('Failed to update Hue lights on window focus:', error);
+		// Don't show error messages to user to avoid spam, just log
 	}
 }
 
