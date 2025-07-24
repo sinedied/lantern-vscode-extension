@@ -43,7 +43,6 @@ Lantern is a VS Code extension that helps developers distinguish between many di
     }
     ```
 - Use lowercase snake case for file names, like `color-utils.ts`
-- Use `fetch` for HTTP requests to the Philips Hue API.
 - Use built-in Node.js modules and avoid external dependencies where possible. Ask before using any external libraries.
 - Use Node.js built-in test module for unit tests, and ensure core functionality is well-tested.
 - Configure prettier for code formatting, with 2 spaces for indentation, bracket spacing, semicolons, single quotes and 120 character line length. Use `package.json` file for configuration.
