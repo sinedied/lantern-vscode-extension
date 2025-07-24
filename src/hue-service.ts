@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as vscode from 'vscode';
-import { RgbColor, rgbToOklch, oklchToRgb } from './colorUtils';
+import { RgbColor, rgbToOklch, oklchToRgb } from './color-utils';
 
 export interface HueBridge {
     ip: string;

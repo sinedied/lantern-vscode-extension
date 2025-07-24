@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './colorUtils';
-import { PhilipsHueService } from './hueService';
+import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './color-utils';
+import { PhilipsHueService } from './hue-service';
 
 export class ColorService {
     private hueService: PhilipsHueService;

@@ -1,9 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { ColorService } from './colorService';
-import { PhilipsHueService } from './hueService';
-import { hexToRgb } from './colorUtils';
+import { ColorService } from './color-service';
+import { PhilipsHueService } from './hue-service';
+import { hexToRgb } from './color-utils';
 
 let colorService: ColorService;
 
