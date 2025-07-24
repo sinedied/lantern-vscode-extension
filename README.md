@@ -9,7 +9,7 @@ Lantern helps developers distinguish between many different VS Code windows by a
 - Assign unique colors to each VS Code workspace using the command palette
 - Colors are generated using the OKLCH color space for optimal perceptual uniformity
 - Choose to colorize different VS Code UI elements:
-  - **Status Bar Indicator** (default) - A colored lantern icon in the status bar that doesn't override workspace themes
+  - **Status Bar Indicator** (default) - A colored circle icon in the status bar that doesn't modify workspace settings
   - **Status Bar** - Changes the entire status bar background color
   - **Title Bar** - Changes the title bar background color
   - **Activity Bar** - Changes the activity bar background color

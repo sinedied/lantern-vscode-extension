@@ -283,8 +283,9 @@ export class Lantern {
                   colorSettings['activityBar.background'];
 
     if (color) {
-      // Use lightbulb icon with the chosen color
-      this.statusBarItem.text = `$(lightbulb)`;
+      // Use a colored block character to simulate colored background
+      // This approach doesn't modify workspace settings
+      this.statusBarItem.text = `$(circle-filled)`;
       this.statusBarItem.color = color;
       this.statusBarItem.tooltip = `Lantern - Workspace Color: ${color}`;
       this.statusBarItem.command = {
@@ -312,7 +313,7 @@ export class Lantern {
     const currentTargetElement = getTargetElement();
 
     const targetOptions = [
-      { label: 'Status Bar Indicator', value: 'statusBarIndicator', description: 'Colored lantern icon in status bar (non-intrusive)' },
+      { label: 'Status Bar Indicator', value: 'statusBarIndicator', description: 'Colored circle icon in status bar (non-intrusive)' },
       { label: 'Status Bar', value: 'statusBar', description: 'Changes status bar background color' },
       { label: 'Title Bar', value: 'titleBar', description: 'Changes title bar background color' },
       { label: 'Activity Bar', value: 'activityBar', description: 'Changes activity bar background color' },
