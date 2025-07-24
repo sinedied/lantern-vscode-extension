@@ -1,0 +1,140 @@
+{
+  "name": "lantern",
+  "displayName": "Lantern",
+  "description": "Distinguish between VS Code windows with unique colors for title bar, status bar, or activity bar, with optional Philips Hue integration",
+  "version": "0.0.1",
+  "publisher": "lantern-extension",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/lantern-vscode-extension.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/lantern-vscode-extension/issues"
+  },
+  "homepage": "https://github.com/your-username/lantern-vscode-extension#readme",
+  "keywords": [
+    "colors",
+    "workspace",
+    "theme",
+    "philips-hue",
+    "productivity"
+  ],
+  "engines": {
+    "vscode": "^1.102.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "lantern.assignUniqueColor",
+        "title": "Lantern: Assign unique color"
+      },
+      {
+        "command": "lantern.enableHueIntegration",
+        "title": "Lantern: Enable Philips Hue integration"
+      },
+      {
+        "command": "lantern.disableHueIntegration",
+        "title": "Lantern: Disable Philips Hue integration"
+      },
+      {
+        "command": "lantern.resetColors",
+        "title": "Lantern: Reset colors"
+      }
+    ],
+    "configuration": {
+      "title": "Lantern",
+      "properties": {
+        "lantern.targetElement": {
+          "type": "string",
+          "enum": [
+            "statusBar",
+            "titleBar",
+            "activityBar"
+          ],
+          "default": "statusBar",
+          "description": "Which VS Code UI element to colorize"
+        },
+        "lantern.hueIntegrationEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable Philips Hue integration"
+        },
+        "lantern.hueLightIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "List of Philips Hue light IDs to control"
+        },
+        "lantern.hueBridgeIp": {
+          "type": "string",
+          "default": "",
+          "description": "IP address of the Philips Hue bridge"
+        },
+        "lantern.hueUsername": {
+          "type": "string",
+          "default": "",
+          "description": "Philips Hue bridge username/API key"
+        },
+        "lantern.workspaceColors": {
+          "type": "object",
+          "default": {},
+          "description": "Workspace-specific color settings (internal use)"
+        },
+        "lantern.statusBarBackground": {
+          "type": "string",
+          "default": "",
+          "description": "Status bar background color for workspace settings"
+        },
+        "lantern.titleBarActiveBackground": {
+          "type": "string", 
+          "default": "",
+          "description": "Title bar background color for workspace settings"
+        },
+        "lantern.activityBarBackground": {
+          "type": "string",
+          "default": "",
+          "description": "Activity bar background color for workspace settings"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && npm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "npm run check-types && npm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.19.9",
+    "@types/vscode": "^1.102.0",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.5.2",
+    "esbuild": "^0.25.3",
+    "eslint": "^9.25.1",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "axios": "^1.11.0"
+  }
+}
