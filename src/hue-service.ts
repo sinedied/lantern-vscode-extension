@@ -1,4 +1,3 @@
-import axios from 'axios';
 import * as vscode from 'vscode';
 import { RgbColor, rgbToOklch, oklchToRgb } from './color-utils';
 
@@ -19,6 +18,34 @@ export class PhilipsHueService {
 
     constructor() {
         this.loadBridgeConfig();
+    }
+
+    /**
+     * Make an HTTP request with timeout support
+     */
+    private async makeRequest(
+        url: string, 
+        options: RequestInit & { timeout?: number } = {}
+    ): Promise<{ data: any; status: number }> {
+        const { timeout = 5000, ...fetchOptions } = options;
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        try {
+            const response = await fetch(url, {
+                ...fetchOptions,
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            const data = await response.json();
+            return { data, status: response.status };
+        } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+        }
     }
 
     private loadBridgeConfig(): void {
@@ -45,7 +72,7 @@ export class PhilipsHueService {
      */
     async discoverBridges(): Promise<HueBridge[]> {
         try {
-            const response = await axios.get('https://discovery.meethue.com/', { timeout: 5000 });
+            const response = await this.makeRequest('https://discovery.meethue.com/', { timeout: 5000 });
             return response.data.map((bridge: any) => ({ ip: bridge.internalipaddress }));
         } catch (error) {
             console.error('Failed to discover Hue bridges:', error);
@@ -58,10 +85,14 @@ export class PhilipsHueService {
      */
     async createUser(bridgeIp: string): Promise<string | null> {
         try {
-            const response = await axios.post(
+            const response = await this.makeRequest(
                 `http://${bridgeIp}/api`,
-                { devicetype: 'VSCode_Lantern#Extension' },
-                { timeout: 120000 }
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ devicetype: 'VSCode_Lantern#Extension' }),
+                    timeout: 120000
+                }
             );
 
             const result = response.data[0];
@@ -88,7 +119,7 @@ export class PhilipsHueService {
         }
 
         try {
-            const response = await axios.get(
+            const response = await this.makeRequest(
                 `http://${this.bridge.ip}/api/${this.bridge.username}/lights`,
                 { timeout: 5000 }
             );
@@ -123,15 +154,19 @@ export class PhilipsHueService {
 
         const promises = lightIds.map(async (lightId) => {
             try {
-                await axios.put(
+                await this.makeRequest(
                     `http://${this.bridge!.ip}/api/${this.bridge!.username}/lights/${lightId}/state`,
                     {
-                        on: true,
-                        xy: xy,
-                        bri: 254, // Maximum brightness
-                        transitiontime: 4 // 0.4 seconds transition
-                    },
-                    { timeout: 5000 }
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            on: true,
+                            xy: xy,
+                            bri: 254, // Maximum brightness
+                            transitiontime: 4 // 0.4 seconds transition
+                        }),
+                        timeout: 5000
+                    }
                 );
             } catch (error) {
                 console.error(`Failed to set color for light ${lightId}:`, error);
@@ -151,13 +186,17 @@ export class PhilipsHueService {
 
         const promises = lightIds.map(async (lightId) => {
             try {
-                await axios.put(
+                await this.makeRequest(
                     `http://${this.bridge!.ip}/api/${this.bridge!.username}/lights/${lightId}/state`,
                     {
-                        on: false,
-                        transitiontime: 4 // 0.4 seconds transition
-                    },
-                    { timeout: 5000 }
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            on: false,
+                            transitiontime: 4 // 0.4 seconds transition
+                        }),
+                        timeout: 5000
+                    }
                 );
             } catch (error) {
                 console.error(`Failed to turn off light ${lightId}:`, error);
@@ -211,7 +250,7 @@ export class PhilipsHueService {
         }
 
         try {
-            const response = await axios.get(
+            const response = await this.makeRequest(
                 `http://${this.bridge.ip}/api/${this.bridge.username}/config`,
                 { timeout: 5000 }
             );
