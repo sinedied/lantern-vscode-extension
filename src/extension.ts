@@ -279,16 +279,22 @@ async function updateHueLightsOnWindowFocus(): Promise<void> {
 				break;
 		}
 
+		// If no current workspace color, use the default color
 		if (!currentColor) {
-			return; // No current color set
+			currentColor = config.get<string>('hueDefaultColor', '#000000');
 		}
 
-		// Convert hex color to RGB and apply to lights
-		const rgbColor = hexToRgb(currentColor);
-		await hueService.setLightColor(lightIds, rgbColor);
+		// Check if we should turn off the lights (default color is #000000)
+		if (currentColor === '#000000') {
+			await hueService.turnOffLights(lightIds);
+		} else {
+			// Convert hex color to RGB and apply to lights
+			const rgbColor = hexToRgb(currentColor);
+			await hueService.setLightColor(lightIds, rgbColor);
+		}
 		
 		// Optional: Show a subtle notification (commented out to avoid spam)
-		// vscode.window.showInformationMessage(`Updated Hue lights to workspace color ${currentColor}`);
+		// vscode.window.showInformationMessage(`Updated Hue lights to ${currentColor === '#000000' ? 'off' : `color ${currentColor}`}`);
 		
 	} catch (error: any) {
 		console.error('Failed to update Hue lights on window focus:', error);

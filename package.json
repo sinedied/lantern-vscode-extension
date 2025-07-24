@@ -84,6 +84,11 @@
           "default": "",
           "description": "Philips Hue bridge username/API key"
         },
+        "lantern.hueDefaultColor": {
+          "type": "string",
+          "default": "#000000",
+          "description": "Default color for Hue lights when no workspace color is assigned. Use #000000 to turn lights off."
+        },
         "lantern.workspaceColors": {
           "type": "object",
           "default": {},

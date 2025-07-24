@@ -34,6 +34,7 @@ Configure Lantern through VS Code settings:
 - `lantern.hueLightIds` - Array of Hue light IDs to control
 - `lantern.hueBridgeIp` - IP address of your Hue bridge (auto-discovered)
 - `lantern.hueUsername` - Hue bridge username/API key (auto-generated)
+- `lantern.hueDefaultColor` - Default color for Hue lights when no workspace color is set (default: #000000 to turn lights off)
 
 ## Usage
 
@@ -95,6 +96,7 @@ This extension contributes the following settings:
 * `lantern.hueLightIds`: List of Philips Hue light IDs to control
 * `lantern.hueBridgeIp`: IP address of the Philips Hue bridge
 * `lantern.hueUsername`: Philips Hue bridge username/API key
+* `lantern.hueDefaultColor`: Default color for Hue lights when no workspace color is assigned (default: #000000)
 
 ## Known Issues
 

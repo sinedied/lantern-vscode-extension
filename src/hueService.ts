@@ -142,6 +142,32 @@ export class PhilipsHueService {
     }
 
     /**
+     * Turn off specified lights
+     */
+    async turnOffLights(lightIds: string[]): Promise<void> {
+        if (!this.bridge?.username) {
+            throw new Error('Hue bridge not configured');
+        }
+
+        const promises = lightIds.map(async (lightId) => {
+            try {
+                await axios.put(
+                    `http://${this.bridge!.ip}/api/${this.bridge!.username}/lights/${lightId}/state`,
+                    {
+                        on: false,
+                        transitiontime: 4 // 0.4 seconds transition
+                    },
+                    { timeout: 5000 }
+                );
+            } catch (error) {
+                console.error(`Failed to turn off light ${lightId}:`, error);
+            }
+        });
+
+        await Promise.all(promises);
+    }
+
+    /**
      * Convert RGB to XY color space (Philips Hue format)
      */
     private rgbToXy(rgb: RgbColor): [number, number] {
