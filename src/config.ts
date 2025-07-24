@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 
-export type TargetElement = 'statusBar' | 'titleBar' | 'activityBar';
+export type TargetElement = 'statusBarIndicator' | 'statusBar' | 'titleBar' | 'activityBar';
 export type StorageLocation = 'global' | 'workspace';
 
 export interface ColorSettings {
@@ -42,7 +42,7 @@ export function getWorkbenchConfig(): vscode.WorkspaceConfiguration {
  */
 export function getTargetElement(): TargetElement {
   const config = getLanternConfig();
-  return config.get<TargetElement>('targetElement', 'statusBar');
+  return config.get<TargetElement>('targetElement', 'statusBarIndicator');
 }
 
 /**
@@ -205,6 +205,9 @@ export function getCurrentElementColor(targetElement: TargetElement): string | u
   const colorCustomizations = getColorCustomizations();
 
   switch (targetElement) {
+    case 'statusBarIndicator':
+      // For status bar indicator, we use the same color as statusBar.background
+      return colorCustomizations['statusBar.background'];
     case 'statusBar':
       return colorCustomizations['statusBar.background'];
     case 'titleBar':

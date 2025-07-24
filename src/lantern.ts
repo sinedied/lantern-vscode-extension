@@ -6,6 +6,7 @@ import { ColorSettings, getTargetElement, getWorkspaceSpecificColorSettings, has
 export class Lantern {
   private hueService: Hue;
   private currentWorkspacePath: string | null = null;
+  private statusBarItem: vscode.StatusBarItem | null = null;
 
   constructor() {
     this.hueService = new Hue();
@@ -33,6 +34,14 @@ export class Lantern {
 
     const targetElement = getTargetElement();
 
+    // Hide status bar indicator if it's not the target element
+    if (targetElement !== 'statusBarIndicator') {
+      this.hideStatusBarIndicator();
+    } else {
+      // For status bar indicator, always create it (even if no color is assigned)
+      this.createStatusBarIndicator();
+    }
+
     // Check workspace settings first
     const workspaceSettings = this.getWorkspaceSettings();
     if (workspaceSettings && hasColorSettings(workspaceSettings)) {
@@ -44,6 +53,12 @@ export class Lantern {
     const globalSettings = this.getGlobalSettings();
     if (globalSettings && hasColorSettings(globalSettings)) {
       await this.applyColor(globalSettings, targetElement);
+      return;
+    }
+
+    // If no stored colors but target is status bar indicator, show it with default styling
+    if (targetElement === 'statusBarIndicator') {
+      this.createStatusBarIndicator();
     }
   }
 
@@ -112,6 +127,13 @@ export class Lantern {
       return;
     }
 
+    const targetElement = getTargetElement();
+
+    // Hide status bar indicator if it's the target element
+    if (targetElement === 'statusBarIndicator') {
+      this.hideStatusBarIndicator();
+    }
+
     // Remove from workspace settings
     const currentColorCustomizations = getColorCustomizations();
 
@@ -149,6 +171,14 @@ export class Lantern {
   }
 
   private createColorSettings(targetElement: string, hexColor: string): ColorSettings {
+    if (targetElement === 'statusBarIndicator') {
+      // For status bar indicator, we store the color in a custom property
+      // but for compatibility, we'll also set the statusBar.background
+      return {
+        'statusBar.background': hexColor,
+      };
+    }
+
     const colorKeys: { [key: string]: keyof ColorSettings } = {
       statusBar: 'statusBar.background',
       titleBar: 'titleBar.activeBackground',
@@ -185,15 +215,19 @@ export class Lantern {
   }
 
   private async applyColor(colorSettings: ColorSettings, targetElement: string): Promise<void> {
-    const currentColorCustomizations = getColorCustomizations();
+    if (targetElement === 'statusBarIndicator') {
+      this.updateStatusBarIndicator(colorSettings);
+    } else {
+      const currentColorCustomizations = getColorCustomizations();
 
-    // Create a new object instead of modifying the existing one
-    const colorCustomizations = {
-      ...currentColorCustomizations,
-      ...colorSettings,
-    };
+      // Create a new object instead of modifying the existing one
+      const colorCustomizations = {
+        ...currentColorCustomizations,
+        ...colorSettings,
+      };
 
-    await updateColorCustomizations(colorCustomizations);
+      await updateColorCustomizations(colorCustomizations);
+    }
   }
 
   private async updateHueLights(color: RgbColor): Promise<void> {
@@ -217,5 +251,64 @@ export class Lantern {
    */
   getHueService(): Hue {
     return this.hueService;
+  }
+
+  /**
+   * Create and configure the status bar indicator
+   */
+  private createStatusBarIndicator(): void {
+    if (this.statusBarItem) {
+      return;
+    }
+
+    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
+    this.statusBarItem.text = '$(lightbulb)';
+    this.statusBarItem.tooltip = 'Lantern - Workspace Color Indicator';
+    this.statusBarItem.show();
+  }
+
+  /**
+   * Update the status bar indicator with the given color
+   */
+  private updateStatusBarIndicator(colorSettings: ColorSettings): void {
+    this.createStatusBarIndicator();
+
+    if (!this.statusBarItem) {
+      return;
+    }
+
+    // Extract color from colorSettings - we'll use any available color
+    const color = colorSettings['statusBar.background'] || 
+                  colorSettings['titleBar.activeBackground'] || 
+                  colorSettings['activityBar.background'];
+
+    if (color) {
+      // Use lightbulb icon with the chosen color
+      this.statusBarItem.text = `$(lightbulb)`;
+      this.statusBarItem.color = color;
+      this.statusBarItem.tooltip = `Lantern - Workspace Color: ${color}`;
+      this.statusBarItem.command = {
+        command: 'lantern.statusBarIndicatorClicked',
+        title: 'Lantern Status Bar Indicator'
+      };
+    }
+  }
+
+  /**
+   * Hide and dispose the status bar indicator
+   */
+  private hideStatusBarIndicator(): void {
+    if (this.statusBarItem) {
+      this.statusBarItem.hide();
+      this.statusBarItem.dispose();
+      this.statusBarItem = null;
+    }
+  }
+
+  /**
+   * Dispose resources
+   */
+  dispose(): void {
+    this.hideStatusBarIndicator();
   }
 }

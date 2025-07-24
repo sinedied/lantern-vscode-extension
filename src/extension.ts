@@ -48,12 +48,19 @@ export function activate(context: vscode.ExtensionContext) {
     await colorService.resetColors();
   });
 
+  // Register the status bar indicator clicked command
+  const statusBarIndicatorClickedDisposable = vscode.commands.registerCommand('lantern.statusBarIndicatorClicked', () => {
+    vscode.window.showInformationMessage('Lantern workspace color indicator');
+  });
+
   context.subscriptions.push(
     assignColorDisposable,
     enableHueDisposable,
     disableHueDisposable,
     resetColorsDisposable,
+    statusBarIndicatorClickedDisposable,
     windowStateDisposable,
+    colorService,
   );
 }
 

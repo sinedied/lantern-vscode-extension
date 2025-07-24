@@ -8,7 +8,11 @@ Lantern helps developers distinguish between many different VS Code windows by a
 
 - Assign unique colors to each VS Code workspace using the command palette
 - Colors are generated using the OKLCH color space for optimal perceptual uniformity
-- Choose to colorize the title bar, status bar, or activity bar
+- Choose to colorize different VS Code UI elements:
+  - **Status Bar Indicator** (default) - A colored lantern icon in the status bar that doesn't override workspace themes
+  - **Status Bar** - Changes the entire status bar background color
+  - **Title Bar** - Changes the title bar background color
+  - **Activity Bar** - Changes the activity bar background color
 - Settings can be saved globally (per project path) or per workspace
 
 ### 💡 Philips Hue Integration
@@ -31,7 +35,7 @@ Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) to access these command
 
 Configure Lantern through VS Code settings:
 
-- `lantern.targetElement` - Which UI element to colorize (statusBar, titleBar, activityBar)
+- `lantern.targetElement` - Which UI element to colorize (statusBarIndicator, statusBar, titleBar, activityBar)
 - `lantern.hueIntegrationEnabled` - Enable/disable Philips Hue integration
 - `lantern.hueLightIds` - Array of Hue light IDs to control
 - `lantern.hueBridgeIp` - IP address of your Hue bridge (auto-discovered)
@@ -95,7 +99,7 @@ When saved to workspace settings, colors are stored in `.vscode/settings.json`:
 
 This extension contributes the following settings:
 
-- `lantern.targetElement`: Which VS Code UI element to colorize (default: statusBar)
+- `lantern.targetElement`: Which VS Code UI element to colorize (default: statusBarIndicator)
 - `lantern.hueIntegrationEnabled`: Enable Philips Hue integration (default: false)
 - `lantern.hueLightIds`: List of Philips Hue light IDs to control
 - `lantern.hueBridgeIp`: IP address of the Philips Hue bridge

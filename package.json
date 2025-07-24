@@ -62,6 +62,10 @@
       {
         "command": "lantern.resetColors",
         "title": "Lantern: Reset colors"
+      },
+      {
+        "command": "lantern.statusBarIndicatorClicked",
+        "title": "Lantern: Status Bar Indicator Clicked"
       }
     ],
     "configuration": {
@@ -70,11 +74,12 @@
         "lantern.targetElement": {
           "type": "string",
           "enum": [
+            "statusBarIndicator",
             "statusBar",
             "titleBar",
             "activityBar"
           ],
-          "default": "statusBar",
+          "default": "statusBarIndicator",
           "description": "Which VS Code UI element to colorize"
         },
         "lantern.hueIntegrationEnabled": {
