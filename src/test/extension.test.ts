@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb } from '../color-utils';
+import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb } from '../colors';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');

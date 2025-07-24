@@ -1,12 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { ColorService } from './color-service';
-import { Hue } from './hue';
-import { hexToRgb } from './color-utils';
+import { Lantern } from './lantern';
+import { hexToRgb } from './colors';
 import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getTargetElement, getCurrentElementColor, getHueDefaultColor } from './config';
 
-let colorService: ColorService;
+let colorService: Lantern;
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -16,7 +15,7 @@ export function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "lantern" is now active!');
 
   // Initialize the color service
-  colorService = new ColorService();
+  colorService = new Lantern();
 
   // Apply stored colors when the extension activates
   colorService.applyStoredColors();

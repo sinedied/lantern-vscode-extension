@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './color-utils';
+import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './colors';
 import { Hue } from './hue';
 import { ColorSettings, getTargetElement, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
 
-export class ColorService {
+export class Lantern {
   private hueService: Hue;
   private currentWorkspacePath: string | null = null;
 

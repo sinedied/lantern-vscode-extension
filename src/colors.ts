@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { getColorCustomizations } from './config';
 
 export interface OklchColor {

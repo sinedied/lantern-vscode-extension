@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RgbColor, rgbToOklch, oklchToRgb } from './color-utils';
+import { RgbColor } from './colors';
 
 export interface HueBridge {
   ip: string;
