@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { ColorService } from './color-service';
-import { PhilipsHueService } from './hue-service';
+import { Hue } from './hue';
 import { hexToRgb } from './color-utils';
 import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getTargetElement, getCurrentElementColor, getHueDefaultColor } from './config';
 

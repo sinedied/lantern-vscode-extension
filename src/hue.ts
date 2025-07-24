@@ -13,7 +13,7 @@ export interface HueLight {
   xy?: [number, number];
 }
 
-export class PhilipsHueService {
+export class Hue {
   private bridge: HueBridge | null = null;
 
   constructor() {

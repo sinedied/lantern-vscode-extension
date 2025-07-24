@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './color-utils';
-import { PhilipsHueService } from './hue-service';
+import { Hue } from './hue';
 import { ColorSettings, getTargetElement, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
 
 export class ColorService {
-  private hueService: PhilipsHueService;
+  private hueService: Hue;
   private currentWorkspacePath: string | null = null;
 
   constructor() {
-    this.hueService = new PhilipsHueService();
+    this.hueService = new Hue();
     this.updateCurrentWorkspacePath();
 
     // Listen for workspace changes
@@ -215,7 +215,7 @@ export class ColorService {
   /**
    * Get the Hue service instance
    */
-  getHueService(): PhilipsHueService {
+  getHueService(): Hue {
     return this.hueService;
   }
 }
