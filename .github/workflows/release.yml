@@ -24,4 +24,3 @@ jobs:
         if: success()
         env:
           VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
-

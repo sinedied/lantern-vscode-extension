@@ -74,6 +74,7 @@ npm test
 ```
 
 This runs the test suite including:
+
 - Color utility function tests
 - Extension command registration tests
 
@@ -119,5 +120,6 @@ vsce package
 ```
 
 This creates a `.vsix` file that can be installed via:
+
 - VS Code Extensions view > ... > Install from VSIX
 - Command line: `code --install-extension lantern-0.0.1.vsix`

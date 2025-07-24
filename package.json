@@ -124,6 +124,7 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
+    "format": "prettier --write .",
     "test": "vscode-test",
     "icon-font": "npx -y svgtofont --sources assets --output .temp --fontName lantern && cp .temp/lantern.woff assets/ && rm -rf .temp"
   },
@@ -138,6 +139,15 @@
     "esbuild": "^0.25.3",
     "eslint": "^9.25.1",
     "npm-run-all": "^4.1.5",
+    "prettier": "^3.6.2",
     "typescript": "^5.8.3"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "useTabs": false,
+    "bracketSpacing": true,
+    "semi": true,
+    "singleQuote": true,
+    "printWidth": 120
   }
 }

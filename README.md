@@ -5,12 +5,14 @@ Lantern helps developers distinguish between many different VS Code windows by a
 ## Features
 
 ### 🎨 Unique Colors per Workspace
+
 - Assign unique colors to each VS Code workspace using the command palette
 - Colors are generated using the OKLCH color space for optimal perceptual uniformity
 - Choose to colorize the title bar, status bar, or activity bar
 - Settings can be saved globally (per project path) or per workspace
 
 ### 💡 Philips Hue Integration
+
 - Optional integration with Philips Hue smart lights
 - Sync your workspace colors with physical light bulbs
 - Automatically change light colors when switching between projects
@@ -57,6 +59,7 @@ Configure Lantern through VS Code settings:
 ## Color Storage
 
 ### Global Settings (Default)
+
 Colors are stored in your global VS Code settings with the project path as the key:
 
 ```json
@@ -72,6 +75,7 @@ Colors are stored in your global VS Code settings with the project path as the k
 ```
 
 ### Workspace Settings
+
 When saved to workspace settings, colors are stored in `.vscode/settings.json`:
 
 ```json
@@ -91,12 +95,12 @@ When saved to workspace settings, colors are stored in `.vscode/settings.json`:
 
 This extension contributes the following settings:
 
-* `lantern.targetElement`: Which VS Code UI element to colorize (default: statusBar)
-* `lantern.hueIntegrationEnabled`: Enable Philips Hue integration (default: false)
-* `lantern.hueLightIds`: List of Philips Hue light IDs to control
-* `lantern.hueBridgeIp`: IP address of the Philips Hue bridge
-* `lantern.hueUsername`: Philips Hue bridge username/API key
-* `lantern.hueDefaultColor`: Default color for Hue lights when no workspace color is assigned (default: #000000)
+- `lantern.targetElement`: Which VS Code UI element to colorize (default: statusBar)
+- `lantern.hueIntegrationEnabled`: Enable Philips Hue integration (default: false)
+- `lantern.hueLightIds`: List of Philips Hue light IDs to control
+- `lantern.hueBridgeIp`: IP address of the Philips Hue bridge
+- `lantern.hueUsername`: Philips Hue bridge username/API key
+- `lantern.hueDefaultColor`: Default color for Hue lights when no workspace color is assigned (default: #000000)
 
 ## Known Issues
 
@@ -109,8 +113,9 @@ This extension contributes the following settings:
 ### 0.0.1
 
 Initial release of Lantern with:
+
 - Unique color assignment per workspace
-- OKLCH color space for perceptual uniformity  
+- OKLCH color space for perceptual uniformity
 - Philips Hue integration
 - Configurable UI element targeting
 - Global and workspace settings support
