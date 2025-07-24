@@ -49,6 +49,7 @@ Lantern is a VS Code extension that helps developers distinguish between many di
 - Use built-in Node.js modules and avoid external dependencies where possible. Ask before using any external libraries.
 - Use Node.js built-in test module for unit tests, and ensure core functionality is well-tested.
 - Configure prettier for code formatting, with 2 spaces for indentation, bracket spacing, semicolons, single quotes and 120 character line length. Use `package.json` file for configuration.
+- Prefer functions over classes for utility code, and keep functions small and focused.
 
 ## Tasks
 

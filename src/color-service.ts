@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './color-utils';
 import { PhilipsHueService } from './hue-service';
+import { ColorSettings, getTargetElement, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
 
 export class ColorService {
   private hueService: PhilipsHueService;
@@ -30,19 +31,18 @@ export class ColorService {
       return;
     }
 
-    const config = vscode.workspace.getConfiguration('lantern');
-    const targetElement = config.get<string>('targetElement', 'statusBar');
+    const targetElement = getTargetElement();
 
     // Check workspace settings first
     const workspaceSettings = this.getWorkspaceSettings();
-    if (workspaceSettings && this.hasColorSettings(workspaceSettings)) {
+    if (workspaceSettings && hasColorSettings(workspaceSettings)) {
       await this.applyColor(workspaceSettings, targetElement);
       return;
     }
 
     // Check global settings
     const globalSettings = this.getGlobalSettings();
-    if (globalSettings && this.hasColorSettings(globalSettings)) {
+    if (globalSettings && hasColorSettings(globalSettings)) {
       await this.applyColor(globalSettings, targetElement);
     }
   }
@@ -56,8 +56,7 @@ export class ColorService {
       return;
     }
 
-    const config = vscode.workspace.getConfiguration('lantern');
-    const targetElement = config.get<string>('targetElement', 'statusBar');
+    const targetElement = getTargetElement();
 
     // Get current theme color for the target element
     const baseColor = getCurrentThemeColor(targetElement);
@@ -114,8 +113,7 @@ export class ColorService {
     }
 
     // Remove from workspace settings
-    const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-    const currentColorCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+    const currentColorCustomizations = getColorCustomizations();
 
     // Create a new object instead of modifying the existing one
     const colorCustomizations = { ...currentColorCustomizations };
@@ -131,35 +129,27 @@ export class ColorService {
     }
 
     if (hasChanges) {
-      await workbenchConfig.update('colorCustomizations', colorCustomizations, vscode.ConfigurationTarget.Workspace);
+      await updateColorCustomizations(colorCustomizations);
     }
 
     // Remove from global settings
-    const config = vscode.workspace.getConfiguration('lantern');
-    const currentGlobalSettings = config.get<any>('workspaceColors', {});
+    const currentGlobalSettings = getWorkspaceColors();
 
     if (currentGlobalSettings[this.currentWorkspacePath]) {
       // Create a new object instead of modifying the existing one
       const globalSettings = { ...currentGlobalSettings };
       delete globalSettings[this.currentWorkspacePath];
-      await config.update('workspaceColors', globalSettings, vscode.ConfigurationTarget.Global);
+      await updateWorkspaceColors(globalSettings);
     }
 
     // Remove workspace-specific settings
-    const workspaceConfig = vscode.workspace.getConfiguration('lantern');
-    const configKeys = ['statusBarBackground', 'titleBarActiveBackground', 'activityBarBackground'];
-    for (const key of configKeys) {
-      const inspect = workspaceConfig.inspect(key);
-      if (inspect?.workspaceValue) {
-        await workspaceConfig.update(key, undefined, vscode.ConfigurationTarget.Workspace);
-      }
-    }
+    await clearWorkspaceSpecificColorSettings();
 
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
   }
 
-  private createColorSettings(targetElement: string, hexColor: string): any {
-    const colorKeys: { [key: string]: string } = {
+  private createColorSettings(targetElement: string, hexColor: string): ColorSettings {
+    const colorKeys: { [key: string]: keyof ColorSettings } = {
       statusBar: 'statusBar.background',
       titleBar: 'titleBar.activeBackground',
       activityBar: 'activityBar.background',
@@ -170,105 +160,55 @@ export class ColorService {
     };
   }
 
-  private getWorkspaceSettings(): any {
-    const config = vscode.workspace.getConfiguration('lantern');
-    // For workspace settings, we'll read the individual color properties
-    const statusBarBg = config.get<string>('statusBarBackground');
-    const titleBarBg = config.get<string>('titleBarActiveBackground');
-    const activityBarBg = config.get<string>('activityBarBackground');
-
-    const settings: any = {};
-    if (statusBarBg) {
-      settings['statusBar.background'] = statusBarBg;
-    }
-    if (titleBarBg) {
-      settings['titleBar.activeBackground'] = titleBarBg;
-    }
-    if (activityBarBg) {
-      settings['activityBar.background'] = activityBarBg;
-    }
-
-    return Object.keys(settings).length > 0 ? settings : null;
+  private getWorkspaceSettings(): ColorSettings | null {
+    return getWorkspaceSpecificColorSettings();
   }
 
-  private getGlobalSettings(): any {
+  private getGlobalSettings(): ColorSettings | null {
     if (!this.currentWorkspacePath) {
       return null;
     }
 
-    const config = vscode.workspace.getConfiguration('lantern');
-    const globalSettings = config.get<any>('workspaceColors', {});
-    return globalSettings[this.currentWorkspacePath];
+    return getWorkspaceColorSettings(this.currentWorkspacePath);
   }
 
-  private hasColorSettings(settings: any): boolean {
-    if (!settings) {
-      return false;
-    }
-
-    const colorKeys = ['statusBar.background', 'titleBar.activeBackground', 'activityBar.background'];
-    return colorKeys.some((key) => settings[key]);
+  private async saveToWorkspaceSettings(colorSettings: ColorSettings): Promise<void> {
+    await saveWorkspaceSpecificColorSettings(colorSettings);
   }
 
-  private async saveToWorkspaceSettings(colorSettings: any): Promise<void> {
-    const config = vscode.workspace.getConfiguration('lantern');
-    // For workspace settings, we store each color property individually
-    for (const [key, value] of Object.entries(colorSettings)) {
-      let configKey: string;
-      switch (key) {
-        case 'statusBar.background':
-          configKey = 'statusBarBackground';
-          break;
-        case 'titleBar.activeBackground':
-          configKey = 'titleBarActiveBackground';
-          break;
-        case 'activityBar.background':
-          configKey = 'activityBarBackground';
-          break;
-        default:
-          continue; // Skip unknown keys
-      }
-      await config.update(configKey, value, vscode.ConfigurationTarget.Workspace);
-    }
-  }
-
-  private async saveToGlobalSettings(colorSettings: any): Promise<void> {
+  private async saveToGlobalSettings(colorSettings: ColorSettings): Promise<void> {
     if (!this.currentWorkspacePath) {
-      return;
+      throw new Error('No workspace path available');
     }
 
-    const config = vscode.workspace.getConfiguration('lantern');
-    const globalSettings = config.get<any>('workspaceColors', {});
-
-    if (!globalSettings[this.currentWorkspacePath]) {
-      globalSettings[this.currentWorkspacePath] = {};
-    }
-
-    Object.assign(globalSettings[this.currentWorkspacePath], colorSettings);
-    await config.update('workspaceColors', globalSettings, vscode.ConfigurationTarget.Global);
+    await setWorkspaceColorSettings(this.currentWorkspacePath, colorSettings);
   }
 
-  private async applyColor(colorSettings: any, targetElement: string): Promise<void> {
-    const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-    const currentCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+  private async applyColor(colorSettings: ColorSettings, targetElement: string): Promise<void> {
+    const currentColorCustomizations = getColorCustomizations();
 
-    // Merge the color settings
-    const updatedCustomizations = { ...currentCustomizations, ...colorSettings };
+    // Create a new object instead of modifying the existing one
+    const colorCustomizations = {
+      ...currentColorCustomizations,
+      ...colorSettings,
+    };
 
-    await workbenchConfig.update('colorCustomizations', updatedCustomizations, vscode.ConfigurationTarget.Workspace);
+    await updateColorCustomizations(colorCustomizations);
   }
 
   private async updateHueLights(color: RgbColor): Promise<void> {
-    try {
-      const config = vscode.workspace.getConfiguration('lantern');
-      const lightIds = config.get<string[]>('hueLightIds', []);
+    if (!this.hueService.isEnabled() || !this.hueService.isConfigured()) {
+      return;
+    }
 
+    try {
+      const lightIds = getHueLightIds();
       if (lightIds.length > 0) {
         await this.hueService.setLightColor(lightIds, color);
       }
     } catch (error) {
       console.error('Failed to update Hue lights:', error);
-      vscode.window.showWarningMessage('Failed to update Philips Hue lights.');
+      // Don't show error to user as this is a background operation
     }
   }
 

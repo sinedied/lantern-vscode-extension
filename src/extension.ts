@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { ColorService } from './color-service';
 import { PhilipsHueService } from './hue-service';
 import { hexToRgb } from './color-utils';
+import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getTargetElement, getCurrentElementColor, getHueDefaultColor } from './config';
 
 let colorService: ColorService;
 
@@ -66,8 +67,7 @@ async function enableHueIntegration(): Promise<void> {
       const testConnection = await hueService.testConnection();
       if (testConnection) {
         // Already configured and working, just enable
-        const config = vscode.workspace.getConfiguration('lantern');
-        await config.update('hueIntegrationEnabled', true, vscode.ConfigurationTarget.Global);
+        await setHueIntegrationEnabled(true);
 
         // Let user select lights
         await selectHueLights();
@@ -125,8 +125,7 @@ async function enableHueIntegration(): Promise<void> {
       }
 
       // Enable integration
-      const config = vscode.workspace.getConfiguration('lantern');
-      await config.update('hueIntegrationEnabled', true, vscode.ConfigurationTarget.Global);
+      await setHueIntegrationEnabled(true);
 
       vscode.window.showInformationMessage('Philips Hue integration enabled successfully!');
 
@@ -157,8 +156,7 @@ async function selectHueLights(): Promise<void> {
     }
 
     // Get previously selected light IDs to pre-select them
-    const lightConfig = vscode.workspace.getConfiguration('lantern');
-    const previouslySelectedIds = lightConfig.get<string[]>('hueLightIds', []);
+    const previouslySelectedIds = getHueLightIds();
 
     const lightOptions = lights.map((light) => ({
       label: light.name,
@@ -183,8 +181,7 @@ async function selectHueLights(): Promise<void> {
     }
 
     const lightIds = selectedLights.map((light) => light.lightId);
-    const config = vscode.workspace.getConfiguration('lantern');
-    await config.update('hueLightIds', lightIds, vscode.ConfigurationTarget.Global);
+    await setHueLightIds(lightIds);
 
     const lightNames = selectedLights.map((light) => light.label).join(', ');
     vscode.window.showInformationMessage(`Selected lights: ${lightNames}`);
@@ -198,10 +195,8 @@ async function selectHueLights(): Promise<void> {
 
 async function disableHueIntegration(): Promise<void> {
   try {
-    const config = vscode.workspace.getConfiguration('lantern');
-
     // Get the selected lights and turn them off before disabling integration
-    const lightIds = config.get<string[]>('hueLightIds', []);
+    const lightIds = getHueLightIds();
 
     if (lightIds.length > 0) {
       const hueService = colorService.getHueService();
@@ -222,7 +217,7 @@ async function disableHueIntegration(): Promise<void> {
     }
 
     // Disable the integration
-    await config.update('hueIntegrationEnabled', false, vscode.ConfigurationTarget.Global);
+    await setHueIntegrationEnabled(false);
   } catch (error: any) {
     vscode.window.showErrorMessage(`Failed to disable Hue integration: ${error.message}`);
   }
@@ -231,25 +226,12 @@ async function disableHueIntegration(): Promise<void> {
 async function applyCurrentColorToHueLights(): Promise<void> {
   try {
     // Check if there's a current workspace color to apply
-    const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-    const colorCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+    const colorCustomizations = getColorCustomizations();
 
-    const config = vscode.workspace.getConfiguration('lantern');
-    const targetElement = config.get<string>('targetElement', 'statusBar');
+    const targetElement = getTargetElement();
 
     // Get the current color for the target element
-    let currentColor: string | undefined;
-    switch (targetElement) {
-      case 'statusBar':
-        currentColor = colorCustomizations['statusBar.background'];
-        break;
-      case 'titleBar':
-        currentColor = colorCustomizations['titleBar.activeBackground'];
-        break;
-      case 'activityBar':
-        currentColor = colorCustomizations['activityBar.background'];
-        break;
-    }
+    const currentColor = getCurrentElementColor(targetElement);
 
     if (!currentColor) {
       // No current color set, nothing to apply
@@ -261,7 +243,7 @@ async function applyCurrentColorToHueLights(): Promise<void> {
 
     // Apply color to Hue lights
     const hueService = colorService.getHueService();
-    const lightIds = config.get<string[]>('hueLightIds', []);
+    const lightIds = getHueLightIds();
 
     if (lightIds.length > 0) {
       await hueService.setLightColor(lightIds, rgbColor);
@@ -276,8 +258,7 @@ async function applyCurrentColorToHueLights(): Promise<void> {
 async function updateHueLightsOnWindowFocus(): Promise<void> {
   try {
     // Check if Hue integration is enabled
-    const config = vscode.workspace.getConfiguration('lantern');
-    const hueEnabled = config.get<boolean>('hueIntegrationEnabled', false);
+    const hueEnabled = getHueIntegrationEnabled();
 
     if (!hueEnabled) {
       return; // Hue integration is disabled
@@ -289,34 +270,22 @@ async function updateHueLightsOnWindowFocus(): Promise<void> {
     }
 
     // Check if there are lights configured
-    const lightIds = config.get<string[]>('hueLightIds', []);
+    const lightIds = getHueLightIds();
     if (lightIds.length === 0) {
       return; // No lights configured
     }
 
     // Get the current workspace color
-    const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-    const colorCustomizations = workbenchConfig.get<any>('colorCustomizations', {});
+    const colorCustomizations = getColorCustomizations();
 
-    const targetElement = config.get<string>('targetElement', 'statusBar');
+    const targetElement = getTargetElement();
 
     // Get the current color for the target element
-    let currentColor: string | undefined;
-    switch (targetElement) {
-      case 'statusBar':
-        currentColor = colorCustomizations['statusBar.background'];
-        break;
-      case 'titleBar':
-        currentColor = colorCustomizations['titleBar.activeBackground'];
-        break;
-      case 'activityBar':
-        currentColor = colorCustomizations['activityBar.background'];
-        break;
-    }
+    let currentColor = getCurrentElementColor(targetElement);
 
     // If no current workspace color, use the default color
     if (!currentColor) {
-      currentColor = config.get<string>('hueDefaultColor', '#000000');
+      currentColor = getHueDefaultColor();
     }
 
     // Check if we should turn off the lights (default color is #000000)

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getColorCustomizations } from './config';
 
 export interface OklchColor {
   l: number; // lightness (0-1)
@@ -138,8 +139,7 @@ export function getCurrentThemeColor(element: string): RgbColor {
   };
 
   // Try to get the current theme color from workbench.colorCustomizations
-  const config = vscode.workspace.getConfiguration('workbench');
-  const colorCustomizations = config.get<any>('colorCustomizations', {});
+  const colorCustomizations = getColorCustomizations();
 
   const colorKeys: { [key: string]: string } = {
     statusBar: 'statusBar.background',
