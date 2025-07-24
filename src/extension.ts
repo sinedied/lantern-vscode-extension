@@ -96,7 +96,7 @@ async function enableHueIntegration(): Promise<void> {
 
 		// Show instructions for bridge button press
 		const buttonPressed = await vscode.window.showInformationMessage(
-			'Press the button on your Philips Hue bridge, then click "Continue" within 30 seconds.',
+			'Press the button on your Philips Hue bridge, then click "Continue" within 2 minutes.',
 			'Continue',
 			'Cancel'
 		);

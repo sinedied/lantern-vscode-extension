@@ -61,7 +61,7 @@ export class PhilipsHueService {
             const response = await axios.post(
                 `http://${bridgeIp}/api`,
                 { devicetype: 'VSCode_Lantern#Extension' },
-                { timeout: 5000 }
+                { timeout: 120000 }
             );
 
             const result = response.data[0];
