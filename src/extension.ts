@@ -155,15 +155,23 @@ async function selectHueLights(): Promise<void> {
 			return;
 		}
 
+		// Get previously selected light IDs to pre-select them
+		const lightConfig = vscode.workspace.getConfiguration('lantern');
+		const previouslySelectedIds = lightConfig.get<string[]>('hueLightIds', []);
+
 		const lightOptions = lights.map(light => ({
 			label: light.name,
 			description: `ID: ${light.id}`,
-			picked: false,
+			picked: previouslySelectedIds.includes(light.id),
 			lightId: light.id
 		}));
 
+		const placeholderText = previouslySelectedIds.length > 0 
+			? 'Select which lights to control (previously selected lights are pre-selected)'
+			: 'Select which lights to control (you can select multiple)';
+
 		const selectedLights = await vscode.window.showQuickPick(lightOptions, {
-			placeHolder: 'Select which lights to control (you can select multiple)',
+			placeHolder: placeholderText,
 			canPickMany: true
 		});
 
