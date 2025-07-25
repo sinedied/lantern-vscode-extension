@@ -143,12 +143,12 @@ async function showLanternCommands(): Promise<void> {
       command: 'lantern.enableHueIntegration'
     },
     {
-      label: '$(circle-slash) Disable Philips Hue',
+      label: '$(lightbulb-empty) Disable Philips Hue',
       description: 'Disconnect from Philips Hue lights',
       command: 'lantern.disableHueIntegration'
     },
     {
-      label: '$(light-bulb) Set Hue intensity',
+      label: '$(lightbulb-sparkle) Set Hue intensity',
       description: 'Adjust brightness of Philips Hue lights (0-100%)',
       command: 'lantern.setHueIntensity'
     }
