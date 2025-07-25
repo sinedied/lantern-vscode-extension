@@ -139,10 +139,14 @@
           "maximum": 100,
           "description": "Brightness/intensity of Philips Hue lights (0-100, where 100 is maximum brightness)"
         },
-        "lantern.workspaceColors": {
+        "lantern.workspaceColor": {
           "type": "object",
           "default": {},
-          "description": "Workspace-specific color settings (internal use)"
+          "description": "Workspace-specific color mappings (workspace path -> color)"
+        },
+        "lantern.color": {
+          "type": "string",
+          "description": "Workspace-specific color (set in .vscode/settings.json to override global settings)"
         }
       }
     }

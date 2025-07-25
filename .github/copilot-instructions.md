@@ -21,19 +21,26 @@ Lantern is a VS Code extension that helps developers distinguish between many di
 
 - Use the VS Code API to access and modify the color of the status bar background.
 - Use TypeScript, ESM and latest Node.js features.
-- Color settings are stored in global user settings, with the project path as the first part of the key, ie:
+- Color settings are stored in global user settings, with the project path as the key in workspaceColor, ie:
   ```
   "lantern" : {
-    "/path/to/project" : {
-      "statusBar.background": ""
+    "workspaceColor": {
+      "/path/to/project": "#ff0000"
     }
   }
   ```
-  Other settings like enabling Hue integration will be stored in the same object, but common for all projects:
+  Alternatively, users can set a workspace-specific color in `.vscode/settings.json`:
   ```
   "lantern" : {
-    "/path/to/project" : {
-      "statusBar.background": "",
+    "color": "#ff0000"
+  }
+  ```
+  If both are set, the workspace-specific color takes priority.
+  Other settings like enabling Hue integration will be stored in the same object:
+  ```
+  "lantern" : {
+    "workspaceColor": {
+      "/path/to/project": "#ff0000"
     },
     "hueEnabled": true,
     "hueLightIds": ["1", "2"]

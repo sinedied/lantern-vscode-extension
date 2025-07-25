@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, rgbToHex, isValidHexColor, hexToRgb } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
+import { getColorCustomizations, updateColorCustomizations, getWorkspaceColor, setWorkspaceColor, getWorkspaceSpecificColor, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor, getWorkspaceColorMap, updateWorkspaceColorMap } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -44,10 +44,10 @@ export class Lantern {
       return;
     }
 
-    // Check global settings for this workspace
-    const globalSettings = this.getGlobalSettings();
-    if (globalSettings && hasColorSettings(globalSettings)) {
-      await this.applyColor(globalSettings);
+    // Check for workspace color
+    const workspaceColor = getWorkspaceColor(this.currentWorkspacePath);
+    if (workspaceColor) {
+      await this.applyColor(workspaceColor);
       return;
     }
   }
@@ -75,16 +75,13 @@ export class Lantern {
 
     // Check if there's an existing color for this workspace
     let existingColor: RgbColor | undefined;
-    const existingSettings = this.getGlobalSettings();
-    if (existingSettings && existingSettings['statusBar.background']) {
-      const colorValue = existingSettings['statusBar.background'];
-      if (isValidHexColor(colorValue)) {
-        try {
-          existingColor = hexToRgb(colorValue);
-        } catch {
-          // If parsing fails, treat as no existing color
-          existingColor = undefined;
-        }
+    const existingColorHex = getWorkspaceColor(this.currentWorkspacePath);
+    if (existingColorHex && isValidHexColor(existingColorHex)) {
+      try {
+        existingColor = hexToRgb(existingColorHex);
+      } catch {
+        // If parsing fails, treat as no existing color
+        existingColor = undefined;
       }
     }
 
@@ -92,14 +89,11 @@ export class Lantern {
     const newColor = generateRandomColorVariant(baseColor, existingColor);
     const hexColor = rgbToHex(newColor);
 
-    // Create color settings
-    const colorSettings = this.createColorSettings(hexColor);
-
-    // Save settings to global configuration
-    await this.saveToGlobalSettings(colorSettings);
+    // Save color to workspace settings
+    await setWorkspaceColor(this.currentWorkspacePath, hexColor);
 
     // Apply the color
-    await this.applyColor(colorSettings);
+    await this.applyColor(hexColor);
 
     // Update Hue lights if enabled
     if (this.hueService.isEnabled() && this.hueService.isConfigured()) {
@@ -161,14 +155,11 @@ export class Lantern {
       return;
     }
 
-    // Create color settings with the hex color
-    const colorSettings = this.createColorSettings(hexColor);
-
-    // Save settings to global configuration
-    await this.saveToGlobalSettings(colorSettings);
+    // Save color to workspace settings
+    await setWorkspaceColor(this.currentWorkspacePath, hexColor);
 
     // Apply the color
-    await this.applyColor(colorSettings);
+    await this.applyColor(hexColor);
 
     // Update Hue lights if enabled
     if (this.hueService.isEnabled() && this.hueService.isConfigured()) {
@@ -227,17 +218,13 @@ export class Lantern {
     // Apply the new intensity to current lights if they're on
     const lightIds = getHueLightIds();
     if (lightIds.length > 0 && this.currentWorkspacePath) {
-      const colorSettings = getWorkspaceColorSettings(this.currentWorkspacePath);
-      if (colorSettings && hasColorSettings(colorSettings)) {
-        // Get the actual workspace color and parse it (hex only)
-        const workspaceColor = colorSettings['statusBar.background'];
-        if (workspaceColor && isValidHexColor(workspaceColor)) {
-          try {
-            const rgbColor = hexToRgb(workspaceColor);
-            await this.updateHueLights(rgbColor);
-          } catch {
-            // If conversion fails, skip Hue update
-          }
+      const workspaceColor = getWorkspaceColor(this.currentWorkspacePath);
+      if (workspaceColor && isValidHexColor(workspaceColor)) {
+        try {
+          const rgbColor = hexToRgb(workspaceColor);
+          await this.updateHueLights(rgbColor);
+        } catch {
+          // If conversion fails, skip Hue update
         }
       }
     }
@@ -269,17 +256,15 @@ export class Lantern {
       await updateColorCustomizations(colorCustomizations);
     }
 
-    // Remove from global settings
-    const currentGlobalSettings = getWorkspaceColors();
+    // Remove from global workspace color map
+    await setWorkspaceColor(this.currentWorkspacePath, null);
 
-    if (currentGlobalSettings[this.currentWorkspacePath]) {
-      // Create a new object instead of modifying the existing one
-      const globalSettings = { ...currentGlobalSettings };
-      delete globalSettings[this.currentWorkspacePath];
-      await updateWorkspaceColors(globalSettings);
-    }
-
-    // Reapply any remaining stored colors after reset
+    // Remove workspace-specific color setting if it exists
+    const workspaceSpecificColor = getWorkspaceSpecificColor();
+    if (workspaceSpecificColor) {
+      const config = vscode.workspace.getConfiguration('lantern');
+      await config.update('color', undefined, vscode.ConfigurationTarget.Workspace);
+    }    // Reapply any remaining stored colors after reset
     await this.applyStoredColors();
 
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
@@ -309,35 +294,21 @@ export class Lantern {
     this.createStatusBarIndicator();
   }
 
-  private createColorSettings(hexColor: string): ColorSettings {
-    return {
-      'statusBar.background': hexColor,
-    };
-  }
-
-  private getGlobalSettings(): ColorSettings | null {
+  private getWorkspaceColor(): string | null {
     if (!this.currentWorkspacePath) {
       return null;
     }
 
-    return getWorkspaceColorSettings(this.currentWorkspacePath);
+    return getWorkspaceColor(this.currentWorkspacePath);
   }
 
-  private async saveToGlobalSettings(colorSettings: ColorSettings): Promise<void> {
-    if (!this.currentWorkspacePath) {
-      throw new Error('No workspace path available');
-    }
-
-    await setWorkspaceColorSettings(this.currentWorkspacePath, colorSettings);
-  }
-
-  private async applyColor(colorSettings: ColorSettings): Promise<void> {
+  private async applyColor(color: string): Promise<void> {
     const currentColorCustomizations = getColorCustomizations();
 
     // Create a new object instead of modifying the existing one
     const colorCustomizations = {
       ...currentColorCustomizations,
-      ...colorSettings,
+      'statusBar.background': color,
     };
 
     await updateColorCustomizations(colorCustomizations);

@@ -74,15 +74,31 @@ Lantern stores settings globally in your VS Code user settings:
   "lantern.hueEnabled": false,
   "lantern.hueLightIds": [],
   "lantern.hueIntensity": 100,
-  "lantern.hueDefaultColor": "#000000"
+  "lantern.hueDefaultColor": "#000000",
+  "lantern.workspaceColor": {
+    "/path/to/workspace": "#ff0000"
+  }
 }
 ```
+
+For workspace-specific color configuration, you can also add this to your `.vscode/settings.json`:
+
+```json
+{
+  "lantern.color": "#ff0000"
+}
+```
+
+> [!NOTE]
+> If both `lantern.workspaceColor` (global) and `lantern.color` (workspace-specific) are set, the workspace-specific setting takes priority.
 
 ### Settings Reference
 
 | Setting | Description | Default |
 |---------|-------------|---------|
 | `enabled` | Enable or disable Lantern | `true` |
+| `workspaceColor` | Global workspace color mappings (workspace path → color) | `{}` |
+| `color` | Workspace-specific color (set in `.vscode/settings.json`) | Not set |
 | `hueEnabled` | Enable Philips Hue integration | `false` |
 | `hueLightIds` | List of Hue light IDs to control | `[]` |
 | `hueIntensity` | Brightness of Hue lights (0-100) | `100` |

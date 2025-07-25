@@ -1,16 +1,12 @@
 import * as vscode from 'vscode';
 import { RgbColor, hexToRgb } from './colors';
 
-export interface ColorSettings {
-  'statusBar.background'?: string;
-}
-
 export interface LanternConfig {
   hueEnabled: boolean;
   hueLightIds: string[];
   hueDefaultColor: string;
   hueIntensity: number;
-  workspaceColors: Record<string, ColorSettings>;
+  workspaceColor: Record<string, string>;
 }
 
 const LANTERN_CONFIG_KEY = 'lantern';
@@ -121,47 +117,78 @@ export async function updateColorCustomizations(colorCustomizations: any): Promi
 }
 
 /**
- * Get workspace colors from global settings
+ * Get workspace colors in global settings
  */
-export function getWorkspaceColors(): Record<string, ColorSettings> {
+export function getWorkspaceColorMap(): Record<string, string> {
   const config = getLanternConfig();
-  return config.get<Record<string, ColorSettings>>('workspaceColors', {});
+  return config.get<Record<string, string>>('workspaceColor', {});
 }
 
 /**
- * Update workspace colors in global settings
+ * Update workspace color map in global settings
  */
-export async function updateWorkspaceColors(workspaceColors: Record<string, ColorSettings>): Promise<void> {
+export async function updateWorkspaceColorMap(workspaceColorMap: Record<string, string>): Promise<void> {
   const config = getLanternConfig();
-  await config.update('workspaceColors', workspaceColors, vscode.ConfigurationTarget.Global);
+  await config.update('workspaceColor', workspaceColorMap, vscode.ConfigurationTarget.Global);
 }
 
 /**
- * Get color settings for a specific workspace path from global settings
+ * Get workspace-specific color setting (if user manually set it in .vscode/settings.json)
  */
-export function getWorkspaceColorSettings(workspacePath: string): ColorSettings | null {
-  const workspaceColors = getWorkspaceColors();
-  return workspaceColors[workspacePath] || null;
+export function getWorkspaceSpecificColor(): string | null {
+  const config = getLanternConfig();
+  const workspaceColor = config.get<string>('color');
+  return workspaceColor || null;
 }
 
 /**
- * Set color settings for a specific workspace path in global settings
+ * Set workspace-specific color setting (in .vscode/settings.json)
  */
-export async function setWorkspaceColorSettings(workspacePath: string, colorSettings: ColorSettings): Promise<void> {
-  const workspaceColors = getWorkspaceColors();
-  workspaceColors[workspacePath] = colorSettings;
-  await updateWorkspaceColors(workspaceColors);
+export async function setWorkspaceSpecificColor(color: string | null): Promise<void> {
+  const config = getLanternConfig();
+  await config.update('color', color, vscode.ConfigurationTarget.Workspace);
 }
 
 /**
- * Check if color settings contain any color values
+ * Get color for a workspace, checking both workspace-specific and global settings
+ * Priority: workspace-specific color > global workspaceColor
  */
-export function hasColorSettings(settings: ColorSettings): boolean {
-  if (!settings) {
-    return false;
+export function getWorkspaceColor(workspacePath: string): string | null {
+  // First priority: workspace-specific color setting
+  const workspaceSpecificColor = getWorkspaceSpecificColor();
+  if (workspaceSpecificColor) {
+    return workspaceSpecificColor;
   }
 
-  return Boolean(settings['statusBar.background']);
+  // Second priority: new global workspaceColor format
+  const workspaceColorMap = getWorkspaceColorMap();
+  if (workspaceColorMap[workspacePath]) {
+    return workspaceColorMap[workspacePath];
+  }
+
+  return null;
+}
+
+/**
+ * Set color for a workspace, using workspace-specific setting if it exists, otherwise global
+ */
+export async function setWorkspaceColor(workspacePath: string, color: string | null): Promise<void> {
+  // Check if workspace has a workspace-specific color setting
+  const hasWorkspaceSpecificSetting = getWorkspaceSpecificColor() !== null;
+
+  if (hasWorkspaceSpecificSetting) {
+    // Update or remove workspace-specific setting
+    await setWorkspaceSpecificColor(color);
+  } else {
+    // Update or remove from global workspaceColor map
+    const workspaceColorMap = getWorkspaceColorMap();
+    if (color === null) {
+      delete workspaceColorMap[workspacePath];
+    } else {
+      workspaceColorMap[workspacePath] = color;
+    }
+    await updateWorkspaceColorMap(workspaceColorMap);
+  }
 }
 
 /**

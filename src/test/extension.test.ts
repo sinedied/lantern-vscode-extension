@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
-import { getEnabled, setEnabled, getCurrentThemeColor } from '../config';
+import { getEnabled, setEnabled, getCurrentThemeColor, getWorkspaceColor, setWorkspaceColor, getWorkspaceColorMap, updateWorkspaceColorMap } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -131,5 +131,24 @@ suite('Lantern Extension Test Suite', () => {
     await setEnabled(true);
     const enabledState = getEnabled();
     assert.strictEqual(enabledState, true);
+  });
+
+  test('New workspace color system works correctly', async () => {
+    const testWorkspacePath = '/test/workspace';
+    const testColor = '#ff0000';
+
+    // Test setting and getting workspace color
+    await setWorkspaceColor(testWorkspacePath, testColor);
+    const retrievedColor = getWorkspaceColor(testWorkspacePath);
+    assert.strictEqual(retrievedColor, testColor);
+
+    // Test that the color appears in the global map
+    const colorMap = getWorkspaceColorMap();
+    assert.strictEqual(colorMap[testWorkspacePath], testColor);
+
+    // Clean up
+    const updatedMap = { ...colorMap };
+    delete updatedMap[testWorkspacePath];
+    await updateWorkspaceColorMap(updatedMap);
   });
 });
