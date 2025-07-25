@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { RgbColor } from './colors';
+import { getHueIntensity } from './config';
 
 export interface HueBridge {
   ip: string;
@@ -147,6 +148,9 @@ export class Hue {
     }
 
     const xy = this.rgbToXy(color);
+    const intensity = getHueIntensity();
+    // Convert 0-100 range to 0-254 range for Hue API (0 = off, 1-254 = brightness)
+    const hueBrightness = intensity === 0 ? 0 : Math.round((intensity / 100) * 254);
 
     const promises = lightIds.map(async (lightId) => {
       try {
@@ -154,9 +158,9 @@ export class Hue {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            on: true,
+            on: hueBrightness > 0,
             xy: xy,
-            bri: 254, // Maximum brightness
+            bri: hueBrightness > 0 ? hueBrightness : 1, // Minimum brightness when on
             transitiontime: 4, // 0.4 seconds transition
           }),
           timeout: 5000,

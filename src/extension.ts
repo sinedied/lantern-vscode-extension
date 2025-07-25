@@ -50,6 +50,11 @@ export function activate(context: vscode.ExtensionContext) {
     await colorService.assignUniqueColor();
   });
 
+  // Register the set color manually command
+  const setColorManuallyDisposable = vscode.commands.registerCommand('lantern.setColorManually', async () => {
+    await colorService.setColorManually();
+  });
+
   // Register the global toggle command
   const toggleGlobalDisposable = vscode.commands.registerCommand('lantern.toggleGlobal', async () => {
     await toggleGlobalFunctionality();
@@ -65,6 +70,11 @@ export function activate(context: vscode.ExtensionContext) {
     await disableHueIntegration();
   });
 
+  // Register the set Hue intensity command
+  const setHueIntensityDisposable = vscode.commands.registerCommand('lantern.setHueIntensity', async () => {
+    await colorService.setHueIntensity();
+  });
+
   // Register the reset colors command
   const resetColorsDisposable = vscode.commands.registerCommand('lantern.resetColors', async () => {
     await colorService.resetColors();
@@ -77,9 +87,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     assignColorDisposable,
+    setColorManuallyDisposable,
     toggleGlobalDisposable,
     enableHueDisposable,
     disableHueDisposable,
+    setHueIntensityDisposable,
     resetColorsDisposable,
     statusBarIndicatorClickedDisposable,
     workspaceFoldersDisposable,
@@ -116,6 +128,11 @@ async function showLanternCommands(): Promise<void> {
       command: 'lantern.assignUniqueColor'
     },
     {
+      label: '$(color-mode) Set color manually',
+      description: 'Set a custom color using any CSS color',
+      command: 'lantern.setColorManually'
+    },
+    {
       label: '$(refresh) Reset colors',
       description: 'Remove all assigned colors',
       command: 'lantern.resetColors'
@@ -129,6 +146,11 @@ async function showLanternCommands(): Promise<void> {
       label: '$(circle-slash) Disable Philips Hue',
       description: 'Disconnect from Philips Hue lights',
       command: 'lantern.disableHueIntegration'
+    },
+    {
+      label: '$(light-bulb) Set Hue intensity',
+      description: 'Adjust brightness of Philips Hue lights (0-100%)',
+      command: 'lantern.setHueIntensity'
     }
   ];
 

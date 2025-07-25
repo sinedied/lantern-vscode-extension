@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './colors';
+import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex, parseCssColor } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled } from './config';
+import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled, getHueIntensity, setHueIntensity } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -92,6 +92,122 @@ export class Lantern {
 
     vscode.window.showInformationMessage(
       `Lantern: Assigned color ${hexColor} to status bar. Settings saved to global configuration.`,
+    );
+  }
+
+  /**
+   * Set a color manually using any valid CSS color
+   */
+  async setColorManually(): Promise<void> {
+    if (!this.currentWorkspacePath) {
+      vscode.window.showErrorMessage('No workspace is currently open.');
+      return;
+    }
+
+    // Check if global toggle is enabled
+    const globalToggleEnabled = getGlobalToggleEnabled();
+
+    if (!globalToggleEnabled) {
+      vscode.window.showErrorMessage('Lantern is currently disabled. Use "Lantern: Toggle on/off" to enable it first.');
+      return;
+    }
+
+    // Ask user for color input
+    const colorInput = await vscode.window.showInputBox({
+      placeHolder: 'Enter any CSS color (e.g., #ff0000, red, rgb(255, 0, 0), oklch(0.7 0.15 180))',
+      prompt: 'Enter any valid CSS color for the status bar'
+    });
+
+    if (!colorInput || !colorInput.trim()) {
+      return;
+    }
+
+    const cssColor = colorInput.trim();
+
+    // Try to parse for RGB (for Hue integration), but don't validate
+    const rgbColor = parseCssColor(cssColor);
+
+    // Create color settings with the original CSS color string
+    const colorSettings = this.createColorSettings(cssColor);
+
+    // Save settings to global configuration
+    await this.saveToGlobalSettings(colorSettings);
+
+    // Apply the color
+    await this.applyColor(colorSettings);
+
+    // Update Hue lights if enabled and we have RGB color data
+    if (rgbColor && this.hueService.isEnabled() && this.hueService.isConfigured()) {
+      await this.updateHueLights(rgbColor);
+    }
+
+    vscode.window.showInformationMessage(
+      `Lantern: Set status bar color to ${cssColor}. Settings saved to global configuration.`,
+    );
+  }
+
+  /**
+   * Set Hue light intensity (brightness)
+   */
+  async setHueIntensity(): Promise<void> {
+    // Check if Hue integration is enabled
+    if (!this.hueService.isEnabled()) {
+      vscode.window.showErrorMessage('Philips Hue integration is not enabled. Use "Lantern: Enable Philips Hue" first.');
+      return;
+    }
+
+    if (!this.hueService.isConfigured()) {
+      vscode.window.showErrorMessage('Philips Hue bridge is not configured. Please configure your Hue bridge first.');
+      return;
+    }
+
+    // Get current intensity
+    const currentIntensity = getHueIntensity();
+
+    // Ask user for intensity input
+    const intensityInput = await vscode.window.showInputBox({
+      placeHolder: 'Enter intensity (0-100)',
+      prompt: 'Set the brightness/intensity of your Philips Hue lights (0 = off, 100 = maximum brightness)',
+      value: currentIntensity.toString(),
+      validateInput: (value) => {
+        const num = parseInt(value, 10);
+        if (isNaN(num)) {
+          return 'Please enter a valid number';
+        }
+        if (num < 0 || num > 100) {
+          return 'Intensity must be between 0 and 100';
+        }
+        return null;
+      }
+    });
+
+    if (intensityInput === undefined) {
+      return;
+    }
+
+    const intensity = parseInt(intensityInput, 10);
+
+    // Save the intensity setting
+    await setHueIntensity(intensity);
+
+    // Apply the new intensity to current lights if they're on
+    const lightIds = getHueLightIds();
+    if (lightIds.length > 0 && this.currentWorkspacePath) {
+      const colorSettings = getWorkspaceColorSettings(this.currentWorkspacePath);
+      if (colorSettings && hasColorSettings(colorSettings)) {
+        // Get the actual workspace color and parse it
+        const workspaceColor = colorSettings['statusBar.background'];
+        if (workspaceColor) {
+          const rgbColor = parseCssColor(workspaceColor);
+          if (rgbColor) {
+            await this.updateHueLights(rgbColor);
+          }
+        }
+      }
+    }
+
+    vscode.window.showInformationMessage(
+      `Lantern: Set Hue light intensity to ${intensity}%.`,
     );
   }
 

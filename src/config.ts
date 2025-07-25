@@ -8,6 +8,7 @@ export interface LanternConfig {
   hueIntegrationEnabled: boolean;
   hueLightIds: string[];
   hueDefaultColor: string;
+  hueIntensity: number;
   workspaceColors: Record<string, ColorSettings>;
 }
 
@@ -82,6 +83,24 @@ export async function setHueLightIds(lightIds: string[]): Promise<void> {
 export function getHueDefaultColor(): string {
   const config = getLanternConfig();
   return config.get<string>('hueDefaultColor', '#000000');
+}
+
+/**
+ * Get Hue light intensity (0-100)
+ */
+export function getHueIntensity(): number {
+  const config = getLanternConfig();
+  return config.get<number>('hueIntensity', 100);
+}
+
+/**
+ * Set Hue light intensity (0-100)
+ */
+export async function setHueIntensity(intensity: number): Promise<void> {
+  const config = getLanternConfig();
+  // Clamp intensity between 0 and 100
+  const clampedIntensity = Math.max(0, Math.min(100, intensity));
+  await config.update('hueIntensity', clampedIntensity, vscode.ConfigurationTarget.Global);
 }
 
 /**

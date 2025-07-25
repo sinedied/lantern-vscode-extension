@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, getCurrentThemeColor } from '../colors';
+import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, getCurrentThemeColor, parseCssColor } from '../colors';
 import { getGlobalToggleEnabled, setGlobalToggleEnabled } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
@@ -47,6 +47,16 @@ suite('Lantern Extension Test Suite', () => {
     assert.ok(Math.abs(variant1Oklch.c - baseOklch.c) <= chromaTolerance);
     assert.ok(Math.abs(variant2Oklch.l - baseOklch.l) <= lightnessTolerance);
     assert.ok(Math.abs(variant2Oklch.c - baseOklch.c) <= chromaTolerance);
+
+    // Test CSS color parsing (simplified - no longer validates, just parses what it can)
+    assert.deepStrictEqual(parseCssColor('#ff0000'), { r: 255, g: 0, b: 0 });
+    assert.deepStrictEqual(parseCssColor('#f00'), { r: 255, g: 0, b: 0 });
+    // Non-hex colors return neutral gray for Hue integration
+    assert.deepStrictEqual(parseCssColor('red'), { r: 128, g: 128, b: 128 });
+    assert.deepStrictEqual(parseCssColor('rgb(0, 255, 0)'), { r: 128, g: 128, b: 128 });
+    assert.deepStrictEqual(parseCssColor('oklch(0.7 0.15 180)'), { r: 128, g: 128, b: 128 });
+    assert.strictEqual(parseCssColor(''), null);
+    assert.strictEqual(parseCssColor('   '), null);
   });
 
   test('Extension commands are registered', async () => {
@@ -58,9 +68,11 @@ suite('Lantern Extension Test Suite', () => {
 
     // Check that our commands are registered
     assert.ok(commands.includes('lantern.assignUniqueColor'), 'assignUniqueColor command not found');
+    assert.ok(commands.includes('lantern.setColorManually'), 'setColorManually command not found');
     assert.ok(commands.includes('lantern.toggleGlobal'), 'toggleGlobal command not found');
     assert.ok(commands.includes('lantern.enableHueIntegration'), 'enableHueIntegration command not found');
     assert.ok(commands.includes('lantern.disableHueIntegration'), 'disableHueIntegration command not found');
+    assert.ok(commands.includes('lantern.setHueIntensity'), 'setHueIntensity command not found');
     assert.ok(commands.includes('lantern.resetColors'), 'resetColors command not found');
     assert.ok(commands.includes('lantern.statusBarIndicatorClicked'), 'statusBarIndicatorClicked command not found');
   });
