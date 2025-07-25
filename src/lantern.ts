@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds } from './config';
+import { ColorSettings, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds, getGlobalToggleEnabled } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -32,8 +32,16 @@ export class Lantern {
       return;
     }
 
-    // Always show the status bar indicator
+    // Always show the status bar indicator (even when globally disabled for quick toggle access)
     this.createStatusBarIndicator();
+
+    // Check if global toggle is enabled
+    const globalToggleEnabled = getGlobalToggleEnabled();
+
+    if (!globalToggleEnabled) {
+      // If globally disabled, don't apply colors but keep status bar for quick access
+      return;
+    }
 
     // Check workspace settings first
     const workspaceSettings = this.getWorkspaceSettings();
@@ -56,6 +64,14 @@ export class Lantern {
   async assignUniqueColor(): Promise<void> {
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
+      return;
+    }
+
+    // Check if global toggle is enabled
+    const globalToggleEnabled = getGlobalToggleEnabled();
+
+    if (!globalToggleEnabled) {
+      vscode.window.showErrorMessage('Lantern is currently disabled. Use "Lantern: Toggle on/off" to enable it first.');
       return;
     }
 
@@ -144,6 +160,54 @@ export class Lantern {
     await clearWorkspaceSpecificColorSettings();
 
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
+  }
+
+  /**
+   * Temporarily remove colors from the UI without deleting stored settings
+   */
+  async removeColors(): Promise<void> {
+    const currentColorCustomizations = getColorCustomizations();
+
+    // Create a new object instead of modifying the existing one
+    const colorCustomizations = { ...currentColorCustomizations };
+
+    let hasChanges = false;
+
+    if (colorCustomizations['statusBar.background']) {
+      delete colorCustomizations['statusBar.background'];
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      await updateColorCustomizations(colorCustomizations);
+    }
+
+    // Hide the status bar indicator when disabled
+    this.hideStatusBarIndicator();
+  }
+
+  /**
+   * Temporarily remove colors from the UI but keep the status bar indicator for quick toggle access
+   */
+  async removeColorsButKeepStatusBar(): Promise<void> {
+    const currentColorCustomizations = getColorCustomizations();
+
+    // Create a new object instead of modifying the existing one
+    const colorCustomizations = { ...currentColorCustomizations };
+
+    let hasChanges = false;
+
+    if (colorCustomizations['statusBar.background']) {
+      delete colorCustomizations['statusBar.background'];
+      hasChanges = true;
+    }
+
+    if (hasChanges) {
+      await updateColorCustomizations(colorCustomizations);
+    }
+
+    // Keep the status bar indicator visible for quick toggle access
+    this.createStatusBarIndicator();
   }
 
   private createColorSettings(hexColor: string): ColorSettings {

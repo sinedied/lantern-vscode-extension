@@ -8,10 +8,12 @@ Lantern is a VS Code extension that helps developers distinguish between many di
 - The extension will then apply the color to the status bar background of the VS Code UI.
 - A status bar indicator (lantern icon) is always visible for quick access to commands, but does not change color.
 - User can optionally enable Philips Hue integration to sync the color with a Philips Hue light bulb, allowing the light bulb to change color when switching between projects/workspaces. To do that, the user has to run the command "Lantern: Enable Philips Hue integration" and follow the instructions to connect to their Philips Hue bridge and choose which light(s) to control (one or more can be selected).
+- Global toggle functionality: User can quickly enable/disable all Lantern functionality (colored status bar and Philips Hue) using the "Lantern: Toggle on/off" command. This works as a global switch for all workspaces and is separate from other settings.
 
 ## Configurable settings
 
 - Choose which color to use for the colorization (default: assigned randomly)
+- Enable/disable all Lantern functionality globally (default: enabled).
 - Enable/disable Philips Hue integration (default: disabled).
 - Choose which Philips Hue light(s) to control (default: none).
 

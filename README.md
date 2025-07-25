@@ -12,6 +12,13 @@ Lantern helps developers distinguish between many different VS Code windows by s
 - Settings can be saved globally (per project path) or per workspace
 - A status bar indicator (lantern icon) is always visible for quick access to commands
 
+### 🎯 Global Toggle
+
+- Instantly enable/disable all Lantern functionality with a single command
+- Works as a global switch - affects all workspaces when toggled
+- Separate from other settings - preserves your configurations when disabled
+- Quick access through status bar or command palette
+
 ### 💡 Philips Hue Integration
 
 - Optional integration with Philips Hue smart lights
@@ -23,6 +30,7 @@ Lantern helps developers distinguish between many different VS Code windows by s
 
 Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) to access these commands:
 
+- **Lantern: Toggle on/off** - Globally enable/disable all Lantern functionality
 - **Lantern: Assign unique color** - Assigns a random color to the current workspace status bar
 - **Lantern: Enable Philips Hue integration** - Set up and enable Hue light synchronization
 - **Lantern: Disable Philips Hue integration** - Disable Hue light synchronization
@@ -32,6 +40,7 @@ Use the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) to access these command
 
 Configure Lantern through VS Code settings:
 
+- `lantern.globalToggleEnabled` - Globally enable/disable all Lantern functionality (default: true)
 - `lantern.hueIntegrationEnabled` - Enable/disable Philips Hue integration
 - `lantern.hueLightIds` - Array of Hue light IDs to control
 - `lantern.hueBridgeIp` - IP address of your Hue bridge (auto-discovered)
@@ -39,6 +48,16 @@ Configure Lantern through VS Code settings:
 - `lantern.hueDefaultColor` - Default color for Hue lights when no workspace color is set (default: #000000 to turn lights off)
 
 ## Usage
+
+### Quick Toggle
+
+For easy on/off control:
+
+1. Click the lantern icon in the status bar, or
+2. Use Command Palette: "Lantern: Toggle on/off"
+3. This will instantly enable/disable all Lantern functionality across all workspaces
+4. The status bar icon remains visible even when disabled for quick toggle access
+5. When re-enabled, Hue lights automatically sync to the current workspace color
 
 ### Basic Color Assignment
 
@@ -95,6 +114,7 @@ When saved to workspace settings, colors are stored in `.vscode/settings.json`:
 
 This extension contributes the following settings:
 
+- `lantern.globalToggleEnabled`: Globally enable/disable all Lantern functionality (default: true)
 - `lantern.hueIntegrationEnabled`: Enable Philips Hue integration (default: false)
 - `lantern.hueLightIds`: List of Philips Hue light IDs to control
 - `lantern.hueBridgeIp`: IP address of the Philips Hue bridge

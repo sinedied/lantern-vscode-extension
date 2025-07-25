@@ -48,6 +48,22 @@ export async function setHueIntegrationEnabled(enabled: boolean): Promise<void> 
 }
 
 /**
+ * Get global toggle enabled status
+ */
+export function getGlobalToggleEnabled(): boolean {
+  const config = getLanternConfig();
+  return config.get<boolean>('globalToggleEnabled', true);
+}
+
+/**
+ * Set global toggle enabled status
+ */
+export async function setGlobalToggleEnabled(enabled: boolean): Promise<void> {
+  const config = getLanternConfig();
+  await config.update('globalToggleEnabled', enabled, vscode.ConfigurationTarget.Global);
+}
+
+/**
  * Get configured Hue light IDs
  */
 export function getHueLightIds(): string[] {

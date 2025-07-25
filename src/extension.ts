@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
 import { hexToRgb } from './colors';
-import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getHueDefaultColor } from './config';
+import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getHueDefaultColor, getGlobalToggleEnabled, setGlobalToggleEnabled } from './config';
 
 let colorService: Lantern;
 
@@ -33,6 +33,11 @@ export function activate(context: vscode.ExtensionContext) {
     await colorService.assignUniqueColor();
   });
 
+  // Register the global toggle command
+  const toggleGlobalDisposable = vscode.commands.registerCommand('lantern.toggleGlobal', async () => {
+    await toggleGlobalFunctionality();
+  });
+
   // Register the enable Hue integration command
   const enableHueDisposable = vscode.commands.registerCommand('lantern.enableHueIntegration', async () => {
     await enableHueIntegration();
@@ -55,6 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     assignColorDisposable,
+    toggleGlobalDisposable,
     enableHueDisposable,
     disableHueDisposable,
     resetColorsDisposable,
@@ -65,7 +71,14 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 async function showLanternCommands(): Promise<void> {
+  const isEnabled = getGlobalToggleEnabled();
+
   const commands = [
+    {
+      label: isEnabled ? '$(circle-slash) Turn off Lantern' : '$(circle-large-filled) Turn on Lantern',
+      description: isEnabled ? 'Disable all Lantern functionality' : 'Enable all Lantern functionality',
+      command: 'lantern.toggleGlobal'
+    },
     {
       label: '$(symbol-color) Assign unique color',
       description: 'Assign a unique color to this workspace',
@@ -95,6 +108,42 @@ async function showLanternCommands(): Promise<void> {
 
   if (selectedCommand) {
     await vscode.commands.executeCommand(selectedCommand.command);
+  }
+}
+
+async function toggleGlobalFunctionality(): Promise<void> {
+  const currentState = getGlobalToggleEnabled();
+  const newState = !currentState;
+
+  await setGlobalToggleEnabled(newState);
+
+  if (newState) {
+    // Enabling: apply stored colors and update Hue lights
+    await colorService.applyStoredColors();
+
+    // Update Hue lights to current workspace color if integration is enabled
+    await updateHueLightsOnWindowFocus();
+
+    vscode.window.showInformationMessage('Lantern functionality enabled.');
+  } else {
+    // Disabling: remove colors and turn off Hue lights, but keep status bar visible
+    await colorService.removeColorsButKeepStatusBar();
+
+    // Turn off Hue lights if integration is enabled
+    if (getHueIntegrationEnabled()) {
+      const hueService = colorService.getHueService();
+      const lightIds = getHueLightIds();
+
+      if (lightIds.length > 0 && hueService.isConfigured()) {
+        try {
+          await hueService.turnOffLights(lightIds);
+        } catch (error) {
+          console.error('Failed to turn off Hue lights during global toggle:', error);
+        }
+      }
+    }
+
+    vscode.window.showInformationMessage('Lantern functionality disabled.');
   }
 }
 
@@ -295,6 +344,12 @@ async function applyCurrentColorToHueLights(): Promise<void> {
 
 async function updateHueLightsOnWindowFocus(): Promise<void> {
   try {
+    // Check if global toggle is enabled
+    const globalToggleEnabled = getGlobalToggleEnabled();
+    if (!globalToggleEnabled) {
+      return; // Global toggle is disabled
+    }
+
     // Check if Hue integration is enabled
     const hueEnabled = getHueIntegrationEnabled();
 
