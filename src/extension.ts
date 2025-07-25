@@ -123,8 +123,8 @@ async function showLanternCommands(): Promise<void> {
       command: 'lantern.toggleGlobal'
     },
     {
-      label: '$(symbol-color) Assign unique color',
-      description: 'Assign a unique color to this workspace',
+      label: '$(symbol-color) Assign random color',
+      description: 'Assign a random color to this workspace',
       command: 'lantern.assignUniqueColor'
     },
     {
