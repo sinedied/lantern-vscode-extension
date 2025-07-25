@@ -106,7 +106,7 @@ async function showLanternCommands(): Promise<void> {
 
   const commands = [
     {
-      label: isEnabled ? '$(circle-slash) Turn off Lantern' : '$(circle-large-filled) Turn on Lantern',
+      label: isEnabled ? '$(lantern-off) Turn off Lantern' : '$(lantern-on) Turn on Lantern',
       description: isEnabled ? 'Disable all Lantern functionality' : 'Enable all Lantern functionality',
       command: 'lantern.toggleGlobal'
     },

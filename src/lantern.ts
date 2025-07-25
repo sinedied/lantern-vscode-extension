@@ -207,7 +207,7 @@ export class Lantern {
       await updateColorCustomizations(colorCustomizations);
     }
 
-    // Keep the status bar indicator visible for quick toggle access
+    // Keep the status bar indicator visible for quick toggle access and update icon
     this.createStatusBarIndicator();
   }
 
@@ -251,6 +251,9 @@ export class Lantern {
     };
 
     await updateColorCustomizations(colorCustomizations);
+
+    // Update status bar icon to reflect that Lantern is enabled
+    this.updateStatusBarIcon();
   }
 
   private async updateHueLights(color: RgbColor): Promise<void> {
@@ -281,17 +284,30 @@ export class Lantern {
    */
   private createStatusBarIndicator(): void {
     if (this.statusBarItem) {
+      this.updateStatusBarIcon();
       return;
     }
 
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
-    this.statusBarItem.text = '$(lantern-on)';
+    this.updateStatusBarIcon();
     this.statusBarItem.tooltip = 'Lantern - Click to show commands';
     this.statusBarItem.command = {
       command: 'lantern.statusBarIndicatorClicked',
       title: 'Lantern Status Bar Indicator'
     };
     this.statusBarItem.show();
+  }
+
+  /**
+   * Update the status bar icon based on the global toggle state
+   */
+  private updateStatusBarIcon(): void {
+    if (!this.statusBarItem) {
+      return;
+    }
+
+    const globalToggleEnabled = getGlobalToggleEnabled();
+    this.statusBarItem.text = globalToggleEnabled ? '$(lantern-on)' : '$(lantern-off)';
   }
 
   /**

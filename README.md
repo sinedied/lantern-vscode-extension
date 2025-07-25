@@ -11,6 +11,7 @@ Lantern helps developers distinguish between many different VS Code windows by s
 - Colorizes the **Status Bar** background for clear workspace identification
 - Settings can be saved globally (per project path) or per workspace
 - A status bar indicator (lantern icon) is always visible for quick access to commands
+- Automatically applies colors when opening workspaces or switching between windows
 
 ### 🎯 Global Toggle
 
@@ -23,8 +24,9 @@ Lantern helps developers distinguish between many different VS Code windows by s
 
 - Optional integration with Philips Hue smart lights
 - Sync your workspace colors with physical light bulbs
-- Automatically change light colors when switching between projects
+- Automatically change light colors when switching between projects/workspaces
 - Support for multiple lights
+- Real-time updates when workspace or configuration changes
 
 ## Commands
 
