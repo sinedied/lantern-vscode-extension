@@ -2,7 +2,7 @@
   "name": "lantern",
   "displayName": "Lantern",
   "description": "Distinguish between VS Code windows with unique colors and optional Philips Hue integration",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "publisher": "sinedied",
   "main": "./dist/extension.js",
   "scripts": {
