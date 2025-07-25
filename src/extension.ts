@@ -17,13 +17,30 @@ export function activate(context: vscode.ExtensionContext) {
   // Initialize the color service
   colorService = new Lantern();
 
-  // Apply stored colors when the extension activates
-  colorService.applyStoredColors();
+  // Apply stored colors and update Hue lights when the extension activates (async)
+  initializeExtension();
+
+  // Listen for workspace folder changes to update colors and Hue lights
+  const workspaceFoldersDisposable = vscode.workspace.onDidChangeWorkspaceFolders(async () => {
+    // Workspace folders changed, reapply colors and update Hue lights
+    await colorService.applyStoredColors();
+    await updateHueLightsOnWindowFocus();
+  });
 
   // Listen for window state changes to update Hue lights when window becomes active
   const windowStateDisposable = vscode.window.onDidChangeWindowState(async (windowState) => {
     if (windowState.focused) {
       // Window became active, update Hue lights if integration is enabled
+      await updateHueLightsOnWindowFocus();
+    }
+  });
+
+  // Listen for configuration changes to update colors and Hue lights when settings change
+  const configurationDisposable = vscode.workspace.onDidChangeConfiguration(async (event) => {
+    // Check if Lantern configuration changed
+    if (event.affectsConfiguration('lantern') || event.affectsConfiguration('workbench.colorCustomizations')) {
+      // Configuration changed, reapply colors and update Hue lights
+      await colorService.applyStoredColors();
       await updateHueLightsOnWindowFocus();
     }
   });
@@ -65,9 +82,23 @@ export function activate(context: vscode.ExtensionContext) {
     disableHueDisposable,
     resetColorsDisposable,
     statusBarIndicatorClickedDisposable,
+    workspaceFoldersDisposable,
     windowStateDisposable,
+    configurationDisposable,
     colorService,
   );
+}
+
+async function initializeExtension(): Promise<void> {
+  try {
+    // Apply stored colors when the extension activates
+    await colorService.applyStoredColors();
+
+    // Update Hue lights on initial activation
+    await updateHueLightsOnWindowFocus();
+  } catch (error) {
+    console.error('Failed to initialize Lantern extension:', error);
+  }
 }
 
 async function showLanternCommands(): Promise<void> {
@@ -379,13 +410,17 @@ async function updateHueLightsOnWindowFocus(): Promise<void> {
       currentColor = getHueDefaultColor();
     }
 
+    console.log(`Updating Hue lights to color: ${currentColor}`);
+
     // Check if we should turn off the lights (default color is #000000)
     if (currentColor === '#000000') {
       await hueService.turnOffLights(lightIds);
+      console.log('Turned off Hue lights (default color)');
     } else {
       // Convert hex color to RGB and apply to lights
       const rgbColor = hexToRgb(currentColor);
       await hueService.setLightColor(lightIds, rgbColor);
+      console.log(`Applied color ${currentColor} to Hue lights`);
     }
 
     // Optional: Show a subtle notification (commented out to avoid spam)

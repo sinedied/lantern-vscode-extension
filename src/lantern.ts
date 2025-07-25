@@ -13,9 +13,10 @@ export class Lantern {
     this.updateCurrentWorkspacePath();
 
     // Listen for workspace changes
-    vscode.workspace.onDidChangeWorkspaceFolders(() => {
+    vscode.workspace.onDidChangeWorkspaceFolders(async () => {
       this.updateCurrentWorkspacePath();
-      this.applyStoredColors();
+      await this.applyStoredColors();
+      // Note: Hue lights will be updated via the extension.ts workspace listener
     });
   }
 
