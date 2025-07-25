@@ -105,9 +105,8 @@ export class Lantern {
       await this.updateHueLights(newColor);
     }
 
-    const existingMessage = existingColor ? ' (avoiding previous color)' : '';
     vscode.window.showInformationMessage(
-      `Lantern: Assigned color ${hexColor} to status bar${existingMessage}. Settings saved to global configuration.`,
+      `Lantern: Assigned color ${hexColor} to workspace.`,
     );
   }
 
@@ -131,7 +130,7 @@ export class Lantern {
     // Ask user for hex color input
     const colorInput = await vscode.window.showInputBox({
       placeHolder: 'Enter a hex color (e.g., #ff0000, #f00, #ff0000ff)',
-      prompt: 'Enter a valid hex color for the status bar (required for Hue light compatibility)',
+      prompt: 'Enter a valid hex color',
       validateInput: (value: string) => {
         if (!value || !value.trim()) {
           return 'Please enter a color value';
@@ -175,7 +174,7 @@ export class Lantern {
     }
 
     vscode.window.showInformationMessage(
-      `Lantern: Set status bar color to ${hexColor}. Settings saved to global configuration.`,
+      `Lantern: Set workspace color to ${hexColor}.`,
     );
   }
 
@@ -185,7 +184,7 @@ export class Lantern {
   async setHueIntensity(): Promise<void> {
     // Check if Hue integration is enabled
     if (!this.hueService.isEnabled()) {
-      vscode.window.showErrorMessage('Philips Hue integration is not enabled. Use "Lantern: Enable Philips Hue" first.');
+      vscode.window.showErrorMessage('Philips Hue integration is not enabled. Use "Lantern: Enable Philips Hue integration" first.');
       return;
     }
 
@@ -240,10 +239,6 @@ export class Lantern {
         }
       }
     }
-
-    vscode.window.showInformationMessage(
-      `Lantern: Set Hue light intensity to ${intensity}%.`,
-    );
   }
 
   /**
@@ -286,30 +281,6 @@ export class Lantern {
     await this.applyStoredColors();
 
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
-  }
-
-  /**
-   * Temporarily remove colors from the UI without deleting stored settings
-   */
-  async removeColors(): Promise<void> {
-    const currentColorCustomizations = getColorCustomizations();
-
-    // Create a new object instead of modifying the existing one
-    const colorCustomizations = { ...currentColorCustomizations };
-
-    let hasChanges = false;
-
-    if (colorCustomizations['statusBar.background']) {
-      delete colorCustomizations['statusBar.background'];
-      hasChanges = true;
-    }
-
-    if (hasChanges) {
-      await updateColorCustomizations(colorCustomizations);
-    }
-
-    // Hide the status bar indicator when disabled
-    this.hideStatusBarIndicator();
   }
 
   /**
@@ -410,7 +381,7 @@ export class Lantern {
     this.statusBarItem.tooltip = 'Lantern - Click to show commands';
     this.statusBarItem.command = {
       command: 'lantern.statusBarIndicatorClicked',
-      title: 'Lantern Status Bar Indicator'
+      title: 'Lantern'
     };
     this.statusBarItem.show();
   }

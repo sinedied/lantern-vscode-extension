@@ -65,11 +65,11 @@
     "commands": [
       {
         "command": "lantern.assignUniqueColor",
-        "title": "Lantern: Assign unique color"
+        "title": "Lantern: Assign random color"
       },
       {
         "command": "lantern.setColorManually",
-        "title": "Lantern: Set hex color manually"
+        "title": "Lantern: Set color manually"
       },
       {
         "command": "lantern.toggleGlobal",
@@ -77,19 +77,19 @@
       },
       {
         "command": "lantern.enableHueIntegration",
-        "title": "Lantern: Enable Philips Hue"
+        "title": "Lantern: Enable Philips Hue integration"
       },
       {
         "command": "lantern.disableHueIntegration",
-        "title": "Lantern: Disable Philips Hue"
+        "title": "Lantern: Disable Philips Hue integration"
       },
       {
         "command": "lantern.setHueIntensity",
-        "title": "Lantern: Set Hue intensity"
+        "title": "Lantern: Set Philips Hue intensity"
       },
       {
         "command": "lantern.resetColors",
-        "title": "Lantern: Reset colors"
+        "title": "Lantern: Reset colors for this workspace"
       },
       {
         "command": "lantern.statusBarIndicatorClicked",
@@ -102,7 +102,7 @@
         "lantern.globalToggleEnabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable or disable all Lantern functionality globally"
+          "description": "Enable or disable Lantern"
         },
         "lantern.hueIntegrationEnabled": {
           "type": "boolean",
