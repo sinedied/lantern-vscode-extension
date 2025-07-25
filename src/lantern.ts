@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex, parseCssColor } from './colors';
+import { RgbColor, generateRandomColorVariant, rgbToHex, parseCssColor } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled, getHueIntensity, setHueIntensity } from './config';
+import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -72,8 +72,21 @@ export class Lantern {
     // Get current theme color for the status bar
     const baseColor = getCurrentThemeColor('statusBar');
 
-    // Generate a random color variant
-    const newColor = generateRandomColorVariant(baseColor);
+    // Check if there's an existing color for this workspace
+    let existingColor: RgbColor | undefined;
+    const existingSettings = this.getGlobalSettings();
+    if (existingSettings && existingSettings['statusBar.background']) {
+      try {
+        const parsed = parseCssColor(existingSettings['statusBar.background']);
+        existingColor = parsed || undefined;
+      } catch {
+        // If parsing fails, treat as no existing color
+        existingColor = undefined;
+      }
+    }
+
+    // Generate a random color variant that avoids the existing color
+    const newColor = generateRandomColorVariant(baseColor, existingColor);
     const hexColor = rgbToHex(newColor);
 
     // Create color settings
@@ -90,8 +103,9 @@ export class Lantern {
       await this.updateHueLights(newColor);
     }
 
+    const existingMessage = existingColor ? ' (avoiding previous color)' : '';
     vscode.window.showInformationMessage(
-      `Lantern: Assigned color ${hexColor} to status bar. Settings saved to global configuration.`,
+      `Lantern: Assigned color ${hexColor} to status bar${existingMessage}. Settings saved to global configuration.`,
     );
   }
 

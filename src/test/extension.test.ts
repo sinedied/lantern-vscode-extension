@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, getCurrentThemeColor, parseCssColor } from '../colors';
-import { getGlobalToggleEnabled, setGlobalToggleEnabled } from '../config';
+import { rgbToHex, hexToRgb, generateRandomColorVariant, generateRandomHueVariant, rgbToOklch, oklchToRgb, parseCssColor, calculateColorDistance } from '../colors';
+import { getGlobalToggleEnabled, setGlobalToggleEnabled, getCurrentThemeColor } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -27,7 +27,7 @@ suite('Lantern Extension Test Suite', () => {
     assert.ok(Math.abs(convertedBack.g - originalColor.g) <= tolerance);
     assert.ok(Math.abs(convertedBack.b - originalColor.b) <= tolerance);
 
-    // Test random color variant generation
+    // Test improved random color variant generation
     const baseColor = { r: 100, g: 150, b: 200 };
     const variant1 = generateRandomColorVariant(baseColor);
     const variant2 = generateRandomColorVariant(baseColor);
@@ -35,18 +35,37 @@ suite('Lantern Extension Test Suite', () => {
     // Variants should be different colors
     assert.notDeepStrictEqual(variant1, variant2);
 
+    // Test that colors avoid existing colors when provided
+    const existingColor = { r: 255, g: 0, b: 0 }; // Red
+    const avoidingVariant = generateRandomColorVariant(baseColor, existingColor);
+    
+    // Check that the new color is sufficiently different from the existing one
+    const existingOklch = rgbToOklch(existingColor);
+    const avoidingOklch = rgbToOklch(avoidingVariant);
+    const distance = calculateColorDistance(existingOklch, avoidingOklch);
+    
+    // Should have reasonable distance (at least 0.1 in perceptual space)
+    assert.ok(distance > 0.1, `Color distance ${distance} should be > 0.1`);
+
+    // Test legacy random hue variant generation
+    const hueVariant1 = generateRandomHueVariant(baseColor);
+    const hueVariant2 = generateRandomHueVariant(baseColor);
+
+    // Variants should be different colors
+    assert.notDeepStrictEqual(hueVariant1, hueVariant2);
+
     // But should have similar lightness and chroma in OKLCH space
     const baseOklch = rgbToOklch(baseColor);
-    const variant1Oklch = rgbToOklch(variant1);
-    const variant2Oklch = rgbToOklch(variant2);
+    const hueVariant1Oklch = rgbToOklch(hueVariant1);
+    const hueVariant2Oklch = rgbToOklch(hueVariant2);
 
     const lightnessTolerance = 0.1;
     const chromaTolerance = 0.1;
 
-    assert.ok(Math.abs(variant1Oklch.l - baseOklch.l) <= lightnessTolerance);
-    assert.ok(Math.abs(variant1Oklch.c - baseOklch.c) <= chromaTolerance);
-    assert.ok(Math.abs(variant2Oklch.l - baseOklch.l) <= lightnessTolerance);
-    assert.ok(Math.abs(variant2Oklch.c - baseOklch.c) <= chromaTolerance);
+    assert.ok(Math.abs(hueVariant1Oklch.l - baseOklch.l) <= lightnessTolerance);
+    assert.ok(Math.abs(hueVariant1Oklch.c - baseOklch.c) <= chromaTolerance);
+    assert.ok(Math.abs(hueVariant2Oklch.l - baseOklch.l) <= lightnessTolerance);
+    assert.ok(Math.abs(hueVariant2Oklch.c - baseOklch.c) <= chromaTolerance);
 
     // Test CSS color parsing (simplified - no longer validates, just parses what it can)
     assert.deepStrictEqual(parseCssColor('#ff0000'), { r: 255, g: 0, b: 0 });
@@ -57,6 +76,28 @@ suite('Lantern Extension Test Suite', () => {
     assert.deepStrictEqual(parseCssColor('oklch(0.7 0.15 180)'), { r: 128, g: 128, b: 128 });
     assert.strictEqual(parseCssColor(''), null);
     assert.strictEqual(parseCssColor('   '), null);
+  });
+
+  test('Color distance calculation works correctly', () => {
+    // Test that identical colors have zero distance
+    const color1 = { l: 0.5, c: 0.1, h: 180 };
+    const color2 = { l: 0.5, c: 0.1, h: 180 };
+    assert.strictEqual(calculateColorDistance(color1, color2), 0);
+
+    // Test that very different colors have large distance
+    const redish = { l: 0.6, c: 0.2, h: 0 };
+    const blueish = { l: 0.4, c: 0.2, h: 240 };
+    const distance = calculateColorDistance(redish, blueish);
+    assert.ok(distance > 0.5, `Distance ${distance} should be > 0.5 for very different colors`);
+
+    // Test hue wrapping (0 and 360 should be close)
+    const hue0 = { l: 0.5, c: 0.1, h: 0 };
+    const hue360 = { l: 0.5, c: 0.1, h: 360 };
+    const hue5 = { l: 0.5, c: 0.1, h: 5 };
+    const distanceWrap = calculateColorDistance(hue0, hue360);
+    const distanceClose = calculateColorDistance(hue0, hue5);
+    assert.ok(distanceWrap < 0.1, 'Hue 0 and 360 should be very close');
+    assert.ok(distanceClose < 0.1, 'Hue 0 and 5 should be very close');
   });
 
   test('Extension commands are registered', async () => {

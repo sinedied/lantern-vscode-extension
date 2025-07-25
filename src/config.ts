@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { RgbColor, hexToRgb } from './colors';
 
 export interface ColorSettings {
   'statusBar.background'?: string;
@@ -161,4 +162,25 @@ export function hasColorSettings(settings: ColorSettings): boolean {
   }
 
   return Boolean(settings['statusBar.background']);
+}
+
+/**
+ * Gets the current color of the status bar
+ */
+export function getCurrentThemeColor(_element?: string): RgbColor {
+  // Default color based on VS Code's default dark theme
+  const defaultColor: RgbColor = { r: 0, g: 122, b: 204 }; // VS Code blue
+
+  // Try to get the current theme color from workbench.colorCustomizations
+  const colorCustomizations = getColorCustomizations();
+
+  if (colorCustomizations['statusBar.background']) {
+    try {
+      return hexToRgb(colorCustomizations['statusBar.background']);
+    } catch {
+      // Fall back to default if parsing fails
+    }
+  }
+
+  return defaultColor;
 }
