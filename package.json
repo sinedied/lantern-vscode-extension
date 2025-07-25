@@ -104,7 +104,7 @@
           "default": true,
           "description": "Enable or disable Lantern"
         },
-        "lantern.hueIntegrationEnabled": {
+        "lantern.hueEnabled": {
           "type": "boolean",
           "default": false,
           "description": "Enable Philips Hue integration"

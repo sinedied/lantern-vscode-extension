@@ -35,7 +35,7 @@ Lantern is a VS Code extension that helps developers distinguish between many di
     "/path/to/project" : {
       "statusBar.background": "",
     },
-    "hueIntegrationEnabled": true,
+    "hueEnabled": true,
     "hueLightIds": ["1", "2"]
   }
   ```

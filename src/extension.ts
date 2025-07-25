@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
 import { hexToRgb } from './colors';
-import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getHueDefaultColor, getEnabled, setEnabled } from './config';
+import { setHueEnabled, getHueLightIds, setHueLightIds, getHueEnabled, getColorCustomizations, getHueDefaultColor, getEnabled, setEnabled } from './config';
 
 let colorService: Lantern;
 
@@ -183,7 +183,7 @@ async function toggleGlobalFunctionality(): Promise<void> {
     await colorService.removeColorsButKeepStatusBar();
 
     // Turn off Hue lights if integration is enabled
-    if (getHueIntegrationEnabled()) {
+    if (getHueEnabled()) {
       const hueService = colorService.getHueService();
       const lightIds = getHueLightIds();
 
@@ -209,7 +209,7 @@ async function enableHueIntegration(): Promise<void> {
       const testConnection = await hueService.testConnection();
       if (testConnection) {
         // Already configured and working, just enable
-        await setHueIntegrationEnabled(true);
+        await setHueEnabled(true);
 
         // Let user select lights
         await selectHueLights();
@@ -267,7 +267,7 @@ async function enableHueIntegration(): Promise<void> {
       }
 
       // Enable integration
-      await setHueIntegrationEnabled(true);
+      await setHueEnabled(true);
 
       vscode.window.showInformationMessage('Philips Hue integration enabled successfully!');
 
@@ -359,7 +359,7 @@ async function disableHueIntegration(): Promise<void> {
     }
 
     // Disable the integration
-    await setHueIntegrationEnabled(false);
+    await setHueEnabled(false);
   } catch (error: any) {
     vscode.window.showErrorMessage(`Failed to disable Hue integration: ${error.message}`);
   }
@@ -404,7 +404,7 @@ async function updateHueLightsOnWindowFocus(): Promise<void> {
     }
 
     // Check if Hue integration is enabled
-    const hueEnabled = getHueIntegrationEnabled();
+    const hueEnabled = getHueEnabled();
 
     if (!hueEnabled) {
       return; // Hue integration is disabled

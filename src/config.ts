@@ -6,7 +6,7 @@ export interface ColorSettings {
 }
 
 export interface LanternConfig {
-  hueIntegrationEnabled: boolean;
+  hueEnabled: boolean;
   hueLightIds: string[];
   hueDefaultColor: string;
   hueIntensity: number;
@@ -33,17 +33,17 @@ export function getWorkbenchConfig(): vscode.WorkspaceConfiguration {
 /**
  * Get Hue integration enabled status
  */
-export function getHueIntegrationEnabled(): boolean {
+export function getHueEnabled(): boolean {
   const config = getLanternConfig();
-  return config.get<boolean>('hueIntegrationEnabled', false);
+  return config.get<boolean>('hueEnabled', false);
 }
 
 /**
  * Set Hue integration enabled status
  */
-export async function setHueIntegrationEnabled(enabled: boolean): Promise<void> {
+export async function setHueEnabled(enabled: boolean): Promise<void> {
   const config = getLanternConfig();
-  await config.update('hueIntegrationEnabled', enabled, vscode.ConfigurationTarget.Global);
+  await config.update('hueEnabled', enabled, vscode.ConfigurationTarget.Global);
 }
 
 /**
