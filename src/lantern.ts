@@ -285,7 +285,7 @@ export class Lantern {
     }
 
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
-    this.statusBarItem.text = '$(lantern-icon)';
+    this.statusBarItem.text = '$(lantern-on)';
     this.statusBarItem.tooltip = 'Lantern - Click to show commands';
     this.statusBarItem.command = {
       command: 'lantern.statusBarIndicatorClicked',

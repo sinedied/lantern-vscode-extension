@@ -47,8 +47,15 @@
   ],
   "contributes": {
     "icons": {
-      "lantern-icon": {
-        "description": "Lantern icon",
+      "lantern-on": {
+        "description": "Lantern on",
+        "default": {
+          "fontPath": "./assets/lantern.woff",
+          "fontCharacter": "\\EA02"
+        }
+      },
+      "lantern-off": {
+        "description": "Lantern off",
         "default": {
           "fontPath": "./assets/lantern.woff",
           "fontCharacter": "\\EA01"
