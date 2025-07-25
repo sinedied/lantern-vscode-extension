@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, rgbToHex, isValidHexColor, hexToRgb } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
+import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled, setGlobalToggleEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -61,12 +61,13 @@ export class Lantern {
       return;
     }
 
-    // Check if global toggle is enabled
+    // Check if global toggle is enabled, if not enable it automatically
     const globalToggleEnabled = getGlobalToggleEnabled();
 
     if (!globalToggleEnabled) {
-      vscode.window.showErrorMessage('Lantern is currently disabled. Use "Lantern: Toggle on/off" to enable it first.');
-      return;
+      await setGlobalToggleEnabled(true);
+      await this.applyStoredColors(); // Ensure status bar is set up
+      vscode.window.showInformationMessage('Lantern has been automatically enabled.');
     }
 
     // Get current theme color for the status bar
@@ -119,12 +120,13 @@ export class Lantern {
       return;
     }
 
-    // Check if global toggle is enabled
+    // Check if global toggle is enabled, if not enable it automatically
     const globalToggleEnabled = getGlobalToggleEnabled();
 
     if (!globalToggleEnabled) {
-      vscode.window.showErrorMessage('Lantern is currently disabled. Use "Lantern: Toggle on/off" to enable it first.');
-      return;
+      await setGlobalToggleEnabled(true);
+      await this.applyStoredColors(); // Ensure status bar is set up
+      vscode.window.showInformationMessage('Lantern has been automatically enabled.');
     }
 
     // Ask user for hex color input
