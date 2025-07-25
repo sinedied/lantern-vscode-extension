@@ -128,21 +128,6 @@
           "type": "object",
           "default": {},
           "description": "Workspace-specific color settings (internal use)"
-        },
-        "lantern.statusBarBackground": {
-          "type": "string",
-          "default": "",
-          "description": "Status bar background color for workspace settings"
-        },
-        "lantern.titleBarActiveBackground": {
-          "type": "string",
-          "default": "",
-          "description": "Title bar background color for workspace settings"
-        },
-        "lantern.activityBarBackground": {
-          "type": "string",
-          "default": "",
-          "description": "Activity bar background color for workspace settings"
         }
       }
     }

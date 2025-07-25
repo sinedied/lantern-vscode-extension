@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
 
-export type StorageLocation = 'global' | 'workspace';
-
 export interface ColorSettings {
   'statusBar.background'?: string;
 }
@@ -11,7 +9,6 @@ export interface LanternConfig {
   hueLightIds: string[];
   hueDefaultColor: string;
   workspaceColors: Record<string, ColorSettings>;
-  statusBarBackground?: string;
 }
 
 const LANTERN_CONFIG_KEY = 'lantern';
@@ -98,12 +95,9 @@ export function getColorCustomizations(): any {
 /**
  * Update workbench color customizations
  */
-export async function updateColorCustomizations(
-  colorCustomizations: any,
-  target: vscode.ConfigurationTarget = vscode.ConfigurationTarget.Workspace,
-): Promise<void> {
+export async function updateColorCustomizations(colorCustomizations: any): Promise<void> {
   const config = getWorkbenchConfig();
-  await config.update('colorCustomizations', colorCustomizations, target);
+  await config.update('colorCustomizations', colorCustomizations, vscode.ConfigurationTarget.Workspace);
 }
 
 /**
@@ -137,43 +131,6 @@ export async function setWorkspaceColorSettings(workspacePath: string, colorSett
   const workspaceColors = getWorkspaceColors();
   workspaceColors[workspacePath] = colorSettings;
   await updateWorkspaceColors(workspaceColors);
-}
-
-/**
- * Get workspace-specific color settings (stored directly in workspace)
- */
-export function getWorkspaceSpecificColorSettings(): ColorSettings {
-  const config = getLanternConfig();
-  const settings: ColorSettings = {};
-
-  const statusBarBg = config.get<string>('statusBarBackground');
-
-  if (statusBarBg) {
-    settings['statusBar.background'] = statusBarBg;
-  }
-
-  return settings;
-}
-
-/**
- * Save color settings to workspace-specific configuration
- */
-export async function saveWorkspaceSpecificColorSettings(colorSettings: ColorSettings): Promise<void> {
-  const config = getLanternConfig();
-
-  for (const [key, value] of Object.entries(colorSettings)) {
-    if (key === 'statusBar.background') {
-      await config.update('statusBarBackground', value, vscode.ConfigurationTarget.Workspace);
-    }
-  }
-}
-
-/**
- * Clear workspace-specific color settings
- */
-export async function clearWorkspaceSpecificColorSettings(): Promise<void> {
-  const config = getLanternConfig();
-  await config.update('statusBarBackground', undefined, vscode.ConfigurationTarget.Workspace);
 }
 
 /**

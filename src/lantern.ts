@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, getCurrentThemeColor, rgbToHex } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, getWorkspaceSpecificColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, saveWorkspaceSpecificColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, clearWorkspaceSpecificColorSettings, getHueLightIds, getGlobalToggleEnabled } from './config';
+import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -44,14 +44,7 @@ export class Lantern {
       return;
     }
 
-    // Check workspace settings first
-    const workspaceSettings = this.getWorkspaceSettings();
-    if (workspaceSettings && hasColorSettings(workspaceSettings)) {
-      await this.applyColor(workspaceSettings);
-      return;
-    }
-
-    // Check global settings
+    // Check global settings for this workspace
     const globalSettings = this.getGlobalSettings();
     if (globalSettings && hasColorSettings(globalSettings)) {
       await this.applyColor(globalSettings);
@@ -83,30 +76,11 @@ export class Lantern {
     const newColor = generateRandomColorVariant(baseColor);
     const hexColor = rgbToHex(newColor);
 
-    // Ask user where to save the settings
-    const saveLocation = await vscode.window.showQuickPick(
-      [
-        { label: 'Global settings (default)', value: 'global' },
-        { label: 'Workspace settings', value: 'workspace' },
-      ],
-      {
-        placeHolder: 'Where would you like to save the color settings?',
-      },
-    );
-
-    if (!saveLocation) {
-      return;
-    }
-
     // Create color settings
     const colorSettings = this.createColorSettings(hexColor);
 
-    // Save settings
-    if (saveLocation.value === 'workspace') {
-      await this.saveToWorkspaceSettings(colorSettings);
-    } else {
-      await this.saveToGlobalSettings(colorSettings);
-    }
+    // Save settings to global configuration
+    await this.saveToGlobalSettings(colorSettings);
 
     // Apply the color
     await this.applyColor(colorSettings);
@@ -117,7 +91,7 @@ export class Lantern {
     }
 
     vscode.window.showInformationMessage(
-      `Lantern: Assigned color ${hexColor} to status bar. Settings saved to ${saveLocation.label.toLowerCase()}.`,
+      `Lantern: Assigned color ${hexColor} to status bar. Settings saved to global configuration.`,
     );
   }
 
@@ -130,7 +104,7 @@ export class Lantern {
       return;
     }
 
-    // Remove from workspace settings
+    // Remove from workbench color customizations
     const currentColorCustomizations = getColorCustomizations();
 
     // Create a new object instead of modifying the existing one
@@ -157,11 +131,8 @@ export class Lantern {
       await updateWorkspaceColors(globalSettings);
     }
 
-    // Remove workspace-specific settings
-    await clearWorkspaceSpecificColorSettings();
-
-    // Update status bar to reflect the reset state
-    this.createStatusBarIndicator();
+    // Reapply any remaining stored colors after reset
+    await this.applyStoredColors();
 
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
   }
@@ -220,20 +191,12 @@ export class Lantern {
     };
   }
 
-  private getWorkspaceSettings(): ColorSettings | null {
-    return getWorkspaceSpecificColorSettings();
-  }
-
   private getGlobalSettings(): ColorSettings | null {
     if (!this.currentWorkspacePath) {
       return null;
     }
 
     return getWorkspaceColorSettings(this.currentWorkspacePath);
-  }
-
-  private async saveToWorkspaceSettings(colorSettings: ColorSettings): Promise<void> {
-    await saveWorkspaceSpecificColorSettings(colorSettings);
   }
 
   private async saveToGlobalSettings(colorSettings: ColorSettings): Promise<void> {
