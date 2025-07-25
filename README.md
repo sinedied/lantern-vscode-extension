@@ -2,7 +2,7 @@
   <img src="./docs/images/icon.png" alt="Lantern icon" width="96" />
 </div>
 
-# Lantern - Lighten your workspace
+# Lantern - Light up your workspace
 
 [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sinedied.lantern?style=flat-square&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=sinedied.lantern)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/sinedied/lantern-vscode-extension/build.yml?style=flat-square&label=Build)](https://github.com/sinedied/lantern-vscode-extension/actions)
