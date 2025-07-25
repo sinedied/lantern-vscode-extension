@@ -380,7 +380,7 @@ export class Lantern {
     this.updateStatusBarIcon();
     this.statusBarItem.tooltip = 'Lantern - Click to show commands';
     this.statusBarItem.command = {
-      command: 'lantern.statusBarIndicatorClicked',
+      command: 'lantern.showCommands',
       title: 'Lantern'
     };
     this.statusBarItem.show();

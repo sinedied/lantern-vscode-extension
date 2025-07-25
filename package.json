@@ -92,8 +92,8 @@
         "title": "Lantern: Reset colors for this workspace"
       },
       {
-        "command": "lantern.statusBarIndicatorClicked",
-        "title": "Lantern: Status Bar Indicator Clicked"
+        "command": "lantern.showCommands",
+        "title": "Lantern: Show commands"
       }
     ],
     "configuration": {

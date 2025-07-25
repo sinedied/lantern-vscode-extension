@@ -126,7 +126,7 @@ suite('Lantern Extension Test Suite', () => {
     assert.ok(commands.includes('lantern.disableHueIntegration'), 'disableHueIntegration command not found');
     assert.ok(commands.includes('lantern.setHueIntensity'), 'setHueIntensity command not found');
     assert.ok(commands.includes('lantern.resetColors'), 'resetColors command not found');
-    assert.ok(commands.includes('lantern.statusBarIndicatorClicked'), 'statusBarIndicatorClicked command not found');
+    assert.ok(commands.includes('lantern.showCommands'), 'showCommands command not found');
   });
 
   test('Configuration and color functions work correctly', () => {
