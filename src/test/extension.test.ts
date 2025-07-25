@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { rgbToHex, hexToRgb, generateRandomColorVariant, generateRandomHueVariant, rgbToOklch, oklchToRgb, parseCssColor, calculateColorDistance } from '../colors';
+import { rgbToHex, hexToRgb, generateRandomColorVariant, generateRandomHueVariant, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
 import { getGlobalToggleEnabled, setGlobalToggleEnabled, getCurrentThemeColor } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
@@ -12,9 +12,30 @@ suite('Lantern Extension Test Suite', () => {
     const redHex = rgbToHex(red);
     assert.strictEqual(redHex, '#ff0000');
 
-    // Test hex to RGB conversion
+    // Test hex to RGB conversion including 8-character hex
     const blueRgb = hexToRgb('#0000ff');
     assert.deepStrictEqual(blueRgb, { r: 0, g: 0, b: 255 });
+
+    // Test 3-character hex
+    const shortRedRgb = hexToRgb('#f00');
+    assert.deepStrictEqual(shortRedRgb, { r: 255, g: 0, b: 0 });
+
+    // Test 8-character hex (RGBA - alpha is ignored)
+    const rgbaRgb = hexToRgb('#ff0000ff');
+    assert.deepStrictEqual(rgbaRgb, { r: 255, g: 0, b: 0 });
+
+    // Test hex validation
+    assert.ok(isValidHexColor('#ff0000'), '6-character hex should be valid');
+    assert.ok(isValidHexColor('#f00'), '3-character hex should be valid');
+    assert.ok(isValidHexColor('#ff0000ff'), '8-character hex should be valid');
+    assert.ok(!isValidHexColor('ff0000'), 'Missing # should be invalid');
+    assert.ok(!isValidHexColor('#gg0000'), 'Invalid characters should be invalid');
+    assert.ok(!isValidHexColor('#ff00'), '4-character hex should be invalid');
+    assert.ok(!isValidHexColor('#ff000'), '5-character hex should be invalid');
+    assert.ok(!isValidHexColor('#ff00000'), '7-character hex should be invalid');
+    assert.ok(!isValidHexColor('#ff000000f'), '9-character hex should be invalid');
+    assert.ok(!isValidHexColor(''), 'Empty string should be invalid');
+    assert.ok(!isValidHexColor('red'), 'Named colors should be invalid');
 
     // Test OKLCH color space conversion (round trip)
     const originalColor = { r: 128, g: 64, b: 192 };
@@ -38,12 +59,12 @@ suite('Lantern Extension Test Suite', () => {
     // Test that colors avoid existing colors when provided
     const existingColor = { r: 255, g: 0, b: 0 }; // Red
     const avoidingVariant = generateRandomColorVariant(baseColor, existingColor);
-    
+
     // Check that the new color is sufficiently different from the existing one
     const existingOklch = rgbToOklch(existingColor);
     const avoidingOklch = rgbToOklch(avoidingVariant);
     const distance = calculateColorDistance(existingOklch, avoidingOklch);
-    
+
     // Should have reasonable distance (at least 0.1 in perceptual space)
     assert.ok(distance > 0.1, `Color distance ${distance} should be > 0.1`);
 
@@ -66,16 +87,6 @@ suite('Lantern Extension Test Suite', () => {
     assert.ok(Math.abs(hueVariant1Oklch.c - baseOklch.c) <= chromaTolerance);
     assert.ok(Math.abs(hueVariant2Oklch.l - baseOklch.l) <= lightnessTolerance);
     assert.ok(Math.abs(hueVariant2Oklch.c - baseOklch.c) <= chromaTolerance);
-
-    // Test CSS color parsing (simplified - no longer validates, just parses what it can)
-    assert.deepStrictEqual(parseCssColor('#ff0000'), { r: 255, g: 0, b: 0 });
-    assert.deepStrictEqual(parseCssColor('#f00'), { r: 255, g: 0, b: 0 });
-    // Non-hex colors return neutral gray for Hue integration
-    assert.deepStrictEqual(parseCssColor('red'), { r: 128, g: 128, b: 128 });
-    assert.deepStrictEqual(parseCssColor('rgb(0, 255, 0)'), { r: 128, g: 128, b: 128 });
-    assert.deepStrictEqual(parseCssColor('oklch(0.7 0.15 180)'), { r: 128, g: 128, b: 128 });
-    assert.strictEqual(parseCssColor(''), null);
-    assert.strictEqual(parseCssColor('   '), null);
   });
 
   test('Color distance calculation works correctly', () => {

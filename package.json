@@ -69,7 +69,7 @@
       },
       {
         "command": "lantern.setColorManually",
-        "title": "Lantern: Set color manually"
+        "title": "Lantern: Set hex color manually"
       },
       {
         "command": "lantern.toggleGlobal",

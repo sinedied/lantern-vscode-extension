@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RgbColor, generateRandomColorVariant, rgbToHex, parseCssColor } from './colors';
+import { RgbColor, generateRandomColorVariant, rgbToHex, isValidHexColor, hexToRgb } from './colors';
 import { Hue } from './hue';
 import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
 
@@ -76,12 +76,14 @@ export class Lantern {
     let existingColor: RgbColor | undefined;
     const existingSettings = this.getGlobalSettings();
     if (existingSettings && existingSettings['statusBar.background']) {
-      try {
-        const parsed = parseCssColor(existingSettings['statusBar.background']);
-        existingColor = parsed || undefined;
-      } catch {
-        // If parsing fails, treat as no existing color
-        existingColor = undefined;
+      const colorValue = existingSettings['statusBar.background'];
+      if (isValidHexColor(colorValue)) {
+        try {
+          existingColor = hexToRgb(colorValue);
+        } catch {
+          // If parsing fails, treat as no existing color
+          existingColor = undefined;
+        }
       }
     }
 
@@ -110,7 +112,7 @@ export class Lantern {
   }
 
   /**
-   * Set a color manually using any valid CSS color
+   * Set a color manually using hex color format
    */
   async setColorManually(): Promise<void> {
     if (!this.currentWorkspacePath) {
@@ -126,23 +128,40 @@ export class Lantern {
       return;
     }
 
-    // Ask user for color input
+    // Ask user for hex color input
     const colorInput = await vscode.window.showInputBox({
-      placeHolder: 'Enter any CSS color (e.g., #ff0000, red, rgb(255, 0, 0), oklch(0.7 0.15 180))',
-      prompt: 'Enter any valid CSS color for the status bar'
+      placeHolder: 'Enter a hex color (e.g., #ff0000, #f00, #ff0000ff)',
+      prompt: 'Enter a valid hex color for the status bar (required for Hue light compatibility)',
+      validateInput: (value: string) => {
+        if (!value || !value.trim()) {
+          return 'Please enter a color value';
+        }
+
+        if (!isValidHexColor(value.trim())) {
+          return 'Please enter a valid hex color format (#f00, #ff0000, or #ff0000ff)';
+        }
+
+        return null;
+      }
     });
 
     if (!colorInput || !colorInput.trim()) {
       return;
     }
 
-    const cssColor = colorInput.trim();
+    const hexColor = colorInput.trim();
 
-    // Try to parse for RGB (for Hue integration), but don't validate
-    const rgbColor = parseCssColor(cssColor);
+    // Parse the hex color to RGB for Hue integration
+    let rgbColor: RgbColor;
+    try {
+      rgbColor = hexToRgb(hexColor);
+    } catch (error) {
+      vscode.window.showErrorMessage(`Invalid hex color format: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      return;
+    }
 
-    // Create color settings with the original CSS color string
-    const colorSettings = this.createColorSettings(cssColor);
+    // Create color settings with the hex color
+    const colorSettings = this.createColorSettings(hexColor);
 
     // Save settings to global configuration
     await this.saveToGlobalSettings(colorSettings);
@@ -150,13 +169,13 @@ export class Lantern {
     // Apply the color
     await this.applyColor(colorSettings);
 
-    // Update Hue lights if enabled and we have RGB color data
-    if (rgbColor && this.hueService.isEnabled() && this.hueService.isConfigured()) {
+    // Update Hue lights if enabled
+    if (this.hueService.isEnabled() && this.hueService.isConfigured()) {
       await this.updateHueLights(rgbColor);
     }
 
     vscode.window.showInformationMessage(
-      `Lantern: Set status bar color to ${cssColor}. Settings saved to global configuration.`,
+      `Lantern: Set status bar color to ${hexColor}. Settings saved to global configuration.`,
     );
   }
 
@@ -209,12 +228,14 @@ export class Lantern {
     if (lightIds.length > 0 && this.currentWorkspacePath) {
       const colorSettings = getWorkspaceColorSettings(this.currentWorkspacePath);
       if (colorSettings && hasColorSettings(colorSettings)) {
-        // Get the actual workspace color and parse it
+        // Get the actual workspace color and parse it (hex only)
         const workspaceColor = colorSettings['statusBar.background'];
-        if (workspaceColor) {
-          const rgbColor = parseCssColor(workspaceColor);
-          if (rgbColor) {
+        if (workspaceColor && isValidHexColor(workspaceColor)) {
+          try {
+            const rgbColor = hexToRgb(workspaceColor);
             await this.updateHueLights(rgbColor);
+          } catch {
+            // If conversion fails, skip Hue update
           }
         }
       }

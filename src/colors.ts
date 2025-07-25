@@ -94,7 +94,7 @@ export function calculateColorDistance(color1: OklchColor, color2: OklchColor): 
   // Calculate differences
   const lightnessDiff = Math.abs(color1.l - color2.l) * lightnessWeight;
   const chromaDiff = Math.abs(color1.c - color2.c) * chromaWeight;
-  
+
   // Handle hue difference (circular, 0-360)
   let hueDiff = Math.abs(color1.h - color2.h);
   if (hueDiff > 180) {
@@ -113,36 +113,36 @@ export function calculateColorDistance(color1: OklchColor, color2: OklchColor): 
 export function generateRandomColorVariant(baseColor: RgbColor, existingColor?: RgbColor, maxAttempts: number = 50): RgbColor {
   const baseOklch = rgbToOklch(baseColor);
   const existingOklch = existingColor ? rgbToOklch(existingColor) : null;
-  
+
   let bestColor: RgbColor = baseColor;
   let bestDistance = 0;
-  
+
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     // Generate a varied color with good status bar characteristics
     const newOklch = generateStatusBarColor();
     const newColor = oklchToRgb(newOklch);
-    
+
     // Calculate distance from existing color if provided
     let distance = existingOklch ? calculateColorDistance(newOklch, existingOklch) : 1;
-    
+
     // Prefer colors with good distance from existing color
     if (distance > bestDistance) {
       bestDistance = distance;
       bestColor = newColor;
     }
-    
+
     // If we found a color with good distance, use it
     // Lowered threshold for easier satisfaction
     if (distance > 0.5) {
       break;
     }
   }
-  
+
   // If no existing color to avoid, just return a random color
   if (!existingOklch) {
     return oklchToRgb(generateStatusBarColor());
   }
-  
+
   return bestColor;
 }
 
@@ -153,18 +153,18 @@ function generateStatusBarColor(): OklchColor {
   // Define good lightness ranges for status bar (avoid too light or too dark)
   const minLightness = 0.3; // Not too dark
   const maxLightness = 0.8; // Not too light
-  
+
   // Define good chroma ranges for vibrant but not overwhelming colors
   const minChroma = 0.12; // More saturation for better distinction
   const maxChroma = 0.35; // Higher max for more vibrant colors
-  
+
   // Generate varied parameters with better distribution
   const lightness = minLightness + Math.random() * (maxLightness - minLightness);
   const chroma = minChroma + Math.random() * (maxChroma - minChroma);
-  
+
   // Use completely random hue for maximum variety
   const hue = Math.random() * 360;
-  
+
   return { l: lightness, c: chroma, h: hue };
 }
 
@@ -196,8 +196,36 @@ export function rgbToHex(rgb: RgbColor): string {
 }
 
 /**
+ * Validates if a string is a valid hex color format
+ * Supports 3-character (#f00), 6-character (#ff0000), and 8-character (#ff0000ff) hex codes
+ */
+export function isValidHexColor(color: string): boolean {
+  if (!color || typeof color !== 'string') {
+    return false;
+  }
+
+  const trimmed = color.trim();
+  if (!trimmed.startsWith('#')) {
+    return false;
+  }
+
+  const cleanHex = trimmed.slice(1);
+  
+  // Check for valid lengths and characters
+  if (cleanHex.length === 3) {
+    return /^[a-f\d]{3}$/i.test(cleanHex);
+  } else if (cleanHex.length === 6) {
+    return /^[a-f\d]{6}$/i.test(cleanHex);
+  } else if (cleanHex.length === 8) {
+    return /^[a-f\d]{8}$/i.test(cleanHex);
+  }
+
+  return false;
+}
+
+/**
  * Converts hex string to RGB color
- * Supports both 3-character (#f00) and 6-character (#ff0000) hex codes
+ * Supports 3-character (#f00), 6-character (#ff0000), and 8-character (#ff0000ff) hex codes
  */
 export function hexToRgb(hex: string): RgbColor {
   // Remove # if present
@@ -217,42 +245,31 @@ export function hexToRgb(hex: string): RgbColor {
   }
 
   // Handle 6-character hex codes
-  const result = /^([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(cleanHex);
-  if (!result) {
-    throw new Error('Invalid hex color');
-  }
-  return {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16),
-  };
-}
-
-/**
- * Converts any valid CSS color string to RGB using browser's built-in parsing
- * Supports all CSS color formats including modern color spaces like oklch(), lab(), etc.
- */
-export function parseCssColor(cssColor: string): RgbColor | null {
-  // For VS Code extension context, we can't use DOM, so we'll accept the color as-is
-  // and let VS Code handle the validation when applying it to the UI
-  const color = cssColor.trim();
-
-  if (!color) {
-    return null;
-  }
-
-  // For hex colors, we can still parse them to RGB for Hue integration
-  if (color.startsWith('#')) {
-    try {
-      return hexToRgb(color);
-    } catch {
-      // If hex parsing fails, return a default color for Hue but still allow the CSS color
-      return { r: 128, g: 128, b: 128 };
+  if (cleanHex.length === 6) {
+    const result = /^([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(cleanHex);
+    if (!result) {
+      throw new Error('Invalid hex color');
     }
+    return {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+    };
   }
 
-  // For all other CSS colors (rgb, hsl, oklch, lab, named colors, etc.)
-  // we'll return a neutral color for Hue integration since we can't easily parse them
-  // The actual color will still be applied correctly to VS Code's UI
-  return { r: 128, g: 128, b: 128 };
+  // Handle 8-character hex codes (RGBA - ignore alpha for RGB conversion)
+  if (cleanHex.length === 8) {
+    const result = /^([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(cleanHex);
+    if (!result) {
+      throw new Error('Invalid hex color');
+    }
+    return {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+      // Alpha channel (result[4]) is ignored for RGB conversion
+    };
+  }
+
+  throw new Error('Invalid hex color format. Supported formats: #f00, #ff0000, #ff0000ff');
 }

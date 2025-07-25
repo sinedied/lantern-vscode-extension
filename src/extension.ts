@@ -129,7 +129,7 @@ async function showLanternCommands(): Promise<void> {
     },
     {
       label: '$(color-mode) Set color manually',
-      description: 'Set a custom color using any CSS color',
+      description: 'Set a custom hex color (e.g., #ff0000)',
       command: 'lantern.setColorManually'
     },
     {
