@@ -160,6 +160,9 @@ export class Lantern {
     // Remove workspace-specific settings
     await clearWorkspaceSpecificColorSettings();
 
+    // Update status bar to reflect the reset state
+    this.createStatusBarIndicator();
+
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
   }
 
