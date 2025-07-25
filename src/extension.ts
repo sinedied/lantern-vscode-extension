@@ -49,8 +49,8 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // Register the status bar indicator clicked command
-  const statusBarIndicatorClickedDisposable = vscode.commands.registerCommand('lantern.statusBarIndicatorClicked', () => {
-    vscode.window.showInformationMessage('Lantern workspace color indicator');
+  const statusBarIndicatorClickedDisposable = vscode.commands.registerCommand('lantern.statusBarIndicatorClicked', async () => {
+    await showLanternCommands();
   });
 
   context.subscriptions.push(
@@ -62,6 +62,40 @@ export function activate(context: vscode.ExtensionContext) {
     windowStateDisposable,
     colorService,
   );
+}
+
+async function showLanternCommands(): Promise<void> {
+  const commands = [
+    {
+      label: '$(symbol-color) Assign unique color',
+      description: 'Assign a unique color to this workspace',
+      command: 'lantern.assignUniqueColor'
+    },
+    {
+      label: '$(refresh) Reset colors',
+      description: 'Remove all assigned colors',
+      command: 'lantern.resetColors'
+    },
+    {
+      label: '$(lightbulb) Enable Philips Hue',
+      description: 'Connect to Philips Hue lights',
+      command: 'lantern.enableHueIntegration'
+    },
+    {
+      label: '$(circle-slash) Disable Philips Hue',
+      description: 'Disconnect from Philips Hue lights',
+      command: 'lantern.disableHueIntegration'
+    }
+  ];
+
+  const selectedCommand = await vscode.window.showQuickPick(commands, {
+    placeHolder: 'Select a Lantern command',
+    title: 'Lantern Commands'
+  });
+
+  if (selectedCommand) {
+    await vscode.commands.executeCommand(selectedCommand.command);
+  }
 }
 
 async function enableHueIntegration(): Promise<void> {
