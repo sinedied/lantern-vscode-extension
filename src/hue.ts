@@ -268,7 +268,7 @@ export class Hue {
   isEnabled(): boolean {
     const config = vscode.workspace.getConfiguration('lantern');
     const hueEnabled = config.get<boolean>('hueIntegrationEnabled', false);
-    const globalToggleEnabled = config.get<boolean>('globalToggleEnabled', true);
-    return hueEnabled && globalToggleEnabled;
+    const enabled = config.get<boolean>('enabled', true);
+    return hueEnabled && enabled;
   }
 }

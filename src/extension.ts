@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
 import { hexToRgb } from './colors';
-import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getHueDefaultColor, getGlobalToggleEnabled, setGlobalToggleEnabled } from './config';
+import { setHueIntegrationEnabled, getHueLightIds, setHueLightIds, getHueIntegrationEnabled, getColorCustomizations, getHueDefaultColor, getEnabled, setEnabled } from './config';
 
 let colorService: Lantern;
 
@@ -114,7 +114,7 @@ async function initializeExtension(): Promise<void> {
 }
 
 async function showLanternCommands(): Promise<void> {
-  const isEnabled = getGlobalToggleEnabled();
+  const isEnabled = getEnabled();
 
   const commands = [
     {
@@ -165,10 +165,10 @@ async function showLanternCommands(): Promise<void> {
 }
 
 async function toggleGlobalFunctionality(): Promise<void> {
-  const currentState = getGlobalToggleEnabled();
+  const currentState = getEnabled();
   const newState = !currentState;
 
-  await setGlobalToggleEnabled(newState);
+  await setEnabled(newState);
 
   if (newState) {
     // Enabling: apply stored colors and update Hue lights
@@ -398,8 +398,8 @@ async function applyCurrentColorToHueLights(): Promise<void> {
 async function updateHueLightsOnWindowFocus(): Promise<void> {
   try {
     // Check if global toggle is enabled
-    const globalToggleEnabled = getGlobalToggleEnabled();
-    if (!globalToggleEnabled) {
+    const enabled = getEnabled();
+    if (!enabled) {
       return; // Global toggle is disabled
     }
 

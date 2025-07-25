@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, rgbToHex, isValidHexColor, hexToRgb } from './colors';
 import { Hue } from './hue';
-import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getGlobalToggleEnabled, setGlobalToggleEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
+import { ColorSettings, hasColorSettings, getWorkspaceColorSettings, setWorkspaceColorSettings, getColorCustomizations, updateColorCustomizations, getWorkspaceColors, updateWorkspaceColors, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -37,9 +37,9 @@ export class Lantern {
     this.createStatusBarIndicator();
 
     // Check if global toggle is enabled
-    const globalToggleEnabled = getGlobalToggleEnabled();
+    const enabled = getEnabled();
 
-    if (!globalToggleEnabled) {
+    if (!enabled) {
       // If globally disabled, don't apply colors but keep status bar for quick access
       return;
     }
@@ -62,10 +62,10 @@ export class Lantern {
     }
 
     // Check if global toggle is enabled, if not enable it automatically
-    const globalToggleEnabled = getGlobalToggleEnabled();
+    const enabled = getEnabled();
 
-    if (!globalToggleEnabled) {
-      await setGlobalToggleEnabled(true);
+    if (!enabled) {
+      await setEnabled(true);
       await this.applyStoredColors(); // Ensure status bar is set up
       vscode.window.showInformationMessage('Lantern has been automatically enabled.');
     }
@@ -121,10 +121,10 @@ export class Lantern {
     }
 
     // Check if global toggle is enabled, if not enable it automatically
-    const globalToggleEnabled = getGlobalToggleEnabled();
+    const enabled = getEnabled();
 
-    if (!globalToggleEnabled) {
-      await setGlobalToggleEnabled(true);
+    if (!enabled) {
+      await setEnabled(true);
       await this.applyStoredColors(); // Ensure status bar is set up
       vscode.window.showInformationMessage('Lantern has been automatically enabled.');
     }
@@ -396,8 +396,8 @@ export class Lantern {
       return;
     }
 
-    const globalToggleEnabled = getGlobalToggleEnabled();
-    this.statusBarItem.text = globalToggleEnabled ? '$(lantern-on)' : '$(lantern-off)';
+    const enabled = getEnabled();
+    this.statusBarItem.text = enabled ? '$(lantern-on)' : '$(lantern-off)';
   }
 
   /**

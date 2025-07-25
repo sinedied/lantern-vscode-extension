@@ -49,17 +49,17 @@ export async function setHueIntegrationEnabled(enabled: boolean): Promise<void> 
 /**
  * Get global toggle enabled status
  */
-export function getGlobalToggleEnabled(): boolean {
+export function getEnabled(): boolean {
   const config = getLanternConfig();
-  return config.get<boolean>('globalToggleEnabled', true);
+  return config.get<boolean>('enabled', true);
 }
 
 /**
  * Set global toggle enabled status
  */
-export async function setGlobalToggleEnabled(enabled: boolean): Promise<void> {
+export async function setEnabled(enabled: boolean): Promise<void> {
   const config = getLanternConfig();
-  await config.update('globalToggleEnabled', enabled, vscode.ConfigurationTarget.Global);
+  await config.update('enabled', enabled, vscode.ConfigurationTarget.Global);
 }
 
 /**

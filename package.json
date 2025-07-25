@@ -99,7 +99,7 @@
     "configuration": {
       "title": "Lantern",
       "properties": {
-        "lantern.globalToggleEnabled": {
+        "lantern.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable or disable Lantern"

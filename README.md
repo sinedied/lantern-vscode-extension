@@ -70,7 +70,7 @@ Lantern stores settings globally in your VS Code user settings:
 
 ```json
 {
-  "lantern.globalToggleEnabled": true,
+  "lantern.enabled": true,
   "lantern.hueIntegrationEnabled": false,
   "lantern.hueLightIds": [],
   "lantern.hueIntensity": 100,
@@ -82,7 +82,7 @@ Lantern stores settings globally in your VS Code user settings:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| `globalToggleEnabled` | Enable or disable Lantern | `true` |
+| `enabled` | Enable or disable Lantern | `true` |
 | `hueIntegrationEnabled` | Enable Philips Hue integration | `false` |
 | `hueLightIds` | List of Hue light IDs to control | `[]` |
 | `hueIntensity` | Brightness of Hue lights (0-100) | `100` |
@@ -109,7 +109,7 @@ Install Lantern from the [Visual Studio Code Marketplace](https://marketplace.vi
 ## Troubleshooting
 
 ### Colors not appearing?
-- Ensure `lantern.globalToggleEnabled` is set to `true`
+- Ensure `lantern.enabled` is set to `true`
 - Check that you've assigned a color using `Lantern: Assign random color` or `Lantern: Set color manually`
 - Verify your VS Code theme supports status bar customization
 

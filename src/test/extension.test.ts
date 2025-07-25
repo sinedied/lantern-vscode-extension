@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
-import { getGlobalToggleEnabled, setGlobalToggleEnabled, getCurrentThemeColor } from '../config';
+import { getEnabled, setEnabled, getCurrentThemeColor } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -119,17 +119,17 @@ suite('Lantern Extension Test Suite', () => {
 
   test('Global toggle configuration works correctly', async () => {
     // Test getting initial global toggle state (should default to true)
-    const initialState = getGlobalToggleEnabled();
+    const initialState = getEnabled();
     assert.strictEqual(typeof initialState, 'boolean');
 
     // Test setting global toggle to false
-    await setGlobalToggleEnabled(false);
-    const disabledState = getGlobalToggleEnabled();
+    await setEnabled(false);
+    const disabledState = getEnabled();
     assert.strictEqual(disabledState, false);
 
     // Test setting global toggle to true
-    await setGlobalToggleEnabled(true);
-    const enabledState = getGlobalToggleEnabled();
+    await setEnabled(true);
+    const enabledState = getEnabled();
     assert.strictEqual(enabledState, true);
   });
 });
