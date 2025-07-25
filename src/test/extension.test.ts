@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { rgbToHex, hexToRgb, generateRandomColorVariant, generateRandomHueVariant, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
+import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
 import { getGlobalToggleEnabled, setGlobalToggleEnabled, getCurrentThemeColor } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
@@ -67,26 +67,6 @@ suite('Lantern Extension Test Suite', () => {
 
     // Should have reasonable distance (at least 0.1 in perceptual space)
     assert.ok(distance > 0.1, `Color distance ${distance} should be > 0.1`);
-
-    // Test legacy random hue variant generation
-    const hueVariant1 = generateRandomHueVariant(baseColor);
-    const hueVariant2 = generateRandomHueVariant(baseColor);
-
-    // Variants should be different colors
-    assert.notDeepStrictEqual(hueVariant1, hueVariant2);
-
-    // But should have similar lightness and chroma in OKLCH space
-    const baseOklch = rgbToOklch(baseColor);
-    const hueVariant1Oklch = rgbToOklch(hueVariant1);
-    const hueVariant2Oklch = rgbToOklch(hueVariant2);
-
-    const lightnessTolerance = 0.1;
-    const chromaTolerance = 0.1;
-
-    assert.ok(Math.abs(hueVariant1Oklch.l - baseOklch.l) <= lightnessTolerance);
-    assert.ok(Math.abs(hueVariant1Oklch.c - baseOklch.c) <= chromaTolerance);
-    assert.ok(Math.abs(hueVariant2Oklch.l - baseOklch.l) <= lightnessTolerance);
-    assert.ok(Math.abs(hueVariant2Oklch.c - baseOklch.c) <= chromaTolerance);
   });
 
   test('Color distance calculation works correctly', () => {

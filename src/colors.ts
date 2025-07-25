@@ -107,7 +107,7 @@ export function calculateColorDistance(color1: OklchColor, color2: OklchColor): 
 }
 
 /**
- * Generates a random color variant with improved variety and contrast
+ * Generates a random color variant.
  * Ensures good status bar contrast and avoids colors too similar to existing ones
  */
 export function generateRandomColorVariant(baseColor: RgbColor, existingColor?: RgbColor, maxAttempts: number = 50): RgbColor {
@@ -156,7 +156,7 @@ function generateStatusBarColor(): OklchColor {
 
   // Define good chroma ranges for vibrant but not overwhelming colors
   const minChroma = 0.12; // More saturation for better distinction
-  const maxChroma = 0.35; // Higher max for more vibrant colors
+  const maxChroma = 0.5; // Higher max for more vibrant colors
 
   // Generate varied parameters with better distribution
   const lightness = minLightness + Math.random() * (maxLightness - minLightness);
@@ -166,25 +166,6 @@ function generateStatusBarColor(): OklchColor {
   const hue = Math.random() * 360;
 
   return { l: lightness, c: chroma, h: hue };
-}
-
-/**
- * Legacy function name for compatibility - generates a random hue while preserving lightness and chroma
- */
-export function generateRandomHueVariant(baseColor: RgbColor): RgbColor {
-  const oklch = rgbToOklch(baseColor);
-
-  // Generate random hue (0-360 degrees)
-  const randomHue = Math.random() * 360;
-
-  // Create new color with same lightness and chroma but different hue
-  const newOklch: OklchColor = {
-    l: oklch.l,
-    c: oklch.c,
-    h: randomHue,
-  };
-
-  return oklchToRgb(newOklch);
 }
 
 /**
@@ -210,7 +191,7 @@ export function isValidHexColor(color: string): boolean {
   }
 
   const cleanHex = trimmed.slice(1);
-  
+
   // Check for valid lengths and characters
   if (cleanHex.length === 3) {
     return /^[a-f\d]{3}$/i.test(cleanHex);
