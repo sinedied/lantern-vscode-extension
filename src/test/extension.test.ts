@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { rgbToHex, hexToRgb, generateRandomColorVariant, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
-import { getEnabled, setEnabled, getCurrentThemeColor, getWorkspaceColor, setWorkspaceColor, getWorkspaceColorMap, updateWorkspaceColorMap } from '../config';
+import { rgbToHex, hexToRgb, generateRandomColor, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
+import { getEnabled, setEnabled, getWorkspaceColor, setWorkspaceColor, getWorkspaceColorMap, updateWorkspaceColorMap } from '../config';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -50,15 +50,15 @@ suite('Lantern Extension Test Suite', () => {
 
     // Test improved random color variant generation
     const baseColor = { r: 100, g: 150, b: 200 };
-    const variant1 = generateRandomColorVariant(baseColor);
-    const variant2 = generateRandomColorVariant(baseColor);
+    const variant1 = generateRandomColor(baseColor);
+    const variant2 = generateRandomColor(baseColor);
 
     // Variants should be different colors
     assert.notDeepStrictEqual(variant1, variant2);
 
     // Test that colors avoid existing colors when provided
     const existingColor = { r: 255, g: 0, b: 0 }; // Red
-    const avoidingVariant = generateRandomColorVariant(baseColor, existingColor);
+    const avoidingVariant = generateRandomColor(existingColor);
 
     // Check that the new color is sufficiently different from the existing one
     const existingOklch = rgbToOklch(existingColor);
@@ -107,14 +107,6 @@ suite('Lantern Extension Test Suite', () => {
     assert.ok(commands.includes('lantern.setHueIntensity'), 'setHueIntensity command not found');
     assert.ok(commands.includes('lantern.resetColor'), 'resetColor command not found');
     assert.ok(commands.includes('lantern.showCommands'), 'showCommands command not found');
-  });
-
-  test('Configuration and color functions work correctly', () => {
-    // Test that getCurrentThemeColor works for status bar
-    const statusBarColor = getCurrentThemeColor();
-    assert.ok(statusBarColor.r !== undefined);
-    assert.ok(statusBarColor.g !== undefined);
-    assert.ok(statusBarColor.b !== undefined);
   });
 
   test('Global toggle configuration works correctly', async () => {

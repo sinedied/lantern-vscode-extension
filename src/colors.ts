@@ -95,37 +95,26 @@ export function calculateColorDistance(color1: OklchColor, color2: OklchColor): 
   return Math.sqrt(lightnessDiff * lightnessDiff + chromaDiff * chromaDiff + hueDiff * hueDiff);
 }
 
-export function generateRandomColorVariant(baseColor: RgbColor, existingColor?: RgbColor, maxAttempts: number = 50): RgbColor {
-  const baseOklch = rgbToOklch(baseColor);
+export function generateRandomColor(existingColor?: RgbColor, maxAttempts: number = 50): RgbColor {
   const existingOklch = existingColor ? rgbToOklch(existingColor) : null;
 
-  let bestColor: RgbColor = baseColor;
+  let bestColor: RgbColor = { r: 0, g: 0, b: 0 };
   let bestDistance = 0;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    // Generate a varied color with good status bar characteristics
     const newOklch = generateStatusBarColor();
     const newColor = oklchToRgb(newOklch);
 
-    // Calculate distance from existing color if provided
     let distance = existingOklch ? calculateColorDistance(newOklch, existingOklch) : 1;
 
-    // Prefer colors with good distance from existing color
     if (distance > bestDistance) {
       bestDistance = distance;
       bestColor = newColor;
     }
 
-    // If we found a color with good distance, use it
-    // Lowered threshold for easier satisfaction
     if (distance > 0.5) {
       break;
     }
-  }
-
-  // If no existing color to avoid, just return a random color
-  if (!existingOklch) {
-    return oklchToRgb(generateStatusBarColor());
   }
 
   return bestColor;
@@ -134,11 +123,11 @@ export function generateRandomColorVariant(baseColor: RgbColor, existingColor?: 
 function generateStatusBarColor(): OklchColor {
   // Define good lightness ranges for status bar (avoid too light or too dark)
   const minLightness = 0.3; // Not too dark
-  const maxLightness = 0.8; // Not too light
+  const maxLightness = 0.7; // Not too light
 
   // Define good chroma ranges for vibrant but not overwhelming colors
   const minChroma = 0.12; // More saturation for better distinction
-  const maxChroma = 0.5; // Higher max for more vibrant colors
+  const maxChroma = 0.35; // Higher max for more vibrant colors
 
   const lightness = minLightness + Math.random() * (maxLightness - minLightness);
   const chroma = minChroma + Math.random() * (maxChroma - minChroma);
@@ -163,8 +152,6 @@ export function isValidHexColor(color: string): boolean {
   }
 
   const cleanHex = trimmed.slice(1);
-
-  // Check for valid lengths and characters
   if (cleanHex.length === 3) {
     return /^[a-f\d]{3}$/i.test(cleanHex);
   } else if (cleanHex.length === 6) {

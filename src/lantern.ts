@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
-import { RgbColor, generateRandomColorVariant, rgbToHex, isValidHexColor, hexToRgb } from './colors';
+import { RgbColor, generateRandomColor, rgbToHex, isValidHexColor, hexToRgb } from './colors';
 import { Hue } from './hue';
-import { getColorCustomizations, updateColorCustomizations, getWorkspaceColor, setWorkspaceColor, getWorkspaceSpecificColor, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
+import { getColorCustomizations, updateColorCustomizations, getWorkspaceColor, setWorkspaceColor, getWorkspaceSpecificColor, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -56,8 +56,6 @@ export class Lantern {
       await setEnabled(true);
     }
 
-    const baseColor = getCurrentThemeColor('statusBar');
-
     let existingColor: RgbColor | undefined;
     const existingColorHex = getWorkspaceColor(this.currentWorkspacePath);
     if (existingColorHex && isValidHexColor(existingColorHex)) {
@@ -68,7 +66,7 @@ export class Lantern {
       }
     }
 
-    const newColor = generateRandomColorVariant(baseColor, existingColor);
+    const newColor = generateRandomColor(existingColor);
     const hexColor = rgbToHex(newColor);
 
     await setWorkspaceColor(this.currentWorkspacePath, hexColor);

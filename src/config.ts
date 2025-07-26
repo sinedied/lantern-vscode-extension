@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { RgbColor, hexToRgb } from './colors';
 
 export interface LanternConfig {
   hueEnabled: boolean;
@@ -99,13 +98,11 @@ export async function setWorkspaceSpecificColor(color: string | null): Promise<v
 }
 
 export function getWorkspaceColor(workspacePath: string): string | null {
-  // First priority: workspace-specific color setting
   const workspaceSpecificColor = getWorkspaceSpecificColor();
   if (workspaceSpecificColor) {
     return workspaceSpecificColor;
   }
 
-  // Second priority: new global workspaceColor format
   const workspaceColorMap = getWorkspaceColorMap();
   if (workspaceColorMap[workspacePath]) {
     return workspaceColorMap[workspacePath];
@@ -115,14 +112,10 @@ export function getWorkspaceColor(workspacePath: string): string | null {
 }
 
 export async function setWorkspaceColor(workspacePath: string, color: string | null): Promise<void> {
-  // Check if workspace has a workspace-specific color setting
   const hasWorkspaceSpecificSetting = getWorkspaceSpecificColor() !== null;
-
   if (hasWorkspaceSpecificSetting) {
-    // Update or remove workspace-specific setting
     await setWorkspaceSpecificColor(color);
   } else {
-    // Update or remove from global workspaceColor map
     const workspaceColorMap = getWorkspaceColorMap();
     if (color === null) {
       delete workspaceColorMap[workspacePath];
@@ -131,23 +124,4 @@ export async function setWorkspaceColor(workspacePath: string, color: string | n
     }
     await updateWorkspaceColorMap(workspaceColorMap);
   }
-}
-
-export function getCurrentThemeColor(_element?: string): RgbColor {
-  // TODO: duplicate code, review this
-  // Default color based on VS Code's default dark theme
-  const defaultColor: RgbColor = { r: 0, g: 122, b: 204 }; // VS Code blue
-
-  // Try to get the current theme color from workbench.colorCustomizations
-  const colorCustomizations = getColorCustomizations();
-
-  if (colorCustomizations['statusBar.background']) {
-    try {
-      return hexToRgb(colorCustomizations['statusBar.background']);
-    } catch {
-      // Fall back to default if parsing fails
-    }
-  }
-
-  return defaultColor;
 }
