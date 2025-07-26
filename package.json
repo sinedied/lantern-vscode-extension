@@ -21,7 +21,7 @@
     "vscode:prepublish": "npm run build:package",
     "package": "npx -y vsce package",
     "release": "npx -y vsce publish",
-    "install:vsix": "code --install-extension lantern-*.vsix"
+    "install:vsix": "npm run -s package && code --install-extension lantern-*.vsix"
   },
   "repository": {
     "type": "git",
