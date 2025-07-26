@@ -50,8 +50,7 @@ Transform your physical workspace to match your digital one:
 2. **Follow setup**: Connect to your Philips Hue bridge and select lights
 3. **Automatic sync**: Your selected lights will change color when switching between workspaces
 
-> [!NOTE]
-> Philips Hue integration requires a Philips Hue bridge on your local network and compatible smart lights.
+> **Note**: Philips Hue integration requires a Philips Hue bridge on your local network and compatible smart lights.
 
 ## Additional info
 
@@ -92,8 +91,7 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 }
 ```
 
-> [!NOTE]
-> If both `lantern.workspaceColor` (global) and `lantern.color` (workspace-specific) are set, the workspace-specific setting takes priority.
+> **Note**: If both `lantern.workspaceColor` (global) and `lantern.color` (workspace-specific) are set, the workspace-specific setting takes priority.
 
 #### Settings reference
 
@@ -107,8 +105,7 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 | `hueIntensity`    | Brightness of Hue lights (0-100)                          | `100`     |
 | `hueDefaultColor` | Default color when no workspace color is set              | `#000000` |
 
-> [!TIP]
-> Use `#000000` as the default Hue color to turn lights off when no workspace color is assigned.
+> **Tip**: Use `#000000` as the default Hue color to turn lights off when no workspace color is assigned.
 
 ### Limitations
 
