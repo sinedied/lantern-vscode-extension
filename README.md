@@ -1,6 +1,6 @@
 <div align="center">
   <picture>
-    <img alt="Lantern icon" src="icon.png" width="128">
+    <img alt="Lantern icon" src="https://raw.githubusercontent.com/sinedied/lantern-vscode-extension/refs/heads/main/icon.png" width="128">
   </picture>
 
   # Lantern - Light up your workspace
