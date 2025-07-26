@@ -6,19 +6,21 @@
   "publisher": "sinedied",
   "main": "./dist/extension.js",
   "scripts": {
-    "vscode:prepublish": "npm run package",
     "build": "npm run check:types && npm run lint && node esbuild.js",
     "build:icon-font": "npx -y svgtofont --sources assets --output .temp --fontName lantern 1>/dev/null && cp .temp/lantern.woff assets/ && rm -rf .temp && echo 'Icon font generated successfully.'",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "build:tests": "tsc -p . --outDir out",
-    "package": "npm run check:types && npm run lint && node esbuild.js --production",
+    "build:package": "npm run check:types && npm run lint && node esbuild.js --production",
     "check:types": "tsc --noEmit",
     "pretest": "npm run build:tests && npm run build && npm run lint",
     "test": "vscode-test",
     "lint": "eslint src",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "vscode:prepublish": "npm run build:package",
+    "package": "npx vsce package",
+    "release": "npx vsce publish"
   },
   "repository": {
     "type": "git",
@@ -41,6 +43,11 @@
   "engines": {
     "vscode": "^1.102.0"
   },
+  "galleryBanner": {
+    "color": "#f0eee4",
+    "theme": "light"
+  },
+  "icon": "./docs/images/icon.png",
   "categories": [
     "Themes",
     "Other"
