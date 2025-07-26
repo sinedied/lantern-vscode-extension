@@ -7,7 +7,6 @@
   *Give your VS Code workspaces unique colors with optional Philips Hue integration*
 
   [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sinedied.lantern?style=flat-square&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=sinedied.lantern)
-  [![Build Status](https://img.shields.io/github/actions/workflow/status/sinedied/lantern-vscode-extension/ci.yml?style=flat-square&label=Build)](https://github.com/sinedied/lantern-vscode-extension/actions)
   [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
   [Features](#features) • [Installation](#installation) • [Usage](#usage) • [Additional Info](#additional-info) • [Troubleshooting](#troubleshooting)
