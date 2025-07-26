@@ -67,6 +67,7 @@ export class Lantern {
   }
 
   async assignUniqueColor(): Promise<void> {
+    console.log('Assigning unique color to workspace:', this.currentWorkspacePath);
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
@@ -82,12 +83,13 @@ export class Lantern {
     const hexColor = rgbToHex(newColor);
 
     await setWorkspaceColor(this.currentWorkspacePath, hexColor);
-    await this.applyWorkspaceColor();
+    // Changing the configuration triggers the update
 
     vscode.window.showInformationMessage(`Lantern: Assigned color ${hexColor} to workspace.`);
   }
 
   async assignColorManually(): Promise<void> {
+    console.log('Assigning color manually for workspace:', this.currentWorkspacePath);
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
@@ -119,25 +121,14 @@ export class Lantern {
     }
 
     const hexColor = colorInput.trim();
-
-    // Parse the hex color to RGB for Hue integration
-    let rgbColor: RgbColor;
-    try {
-      rgbColor = hexToRgb(hexColor);
-    } catch (error) {
-      vscode.window.showErrorMessage(
-        `Invalid hex color format: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      );
-      return;
-    }
-
     await setWorkspaceColor(this.currentWorkspacePath, hexColor);
-    await this.applyWorkspaceColor();
+    // Changing the configuration triggers the update
 
     vscode.window.showInformationMessage(`Lantern: Assigned color ${hexColor} to workspace.`);
   }
 
   async setHueIntensity(): Promise<void> {
+    console.log('Setting Philips Hue intensity...');
     if (!this.hueService.isEnabled()) {
       vscode.window.showErrorMessage('Philips Hue is not enabled. Use "Lantern: Enable Philips Hue" first.');
       return;
@@ -176,6 +167,7 @@ export class Lantern {
   }
 
   async resetWorkspaceColor(): Promise<void> {
+    console.log('Resetting workspace color:', this.currentWorkspacePath);
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
@@ -216,6 +208,11 @@ export class Lantern {
   }
 
   private async updateHueLights(color?: RgbColor): Promise<void> {
+    // Philips Hue lights must only be updated for the active window
+    if (!vscode.window.state.focused) {
+      return;
+    }
+
     if (!this.hueService.isEnabled() || !this.hueService.isConfigured()) {
       return;
     }

@@ -1,13 +1,9 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
-import { hexToRgb } from './colors';
 import {
   setHueEnabled,
   getHueLightIds,
   setHueLightIds,
-  getHueEnabled,
-  getColorCustomizations,
-  getHueDefaultColor,
   getEnabled,
   setEnabled,
 } from './config';
@@ -37,8 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Listen for configuration changes to update colors and Hue lights when settings change
   const configurationDisposable = vscode.workspace.onDidChangeConfiguration(async (event) => {
-    // Check if Lantern configuration changed
-    if (event.affectsConfiguration('lantern') || event.affectsConfiguration('workbench.colorCustomizations')) {
+    if (event.affectsConfiguration('lantern')) {
       await lantern.applyWorkspaceColor();
     }
   });
@@ -142,6 +137,7 @@ async function toggleLantern(): Promise<void> {
 }
 
 async function enableHue(): Promise<void> {
+  console.log('Enabling Philips Hue...');
   const hueService = lantern.getHueService();
 
   try {
@@ -264,6 +260,7 @@ async function selectHueLights(): Promise<void> {
 }
 
 async function disableHue(): Promise<void> {
+  console.log('Disabling Philips Hue...');
   try {
     const hueService = lantern.getHueService();
     const lightIds = getHueLightIds();
