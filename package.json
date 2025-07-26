@@ -19,8 +19,9 @@
     "lint": "eslint src",
     "format": "prettier --write .",
     "vscode:prepublish": "npm run build:package",
-    "package": "npx vsce package",
-    "release": "npx vsce publish"
+    "package": "npx -y vsce package",
+    "release": "npx -y vsce publish",
+    "install:vsix": "code --install-extension lantern-*.vsix"
   },
   "repository": {
     "type": "git",
@@ -38,16 +39,17 @@
     "productivity",
     "hue",
     "unique",
-    "vscode-extension"
+    "vscode-extension",
+    "customization"
   ],
   "engines": {
     "vscode": "^1.102.0"
   },
   "galleryBanner": {
-    "color": "#f0eee4",
-    "theme": "light"
+    "color": "#182229",
+    "theme": "dark"
   },
-  "icon": "./docs/images/icon.png",
+  "icon": "icon.png",
   "categories": [
     "Themes",
     "Other"

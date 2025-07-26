@@ -1,6 +1,6 @@
 <div align="center">
   <picture>
-    <img alt="Lantern icon" src="./docs/images/icon.png" width="128">
+    <img alt="Lantern icon" src="./icon.png" width="128">
   </picture>
 
   # Lantern - Light up your workspace
