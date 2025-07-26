@@ -91,7 +91,7 @@
         "title": "Lantern: Set Philips Hue intensity"
       },
       {
-        "command": "lantern.resetColor",
+        "command": "lantern.resetWorkspaceColor",
         "title": "Lantern: Reset workspace color"
       },
       {

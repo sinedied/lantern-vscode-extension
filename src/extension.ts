@@ -3,30 +3,26 @@ import { Lantern } from './lantern';
 import { hexToRgb } from './colors';
 import { setHueEnabled, getHueLightIds, setHueLightIds, getHueEnabled, getColorCustomizations, getHueDefaultColor, getEnabled, setEnabled } from './config';
 
-let colorService: Lantern;
+let lantern: Lantern;
 
-// This method is called when your extension is activated
+// This method is called when extension is activated
 export function activate(context: vscode.ExtensionContext) {
   console.log('Lantern extension loaded');
 
-  // Initialize the color service
-  colorService = new Lantern();
+  lantern = new Lantern();
 
-  // Apply stored colors and update Hue lights when the extension activates (async)
-  initializeExtension();
+  // Apply current settings (async)
+  lantern.applyWorkspaceColor();
 
   // Listen for workspace folder changes to update colors and Hue lights
   const workspaceFoldersDisposable = vscode.workspace.onDidChangeWorkspaceFolders(async () => {
-    // Workspace folders changed, reapply colors and update Hue lights
-    await colorService.applyStoredColors();
-    await updateHueLightsOnWindowFocus();
+    await lantern.applyWorkspaceColor();
   });
 
   // Listen for window state changes to update Hue lights when window becomes active
   const windowStateDisposable = vscode.window.onDidChangeWindowState(async (windowState) => {
     if (windowState.focused) {
-      // Window became active, update Hue lights if integration is enabled
-      await updateHueLightsOnWindowFocus();
+      await lantern.applyWorkspaceColor();
     }
   });
 
@@ -34,48 +30,31 @@ export function activate(context: vscode.ExtensionContext) {
   const configurationDisposable = vscode.workspace.onDidChangeConfiguration(async (event) => {
     // Check if Lantern configuration changed
     if (event.affectsConfiguration('lantern') || event.affectsConfiguration('workbench.colorCustomizations')) {
-      // Configuration changed, reapply colors and update Hue lights
-      await colorService.applyStoredColors();
-      await updateHueLightsOnWindowFocus();
+      await lantern.applyWorkspaceColor();
     }
   });
 
-  // Register the assign unique color command
   const assignColorDisposable = vscode.commands.registerCommand('lantern.assignUniqueColor', async () => {
-    await colorService.assignUniqueColor();
+    await lantern.assignUniqueColor();
   });
-
-  // Register the set color manually command
   const assignColorManuallyDisposable = vscode.commands.registerCommand('lantern.assignColorManually', async () => {
-    await colorService.assignColorManually();
+    await lantern.assignColorManually();
   });
-
-  // Register the global toggle command
   const toggleDisposable = vscode.commands.registerCommand('lantern.toggle', async () => {
     await toggleLantern();
   });
-
-  // Register the enable Hue integration command
   const enableHueDisposable = vscode.commands.registerCommand('lantern.enableHue', async () => {
     await enableHue();
   });
-
-  // Register the disable Hue integration command
   const disableHueDisposable = vscode.commands.registerCommand('lantern.disableHue', async () => {
     await disableHue();
   });
-
-  // Register the set Hue intensity command
   const setHueIntensityDisposable = vscode.commands.registerCommand('lantern.setHueIntensity', async () => {
-    await colorService.setHueIntensity();
+    await lantern.setHueIntensity();
   });
-
-  // Register the reset colors command
-  const resetColorDisposable = vscode.commands.registerCommand('lantern.resetColor', async () => {
-    await colorService.resetColor();
+  const resetWorkspaceColorDisposable = vscode.commands.registerCommand('lantern.resetWorkspaceColor', async () => {
+    await lantern.resetWorkspaceColor();
   });
-
-  // Register the show commands command
   const showCommandsDisposable = vscode.commands.registerCommand('lantern.showCommands', async () => {
     await showLanternCommands();
   });
@@ -87,30 +66,17 @@ export function activate(context: vscode.ExtensionContext) {
     enableHueDisposable,
     disableHueDisposable,
     setHueIntensityDisposable,
-    resetColorDisposable,
+    resetWorkspaceColorDisposable,
     showCommandsDisposable,
     workspaceFoldersDisposable,
     windowStateDisposable,
     configurationDisposable,
-    colorService,
+    lantern,
   );
-}
-
-async function initializeExtension(): Promise<void> {
-  try {
-    // Apply stored colors when the extension activates
-    await colorService.applyStoredColors();
-
-    // Update Hue lights on initial activation
-    await updateHueLightsOnWindowFocus();
-  } catch (error) {
-    console.error('Failed to initialize Lantern extension:', error);
-  }
 }
 
 async function showLanternCommands(): Promise<void> {
   const isEnabled = getEnabled();
-
   const commands = [
     {
       label: isEnabled ? '$(lantern-off) Turn off Lantern' : '$(lantern-on) Turn on Lantern',
@@ -130,7 +96,7 @@ async function showLanternCommands(): Promise<void> {
     {
       label: '$(refresh) Reset workspace color',
       description: 'Remove assigned color',
-      command: 'lantern.resetColor'
+      command: 'lantern.resetWorkspaceColor'
     },
     {
       label: '$(lightbulb) Enable Philips Hue',
@@ -162,35 +128,12 @@ async function showLanternCommands(): Promise<void> {
 async function toggleLantern(): Promise<void> {
   const currentState = getEnabled();
   const newState = !currentState;
-
   await setEnabled(newState);
-
-  if (newState) {
-    await colorService.applyStoredColors();
-    await updateHueLightsOnWindowFocus();
-    // vscode.window.showInformationMessage('Lantern enabled.');
-  } else {
-    await colorService.removeColorsButKeepStatusBar();
-
-    if (getHueEnabled()) {
-      const hueService = colorService.getHueService();
-      const lightIds = getHueLightIds();
-
-      if (lightIds.length > 0 && hueService.isConfigured()) {
-        try {
-          await hueService.turnOffLights(lightIds);
-        } catch (error) {
-          console.error('Failed to turn off Hue lights during toggle:', error);
-        }
-      }
-    }
-
-    // vscode.window.showInformationMessage('Lantern disabled.');
-  }
+  await lantern.applyWorkspaceColor();
 }
 
 async function enableHue(): Promise<void> {
-  const hueService = colorService.getHueService();
+  const hueService = lantern.getHueService();
 
   try {
     if (hueService.isConfigured()) {
@@ -267,7 +210,7 @@ async function enableHue(): Promise<void> {
 }
 
 async function selectHueLights(): Promise<void> {
-  const hueService = colorService.getHueService();
+  const hueService = lantern.getHueService();
 
   try {
     const lights = await hueService.getLights();
@@ -305,7 +248,7 @@ async function selectHueLights(): Promise<void> {
     const lightNames = selectedLights.map((light) => light.label).join(', ');
     vscode.window.showInformationMessage(`Selected lights: ${lightNames}`);
 
-    await applyCurrentColorToHueLights();
+    await lantern.applyWorkspaceColor();
   } catch (error: any) {
     vscode.window.showErrorMessage(`Failed to get Hue lights: ${error.message}`);
   }
@@ -313,21 +256,16 @@ async function selectHueLights(): Promise<void> {
 
 async function disableHue(): Promise<void> {
   try {
+    const hueService = lantern.getHueService();
     const lightIds = getHueLightIds();
 
-    if (lightIds.length > 0) {
-      const hueService = colorService.getHueService();
-
-      if (hueService.isConfigured()) {
-        try {
-          await hueService.turnOffLights(lightIds);
-          vscode.window.showInformationMessage('Philips Hue disabled.');
-        } catch (error) {
-          console.error('Failed to turn off lights during disable:', error);
-          vscode.window.showWarningMessage('Philips Hue disabled but failed to turn off lights.');
-        }
-      } else {
+    if (lightIds.length > 0 && hueService.isConfigured()) {
+      try {
+        await hueService.turnOffLights(lightIds);
         vscode.window.showInformationMessage('Philips Hue disabled.');
+      } catch (error) {
+        console.error('Failed to turn off lights during disable:', error);
+        vscode.window.showWarningMessage('Philips Hue disabled but failed to turn off lights.');
       }
     } else {
       vscode.window.showInformationMessage('Philips Hue disabled.');
@@ -336,64 +274,6 @@ async function disableHue(): Promise<void> {
     await setHueEnabled(false);
   } catch (error: any) {
     vscode.window.showErrorMessage(`Failed to disable Philips Hue: ${error.message}`);
-  }
-}
-
-async function applyCurrentColorToHueLights(): Promise<void> {
-  try {
-    // TODO: fix, get lantern color not from status bar
-    const colorCustomizations = getColorCustomizations();
-    const currentColor = colorCustomizations['statusBar.background'];
-    if (!currentColor) {
-      return;
-    }
-
-    const rgbColor = hexToRgb(currentColor);
-    const hueService = colorService.getHueService();
-    const lightIds = getHueLightIds();
-
-    if (lightIds.length > 0) {
-      await hueService.setLightColor(lightIds, rgbColor);
-    }
-  } catch (error: any) {
-    console.error('Failed to apply current color to Hue lights:', error);
-    vscode.window.showWarningMessage('Failed to apply current color to Hue lights.');
-  }
-}
-
-async function updateHueLightsOnWindowFocus(): Promise<void> {
-  try {
-    const enabled = getEnabled();
-    const hueEnabled = getHueEnabled();
-    const hueService = colorService.getHueService();
-    const lightIds = getHueLightIds();
-
-    if (!enabled || !hueEnabled || !hueService.isConfigured() || lightIds.length === 0) {
-      return;
-    }
-
-    // TOOD: factorize + use lantern color
-    const colorCustomizations = getColorCustomizations();
-    let currentColor = colorCustomizations['statusBar.background'];
-
-    // If no current workspace color, use the default color
-    if (!currentColor) {
-      currentColor = getHueDefaultColor();
-    }
-
-    console.log(`Updating Hue lights to color: ${currentColor}`);
-
-    // Check if we should turn off the lights (color #000000)
-    if (currentColor === '#000000') {
-      await hueService.turnOffLights(lightIds);
-      console.log('Turned off Hue lights');
-    } else {
-      const rgbColor = hexToRgb(currentColor);
-      await hueService.setLightColor(lightIds, rgbColor);
-      console.log(`Applied color ${currentColor} to Hue lights`);
-    }
-  } catch (error: any) {
-    console.error('Failed to update Hue lights on window focus:', error);
   }
 }
 

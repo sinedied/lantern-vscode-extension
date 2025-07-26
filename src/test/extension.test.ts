@@ -105,7 +105,7 @@ suite('Lantern Extension Test Suite', () => {
     assert.ok(commands.includes('lantern.enableHue'), 'enableHue command not found');
     assert.ok(commands.includes('lantern.disableHue'), 'disableHue command not found');
     assert.ok(commands.includes('lantern.setHueIntensity'), 'setHueIntensity command not found');
-    assert.ok(commands.includes('lantern.resetColor'), 'resetColor command not found');
+    assert.ok(commands.includes('lantern.resetWorkspaceColor'), 'resetWorkspaceColor command not found');
     assert.ok(commands.includes('lantern.showCommands'), 'showCommands command not found');
   });
 
@@ -125,7 +125,7 @@ suite('Lantern Extension Test Suite', () => {
     assert.strictEqual(enabledState, true);
   });
 
-  test('New workspace color system works correctly', async () => {
+  test('Workspace color system works correctly', async () => {
     const testWorkspacePath = '/test/workspace';
     const testColor = '#ff0000';
 
