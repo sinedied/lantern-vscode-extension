@@ -10,9 +10,6 @@ export interface RgbColor {
   b: number; // blue (0-255)
 }
 
-/**
- * Converts RGB to OKLCH color space
- */
 export function rgbToOklch(rgb: RgbColor): OklchColor {
   // Convert RGB to linear RGB
   const r = rgb.r / 255;
@@ -46,9 +43,6 @@ export function rgbToOklch(rgb: RgbColor): OklchColor {
   return { l: L, c: C, h: H };
 }
 
-/**
- * Converts OKLCH to RGB color space
- */
 export function oklchToRgb(oklch: OklchColor): RgbColor {
   const { l, c, h } = oklch;
 
@@ -82,20 +76,15 @@ export function oklchToRgb(oklch: OklchColor): RgbColor {
   };
 }
 
-/**
- * Calculates perceptual distance between two colors in OKLCH space
- */
 export function calculateColorDistance(color1: OklchColor, color2: OklchColor): number {
   // Weight factors for perceptual importance
   const lightnessWeight = 2;
   const chromaWeight = 1;
   const hueWeight = 1;
 
-  // Calculate differences
   const lightnessDiff = Math.abs(color1.l - color2.l) * lightnessWeight;
   const chromaDiff = Math.abs(color1.c - color2.c) * chromaWeight;
 
-  // Handle hue difference (circular, 0-360)
   let hueDiff = Math.abs(color1.h - color2.h);
   if (hueDiff > 180) {
     hueDiff = 360 - hueDiff;
@@ -106,10 +95,6 @@ export function calculateColorDistance(color1: OklchColor, color2: OklchColor): 
   return Math.sqrt(lightnessDiff * lightnessDiff + chromaDiff * chromaDiff + hueDiff * hueDiff);
 }
 
-/**
- * Generates a random color variant.
- * Ensures good status bar contrast and avoids colors too similar to existing ones
- */
 export function generateRandomColorVariant(baseColor: RgbColor, existingColor?: RgbColor, maxAttempts: number = 50): RgbColor {
   const baseOklch = rgbToOklch(baseColor);
   const existingOklch = existingColor ? rgbToOklch(existingColor) : null;
@@ -146,9 +131,6 @@ export function generateRandomColorVariant(baseColor: RgbColor, existingColor?: 
   return bestColor;
 }
 
-/**
- * Generates a color optimized for status bar visibility and variety
- */
 function generateStatusBarColor(): OklchColor {
   // Define good lightness ranges for status bar (avoid too light or too dark)
   const minLightness = 0.3; // Not too dark
@@ -158,28 +140,18 @@ function generateStatusBarColor(): OklchColor {
   const minChroma = 0.12; // More saturation for better distinction
   const maxChroma = 0.5; // Higher max for more vibrant colors
 
-  // Generate varied parameters with better distribution
   const lightness = minLightness + Math.random() * (maxLightness - minLightness);
   const chroma = minChroma + Math.random() * (maxChroma - minChroma);
-
-  // Use completely random hue for maximum variety
   const hue = Math.random() * 360;
 
   return { l: lightness, c: chroma, h: hue };
 }
 
-/**
- * Converts RGB color to hex string
- */
 export function rgbToHex(rgb: RgbColor): string {
   const toHex = (n: number) => n.toString(16).padStart(2, '0');
   return `#${toHex(rgb.r)}${toHex(rgb.g)}${toHex(rgb.b)}`;
 }
 
-/**
- * Validates if a string is a valid hex color format
- * Supports 3-character (#f00), 6-character (#ff0000), and 8-character (#ff0000ff) hex codes
- */
 export function isValidHexColor(color: string): boolean {
   if (!color || typeof color !== 'string') {
     return false;
@@ -204,12 +176,7 @@ export function isValidHexColor(color: string): boolean {
   return false;
 }
 
-/**
- * Converts hex string to RGB color
- * Supports 3-character (#f00), 6-character (#ff0000), and 8-character (#ff0000ff) hex codes
- */
 export function hexToRgb(hex: string): RgbColor {
-  // Remove # if present
   const cleanHex = hex.replace('#', '');
 
   // Handle 3-character hex codes
