@@ -1,7 +1,7 @@
 {
   "name": "lantern",
   "displayName": "Lantern",
-  "description": "Give your VS Code workspaces a unique color with optional Philips Hue integration",
+  "description": "Give your VS Code workspaces unique colors with optional Philips Hue integration",
   "version": "1.0.0",
   "publisher": "sinedied",
   "main": "./dist/extension.js",
