@@ -51,18 +51,18 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // Register the global toggle command
-  const toggleGlobalDisposable = vscode.commands.registerCommand('lantern.toggleGlobal', async () => {
+  const toggleDisposable = vscode.commands.registerCommand('lantern.toggle', async () => {
     await toggleLantern();
   });
 
   // Register the enable Hue integration command
-  const enableHueDisposable = vscode.commands.registerCommand('lantern.enableHueIntegration', async () => {
-    await enableHueIntegration();
+  const enableHueDisposable = vscode.commands.registerCommand('lantern.enableHue', async () => {
+    await enableHue();
   });
 
   // Register the disable Hue integration command
-  const disableHueDisposable = vscode.commands.registerCommand('lantern.disableHueIntegration', async () => {
-    await disableHueIntegration();
+  const disableHueDisposable = vscode.commands.registerCommand('lantern.disableHue', async () => {
+    await disableHue();
   });
 
   // Register the set Hue intensity command
@@ -71,8 +71,8 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // Register the reset colors command
-  const resetColorsDisposable = vscode.commands.registerCommand('lantern.resetColors', async () => {
-    await colorService.resetColors();
+  const resetColorDisposable = vscode.commands.registerCommand('lantern.resetColor', async () => {
+    await colorService.resetColor();
   });
 
   // Register the show commands command
@@ -83,11 +83,11 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     assignColorDisposable,
     assignColorManuallyDisposable,
-    toggleGlobalDisposable,
+    toggleDisposable,
     enableHueDisposable,
     disableHueDisposable,
     setHueIntensityDisposable,
-    resetColorsDisposable,
+    resetColorDisposable,
     showCommandsDisposable,
     workspaceFoldersDisposable,
     windowStateDisposable,
@@ -115,11 +115,11 @@ async function showLanternCommands(): Promise<void> {
     {
       label: isEnabled ? '$(lantern-off) Turn off Lantern' : '$(lantern-on) Turn on Lantern',
       description: isEnabled ? 'Disable all Lantern functionality' : 'Enable all Lantern functionality',
-      command: 'lantern.toggleGlobal'
+      command: 'lantern.toggle'
     },
     {
-      label: '$(symbol-color) Assign random color',
-      description: 'Assign a random color to this workspace',
+      label: '$(symbol-color) Assign unique color',
+      description: 'Assign a unique color to this workspace',
       command: 'lantern.assignUniqueColor'
     },
     {
@@ -130,20 +130,20 @@ async function showLanternCommands(): Promise<void> {
     {
       label: '$(refresh) Reset workspace color',
       description: 'Remove assigned color',
-      command: 'lantern.resetColors'
+      command: 'lantern.resetColor'
     },
     {
       label: '$(lightbulb) Enable Philips Hue',
       description: 'Connect to Philips Hue lights',
-      command: 'lantern.enableHueIntegration'
+      command: 'lantern.enableHue'
     },
     {
       label: '$(lightbulb-empty) Disable Philips Hue',
       description: 'Disconnect from Philips Hue lights',
-      command: 'lantern.disableHueIntegration'
+      command: 'lantern.disableHue'
     },
     {
-      label: '$(lightbulb-sparkle) Set Hue intensity',
+      label: '$(lightbulb-sparkle) Set Philips Hue intensity',
       description: 'Adjust brightness of Philips Hue lights (0-100%)',
       command: 'lantern.setHueIntensity'
     }
@@ -189,7 +189,7 @@ async function toggleLantern(): Promise<void> {
   }
 }
 
-async function enableHueIntegration(): Promise<void> {
+async function enableHue(): Promise<void> {
   const hueService = colorService.getHueService();
 
   try {
@@ -311,7 +311,7 @@ async function selectHueLights(): Promise<void> {
   }
 }
 
-async function disableHueIntegration(): Promise<void> {
+async function disableHue(): Promise<void> {
   try {
     const lightIds = getHueLightIds();
 

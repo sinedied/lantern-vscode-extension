@@ -197,7 +197,7 @@ export class Lantern {
   /**
    * Reset colors for the current workspace
    */
-  async resetColors(): Promise<void> {
+  async resetColor(): Promise<void> {
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;

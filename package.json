@@ -75,24 +75,24 @@
         "title": "Lantern: Assign color manually"
       },
       {
-        "command": "lantern.toggleGlobal",
+        "command": "lantern.toggle",
         "title": "Lantern: Toggle on/off"
       },
       {
-        "command": "lantern.enableHueIntegration",
-        "title": "Lantern: Enable Philips Hue integration"
+        "command": "lantern.enableHue",
+        "title": "Lantern: Enable Philips Hue"
       },
       {
-        "command": "lantern.disableHueIntegration",
-        "title": "Lantern: Disable Philips Hue integration"
+        "command": "lantern.disableHue",
+        "title": "Lantern: Disable Philips Hue"
       },
       {
         "command": "lantern.setHueIntensity",
         "title": "Lantern: Set Philips Hue intensity"
       },
       {
-        "command": "lantern.resetColors",
-        "title": "Lantern: Reset colors for this workspace"
+        "command": "lantern.resetColor",
+        "title": "Lantern: Reset workspace color"
       },
       {
         "command": "lantern.showCommands",
