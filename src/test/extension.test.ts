@@ -1,7 +1,22 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { rgbToHex, hexToRgb, generateRandomColor, rgbToOklch, oklchToRgb, calculateColorDistance, isValidHexColor } from '../colors';
-import { getEnabled, setEnabled, getWorkspaceColor, setWorkspaceColor, getWorkspaceColorMap, updateWorkspaceColorMap } from '../config';
+import {
+  rgbToHex,
+  hexToRgb,
+  generateRandomColor,
+  rgbToOklch,
+  oklchToRgb,
+  calculateColorDistance,
+  isValidHexColor,
+} from '../colors';
+import {
+  getEnabled,
+  setEnabled,
+  getWorkspaceColor,
+  setWorkspaceColor,
+  getWorkspaceColorMap,
+  updateWorkspaceColorMap,
+} from '../config';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -93,7 +108,7 @@ suite('Lantern Extension Test Suite', () => {
 
   test('Extension commands are registered', async () => {
     // Wait a bit for extension to fully activate
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Get all available commands
     const commands = await vscode.commands.getCommands(true);

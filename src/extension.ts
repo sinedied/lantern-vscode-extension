@@ -1,7 +1,16 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
 import { hexToRgb } from './colors';
-import { setHueEnabled, getHueLightIds, setHueLightIds, getHueEnabled, getColorCustomizations, getHueDefaultColor, getEnabled, setEnabled } from './config';
+import {
+  setHueEnabled,
+  getHueLightIds,
+  setHueLightIds,
+  getHueEnabled,
+  getColorCustomizations,
+  getHueDefaultColor,
+  getEnabled,
+  setEnabled,
+} from './config';
 
 let lantern: Lantern;
 
@@ -81,43 +90,43 @@ async function showLanternCommands(): Promise<void> {
     {
       label: isEnabled ? '$(lantern-off) Turn off Lantern' : '$(lantern-on) Turn on Lantern',
       description: isEnabled ? 'Disable all Lantern functionality' : 'Enable all Lantern functionality',
-      command: 'lantern.toggle'
+      command: 'lantern.toggle',
     },
     {
       label: '$(symbol-color) Assign unique color',
       description: 'Assign a unique color to this workspace',
-      command: 'lantern.assignUniqueColor'
+      command: 'lantern.assignUniqueColor',
     },
     {
       label: '$(color-mode) Assign color manually',
       description: 'Assign a custom color (e.g., #0000ff)',
-      command: 'lantern.assignColorManually'
+      command: 'lantern.assignColorManually',
     },
     {
       label: '$(refresh) Reset workspace color',
       description: 'Remove assigned color',
-      command: 'lantern.resetWorkspaceColor'
+      command: 'lantern.resetWorkspaceColor',
     },
     {
       label: '$(lightbulb) Enable Philips Hue',
       description: 'Connect to Philips Hue lights',
-      command: 'lantern.enableHue'
+      command: 'lantern.enableHue',
     },
     {
       label: '$(lightbulb-empty) Disable Philips Hue',
       description: 'Disconnect from Philips Hue lights',
-      command: 'lantern.disableHue'
+      command: 'lantern.disableHue',
     },
     {
       label: '$(lightbulb-sparkle) Set Philips Hue intensity',
       description: 'Adjust brightness of Philips Hue lights (0-100%)',
-      command: 'lantern.setHueIntensity'
-    }
+      command: 'lantern.setHueIntensity',
+    },
   ];
 
   const selectedCommand = await vscode.window.showQuickPick(commands, {
     placeHolder: 'Select a Lantern command',
-    title: 'Lantern Commands'
+    title: 'Lantern Commands',
   });
 
   if (selectedCommand) {

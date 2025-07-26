@@ -94,15 +94,15 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 
 ### Settings Reference
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| `enabled` | Enable or disable Lantern | `true` |
-| `workspaceColor` | Global workspace color mappings (workspace path → color) | `{}` |
-| `color` | Workspace-specific color (set in `.vscode/settings.json`) | Not set |
-| `hueEnabled` | Enable Philips Hue integration | `false` |
-| `hueLightIds` | List of Hue light IDs to control | `[]` |
-| `hueIntensity` | Brightness of Hue lights (0-100) | `100` |
-| `hueDefaultColor` | Default color when no workspace color is set | `#000000` |
+| Setting           | Description                                               | Default   |
+| ----------------- | --------------------------------------------------------- | --------- |
+| `enabled`         | Enable or disable Lantern                                 | `true`    |
+| `workspaceColor`  | Global workspace color mappings (workspace path → color)  | `{}`      |
+| `color`           | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
+| `hueEnabled`      | Enable Philips Hue integration                            | `false`   |
+| `hueLightIds`     | List of Hue light IDs to control                          | `[]`      |
+| `hueIntensity`    | Brightness of Hue lights (0-100)                          | `100`     |
+| `hueDefaultColor` | Default color when no workspace color is set              | `#000000` |
 
 > [!TIP]
 > Use `#000000` as the default Hue color to turn lights off when no workspace color is assigned.
@@ -125,14 +125,17 @@ Install Lantern from the [Visual Studio Code Marketplace](https://marketplace.vi
 ## Troubleshooting
 
 ### Colors not appearing?
+
 - Ensure `lantern.enabled` is set to `true`
 - Check that you've assigned a color using `Lantern: Assign random color` or `Lantern: Set color manually`
 - Verify your VS Code theme supports status bar customization
 
 ### Philips Hue not working?
+
 - Ensure your Hue bridge is connected to the same network as your computer
 - Check that you've completed the bridge authentication process
 - Verify the selected light IDs are valid and the lights are powered on
 
 ### Need to reset everything?
+
 Run `Lantern: Reset colors for this workspace` to clear color settings for the current workspace, or disable the global toggle to turn off all functionality while preserving settings.

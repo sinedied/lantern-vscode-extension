@@ -1,7 +1,18 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColor, rgbToHex, isValidHexColor, hexToRgb } from './colors';
 import { Hue } from './hue';
-import { getColorCustomizations, updateColorCustomizations, getWorkspaceColor, setWorkspaceColor, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity, getHueDefaultColor } from './config';
+import {
+  getColorCustomizations,
+  updateColorCustomizations,
+  getWorkspaceColor,
+  setWorkspaceColor,
+  getHueLightIds,
+  getEnabled,
+  setEnabled,
+  getHueIntensity,
+  setHueIntensity,
+  getHueDefaultColor,
+} from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -73,9 +84,7 @@ export class Lantern {
     await setWorkspaceColor(this.currentWorkspacePath, hexColor);
     await this.applyWorkspaceColor();
 
-    vscode.window.showInformationMessage(
-      `Lantern: Assigned color ${hexColor} to workspace.`,
-    );
+    vscode.window.showInformationMessage(`Lantern: Assigned color ${hexColor} to workspace.`);
   }
 
   async assignColorManually(): Promise<void> {
@@ -102,7 +111,7 @@ export class Lantern {
         }
 
         return undefined;
-      }
+      },
     });
 
     if (!colorInput || !colorInput.trim()) {
@@ -116,16 +125,16 @@ export class Lantern {
     try {
       rgbColor = hexToRgb(hexColor);
     } catch (error) {
-      vscode.window.showErrorMessage(`Invalid hex color format: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      vscode.window.showErrorMessage(
+        `Invalid hex color format: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
       return;
     }
 
     await setWorkspaceColor(this.currentWorkspacePath, hexColor);
     await this.applyWorkspaceColor();
 
-    vscode.window.showInformationMessage(
-      `Lantern: Assigned color ${hexColor} to workspace.`,
-    );
+    vscode.window.showInformationMessage(`Lantern: Assigned color ${hexColor} to workspace.`);
   }
 
   async setHueIntensity(): Promise<void> {
@@ -153,7 +162,7 @@ export class Lantern {
           return 'Intensity must be between 0 and 100';
         }
         return undefined;
-      }
+      },
     });
 
     if (intensityInput === undefined) {
@@ -236,7 +245,7 @@ export class Lantern {
       this.statusBarItem.tooltip = 'Lantern - Click to show commands';
       this.statusBarItem.command = {
         command: 'lantern.showCommands',
-        title: 'Lantern'
+        title: 'Lantern',
       };
       this.statusBarItem.show();
     }
@@ -255,6 +264,7 @@ export class Lantern {
 
   private updateCurrentWorkspacePath(): void {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    this.currentWorkspacePath = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri.fsPath : undefined;
+    this.currentWorkspacePath =
+      workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri.fsPath : undefined;
   }
 }
