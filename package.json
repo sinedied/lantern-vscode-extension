@@ -1,7 +1,7 @@
 {
   "name": "lantern",
   "displayName": "Lantern",
-  "description": "Distinguish between VS Code windows with unique colors and optional Philips Hue integration",
+  "description": "Give your VS Code workspaces a unique color with optional Philips Hue integration",
   "version": "1.0.0",
   "publisher": "sinedied",
   "main": "./dist/extension.js",
@@ -33,7 +33,10 @@
     "workspace",
     "theme",
     "philips-hue",
-    "productivity"
+    "productivity",
+    "hue",
+    "unique",
+    "vscode-extension"
   ],
   "engines": {
     "vscode": "^1.102.0"
@@ -65,11 +68,11 @@
     "commands": [
       {
         "command": "lantern.assignUniqueColor",
-        "title": "Lantern: Assign random color"
+        "title": "Lantern: Assign unique color"
       },
       {
-        "command": "lantern.setColorManually",
-        "title": "Lantern: Set color manually"
+        "command": "lantern.assignColorManually",
+        "title": "Lantern: Assign color manually"
       },
       {
         "command": "lantern.toggleGlobal",

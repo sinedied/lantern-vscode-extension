@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColorVariant, rgbToHex, isValidHexColor, hexToRgb } from './colors';
 import { Hue } from './hue';
-import { getColorCustomizations, updateColorCustomizations, getWorkspaceColor, setWorkspaceColor, getWorkspaceSpecificColor, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor, getWorkspaceColorMap, updateWorkspaceColorMap } from './config';
+import { getColorCustomizations, updateColorCustomizations, getWorkspaceColor, setWorkspaceColor, getWorkspaceSpecificColor, getHueLightIds, getEnabled, setEnabled, getHueIntensity, setHueIntensity, getCurrentThemeColor } from './config';
 
 export class Lantern {
   private hueService: Hue;
@@ -12,7 +12,6 @@ export class Lantern {
     this.hueService = new Hue();
     this.updateCurrentWorkspacePath();
 
-    // Listen for workspace changes
     vscode.workspace.onDidChangeWorkspaceFolders(async () => {
       this.updateCurrentWorkspacePath();
       await this.applyStoredColors();
@@ -25,26 +24,20 @@ export class Lantern {
     this.currentWorkspacePath = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri.fsPath : null;
   }
 
-  /**
-   * Apply stored colors for the current workspace
-   */
   async applyStoredColors(): Promise<void> {
     if (!this.currentWorkspacePath) {
       return;
     }
 
+    // TODO: not here
     // Always show the status bar indicator (even when globally disabled for quick toggle access)
     this.createStatusBarIndicator();
 
-    // Check if global toggle is enabled
     const enabled = getEnabled();
-
     if (!enabled) {
-      // If globally disabled, don't apply colors but keep status bar for quick access
       return;
     }
 
-    // Check for workspace color
     const workspaceColor = getWorkspaceColor(this.currentWorkspacePath);
     if (workspaceColor) {
       await this.applyColor(workspaceColor);
@@ -52,49 +45,36 @@ export class Lantern {
     }
   }
 
-  /**
-   * Assign a unique color to the current workspace
-   */
   async assignUniqueColor(): Promise<void> {
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
     }
 
-    // Check if global toggle is enabled, if not enable it automatically
     const enabled = getEnabled();
-
     if (!enabled) {
       await setEnabled(true);
-      await this.applyStoredColors(); // Ensure status bar is set up
-      vscode.window.showInformationMessage('Lantern has been automatically enabled.');
     }
 
-    // Get current theme color for the status bar
     const baseColor = getCurrentThemeColor('statusBar');
 
-    // Check if there's an existing color for this workspace
     let existingColor: RgbColor | undefined;
     const existingColorHex = getWorkspaceColor(this.currentWorkspacePath);
     if (existingColorHex && isValidHexColor(existingColorHex)) {
       try {
         existingColor = hexToRgb(existingColorHex);
       } catch {
-        // If parsing fails, treat as no existing color
         existingColor = undefined;
       }
     }
 
-    // Generate a random color variant that avoids the existing color
     const newColor = generateRandomColorVariant(baseColor, existingColor);
     const hexColor = rgbToHex(newColor);
 
-    // Save color to workspace settings
     await setWorkspaceColor(this.currentWorkspacePath, hexColor);
-
-    // Apply the color
     await this.applyColor(hexColor);
 
+    // TODO: should be part of applyColor
     // Update Hue lights if enabled
     if (this.hueService.isEnabled() && this.hueService.isConfigured()) {
       await this.updateHueLights(newColor);
@@ -105,25 +85,17 @@ export class Lantern {
     );
   }
 
-  /**
-   * Set a color manually using hex color format
-   */
-  async setColorManually(): Promise<void> {
+  async assignColorManually(): Promise<void> {
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
     }
 
-    // Check if global toggle is enabled, if not enable it automatically
     const enabled = getEnabled();
-
     if (!enabled) {
       await setEnabled(true);
-      await this.applyStoredColors(); // Ensure status bar is set up
-      vscode.window.showInformationMessage('Lantern has been automatically enabled.');
     }
 
-    // Ask user for hex color input
     const colorInput = await vscode.window.showInputBox({
       placeHolder: 'Enter a hex color (e.g., #ff0000, #f00, #ff0000ff)',
       prompt: 'Enter a valid hex color',
@@ -155,10 +127,7 @@ export class Lantern {
       return;
     }
 
-    // Save color to workspace settings
     await setWorkspaceColor(this.currentWorkspacePath, hexColor);
-
-    // Apply the color
     await this.applyColor(hexColor);
 
     // Update Hue lights if enabled
@@ -167,13 +136,10 @@ export class Lantern {
     }
 
     vscode.window.showInformationMessage(
-      `Lantern: Set workspace color to ${hexColor}.`,
+      `Lantern: Assigned color ${hexColor} to workspace.`,
     );
   }
 
-  /**
-   * Set Hue light intensity (brightness)
-   */
   async setHueIntensity(): Promise<void> {
     // Check if Hue integration is enabled
     if (!this.hueService.isEnabled()) {
@@ -186,10 +152,8 @@ export class Lantern {
       return;
     }
 
-    // Get current intensity
     const currentIntensity = getHueIntensity();
 
-    // Ask user for intensity input
     const intensityInput = await vscode.window.showInputBox({
       placeHolder: 'Enter intensity (0-100)',
       prompt: 'Set the brightness/intensity of your Philips Hue lights (0 = off, 100 = maximum brightness)',
@@ -212,9 +176,9 @@ export class Lantern {
 
     const intensity = parseInt(intensityInput, 10);
 
-    // Save the intensity setting
     await setHueIntensity(intensity);
 
+    // TODO: should be part of applyColor
     // Apply the new intensity to current lights if they're on
     const lightIds = getHueLightIds();
     if (lightIds.length > 0 && this.currentWorkspacePath) {
@@ -294,14 +258,6 @@ export class Lantern {
     this.createStatusBarIndicator();
   }
 
-  private getWorkspaceColor(): string | null {
-    if (!this.currentWorkspacePath) {
-      return null;
-    }
-
-    return getWorkspaceColor(this.currentWorkspacePath);
-  }
-
   private async applyColor(color: string): Promise<void> {
     const currentColorCustomizations = getColorCustomizations();
 
@@ -333,16 +289,10 @@ export class Lantern {
     }
   }
 
-  /**
-   * Get the Hue service instance
-   */
   getHueService(): Hue {
     return this.hueService;
   }
 
-  /**
-   * Create and configure the status bar indicator
-   */
   private createStatusBarIndicator(): void {
     if (this.statusBarItem) {
       this.updateStatusBarIcon();
@@ -359,9 +309,6 @@ export class Lantern {
     this.statusBarItem.show();
   }
 
-  /**
-   * Update the status bar icon based on the global toggle state
-   */
   private updateStatusBarIcon(): void {
     if (!this.statusBarItem) {
       return;
@@ -371,9 +318,6 @@ export class Lantern {
     this.statusBarItem.text = enabled ? '$(lantern-on)' : '$(lantern-off)';
   }
 
-  /**
-   * Hide and dispose the status bar indicator
-   */
   private hideStatusBarIndicator(): void {
     if (this.statusBarItem) {
       this.statusBarItem.hide();
@@ -382,9 +326,6 @@ export class Lantern {
     }
   }
 
-  /**
-   * Dispose resources
-   */
   dispose(): void {
     this.hideStatusBarIndicator();
   }

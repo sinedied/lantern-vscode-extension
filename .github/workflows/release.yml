@@ -15,11 +15,8 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - name: Install dependencies
-        run: npm i -g @vscode/vsce
-        env:
-          CI: true
+          node-version: 22
+      - run: npm i -g @vscode/vsce
       - run: npm run release
         if: success()
         env:

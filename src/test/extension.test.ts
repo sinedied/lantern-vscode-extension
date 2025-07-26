@@ -100,7 +100,7 @@ suite('Lantern Extension Test Suite', () => {
 
     // Check that our commands are registered
     assert.ok(commands.includes('lantern.assignUniqueColor'), 'assignUniqueColor command not found');
-    assert.ok(commands.includes('lantern.setColorManually'), 'setColorManually command not found');
+    assert.ok(commands.includes('lantern.assignColorManually'), 'assignColorManually command not found');
     assert.ok(commands.includes('lantern.toggleGlobal'), 'toggleGlobal command not found');
     assert.ok(commands.includes('lantern.enableHueIntegration'), 'enableHueIntegration command not found');
     assert.ok(commands.includes('lantern.disableHueIntegration'), 'disableHueIntegration command not found');

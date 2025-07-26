@@ -21,9 +21,7 @@ export class Hue {
     this.loadBridgeConfig();
   }
 
-  /**
-   * Make an HTTP request with timeout support
-   */
+  // Make an HTTP request with timeout support
   private async makeRequest(
     url: string,
     options: RequestInit & { timeout?: number } = {},
@@ -68,9 +66,6 @@ export class Hue {
     this.bridge = bridge;
   }
 
-  /**
-   * Discover Philips Hue bridges on the network
-   */
   async discoverBridges(): Promise<HueBridge[]> {
     try {
       const response = await this.makeRequest('https://discovery.meethue.com/', { timeout: 5000 });
@@ -81,9 +76,6 @@ export class Hue {
     }
   }
 
-  /**
-   * Create a new user on the Hue bridge
-   */
   async createUser(bridgeIp: string): Promise<string | null> {
     try {
       const response = await this.makeRequest(`http://${bridgeIp}/api`, {
@@ -108,9 +100,6 @@ export class Hue {
     return null;
   }
 
-  /**
-   * Get all lights from the bridge
-   */
   async getLights(): Promise<HueLight[]> {
     if (!this.bridge?.username) {
       throw new Error('Hue bridge not configured');
@@ -139,9 +128,6 @@ export class Hue {
     }
   }
 
-  /**
-   * Set the color of specified lights
-   */
   async setLightColor(lightIds: string[], color: RgbColor): Promise<void> {
     if (!this.bridge?.username) {
       throw new Error('Hue bridge not configured');
@@ -173,9 +159,6 @@ export class Hue {
     await Promise.all(promises);
   }
 
-  /**
-   * Turn off specified lights
-   */
   async turnOffLights(lightIds: string[]): Promise<void> {
     if (!this.bridge?.username) {
       throw new Error('Hue bridge not configured');
@@ -200,9 +183,7 @@ export class Hue {
     await Promise.all(promises);
   }
 
-  /**
-   * Convert RGB to XY color space (Philips Hue format)
-   */
+  // Convert RGB to XY color space (Philips Hue format)
   private rgbToXy(rgb: RgbColor): [number, number] {
     // Normalize RGB values
     const r = rgb.r / 255;
@@ -235,9 +216,6 @@ export class Hue {
     return [clampedX, clampedY];
   }
 
-  /**
-   * Test the connection to the Hue bridge
-   */
   async testConnection(): Promise<boolean> {
     if (!this.bridge?.username) {
       return false;
@@ -255,16 +233,10 @@ export class Hue {
     }
   }
 
-  /**
-   * Check if Hue integration is configured and enabled
-   */
   isConfigured(): boolean {
     return !!(this.bridge?.ip && this.bridge?.username);
   }
 
-  /**
-   * Check if Hue integration is enabled in settings
-   */
   isEnabled(): boolean {
     const config = vscode.workspace.getConfiguration('lantern');
     const hueEnabled = config.get<boolean>('hueEnabled', false);
