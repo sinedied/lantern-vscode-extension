@@ -5,8 +5,8 @@ import { getColorCustomizations, updateColorCustomizations, getWorkspaceColor, s
 
 export class Lantern {
   private hueService: Hue;
-  private currentWorkspacePath: string | null = null;
-  private statusBarItem: vscode.StatusBarItem | null = null;
+  private currentWorkspacePath: string | undefined;
+  private statusBarItem: vscode.StatusBarItem | undefined;
 
   constructor() {
     this.hueService = new Hue();
@@ -21,7 +21,7 @@ export class Lantern {
 
   private updateCurrentWorkspacePath(): void {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    this.currentWorkspacePath = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri.fsPath : null;
+    this.currentWorkspacePath = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0].uri.fsPath : undefined;
   }
 
   async applyStoredColors(): Promise<void> {
@@ -62,7 +62,7 @@ export class Lantern {
       try {
         existingColor = hexToRgb(existingColorHex);
       } catch {
-        existingColor = undefined;
+        // Ignore invalid color
       }
     }
 
@@ -106,7 +106,7 @@ export class Lantern {
           return 'Please enter a valid hex color format (#f00, #ff0000, or #ff0000ff)';
         }
 
-        return null;
+        return undefined;
       }
     });
 
@@ -164,7 +164,7 @@ export class Lantern {
         if (num < 0 || num > 100) {
           return 'Intensity must be between 0 and 100';
         }
-        return null;
+        return undefined;
       }
     });
 
@@ -219,7 +219,7 @@ export class Lantern {
     }
 
     // Remove from global workspace color map
-    await setWorkspaceColor(this.currentWorkspacePath, null);
+    await setWorkspaceColor(this.currentWorkspacePath, undefined);
 
     // Remove workspace-specific color setting if it exists
     const workspaceSpecificColor = getWorkspaceSpecificColor();
@@ -320,7 +320,7 @@ export class Lantern {
     if (this.statusBarItem) {
       this.statusBarItem.hide();
       this.statusBarItem.dispose();
-      this.statusBarItem = null;
+      this.statusBarItem = undefined;
     }
   }
 

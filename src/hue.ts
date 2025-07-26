@@ -15,7 +15,7 @@ export interface HueLight {
 }
 
 export class Hue {
-  private bridge: HueBridge | null = null;
+  private bridge: HueBridge | undefined;
 
   constructor() {
     this.loadBridgeConfig();
@@ -76,7 +76,7 @@ export class Hue {
     }
   }
 
-  async createUser(bridgeIp: string): Promise<string | null> {
+  async createUser(bridgeIp: string): Promise<string | undefined> {
     try {
       const response = await this.makeRequest(`http://${bridgeIp}/api`, {
         method: 'POST',
@@ -97,7 +97,7 @@ export class Hue {
       console.error('Failed to create Hue user:', error);
       throw error;
     }
-    return null;
+    return undefined;
   }
 
   async getLights(): Promise<HueLight[]> {

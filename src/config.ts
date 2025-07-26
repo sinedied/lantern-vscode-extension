@@ -86,18 +86,18 @@ export async function updateWorkspaceColorMap(workspaceColorMap: Record<string, 
   await config.update('workspaceColor', workspaceColorMap, vscode.ConfigurationTarget.Global);
 }
 
-export function getWorkspaceSpecificColor(): string | null {
+export function getWorkspaceSpecificColor(): string | undefined {
   const config = getLanternConfig();
   const workspaceColor = config.get<string>('color');
-  return workspaceColor || null;
+  return workspaceColor || undefined;
 }
 
-export async function setWorkspaceSpecificColor(color: string | null): Promise<void> {
+export async function setWorkspaceSpecificColor(color: string | undefined): Promise<void> {
   const config = getLanternConfig();
   await config.update('color', color, vscode.ConfigurationTarget.Workspace);
 }
 
-export function getWorkspaceColor(workspacePath: string): string | null {
+export function getWorkspaceColor(workspacePath: string): string | undefined {
   const workspaceSpecificColor = getWorkspaceSpecificColor();
   if (workspaceSpecificColor) {
     return workspaceSpecificColor;
@@ -108,16 +108,16 @@ export function getWorkspaceColor(workspacePath: string): string | null {
     return workspaceColorMap[workspacePath];
   }
 
-  return null;
+  return undefined;
 }
 
-export async function setWorkspaceColor(workspacePath: string, color: string | null): Promise<void> {
-  const hasWorkspaceSpecificSetting = getWorkspaceSpecificColor() !== null;
+export async function setWorkspaceColor(workspacePath: string, color: string | undefined): Promise<void> {
+  const hasWorkspaceSpecificSetting = getWorkspaceSpecificColor() !== undefined;
   if (hasWorkspaceSpecificSetting) {
     await setWorkspaceSpecificColor(color);
   } else {
     const workspaceColorMap = getWorkspaceColorMap();
-    if (color === null) {
+    if (color === undefined) {
       delete workspaceColorMap[workspacePath];
     } else {
       workspaceColorMap[workspacePath] = color;

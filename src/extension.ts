@@ -397,5 +397,5 @@ async function updateHueLightsOnWindowFocus(): Promise<void> {
   }
 }
 
-// This method is called when your extension is deactivated
+// This method is called when extension is deactivated
 export function deactivate() {}

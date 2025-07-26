@@ -96,7 +96,7 @@ export function calculateColorDistance(color1: OklchColor, color2: OklchColor): 
 }
 
 export function generateRandomColor(existingColor?: RgbColor, maxAttempts: number = 50): RgbColor {
-  const existingOklch = existingColor ? rgbToOklch(existingColor) : null;
+  const existingOklch = existingColor ? rgbToOklch(existingColor) : undefined;
 
   let bestColor: RgbColor = { r: 0, g: 0, b: 0 };
   let bestDistance = 0;
