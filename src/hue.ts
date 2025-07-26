@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { RgbColor } from './colors';
 import { getHueIntensity } from './config';
+import { logger } from './logger';
 
 export interface HueBridge {
   ip: string;
@@ -71,7 +72,7 @@ export class Hue {
       const response = await this.makeRequest('https://discovery.meethue.com/', { timeout: 5000 });
       return response.data.map((bridge: any) => ({ ip: bridge.internalipaddress }));
     } catch (error) {
-      console.error('Failed to discover Hue bridges:', error);
+      logger.error('Failed to discover Hue bridges', error);
       return [];
     }
   }
@@ -89,12 +90,14 @@ export class Hue {
       if (result.success) {
         const username = result.success.username;
         await this.saveBridgeConfig({ ip: bridgeIp, username });
+        logger.log(`Created Hue user`);
+
         return username;
       } else if (result.error) {
         throw new Error(result.error.description);
       }
     } catch (error) {
-      console.error('Failed to create Hue user:', error);
+      logger.error('Failed to create Hue user', error);
       throw error;
     }
     return undefined;
@@ -123,7 +126,7 @@ export class Hue {
 
       return lights;
     } catch (error) {
-      console.error('Failed to get Hue lights:', error);
+      logger.error('Failed to get Hue lights', error);
       throw error;
     }
   }
@@ -138,6 +141,7 @@ export class Hue {
     // Convert 0-100 range to 0-254 range for Hue API (0 = off, 1-254 = brightness)
     const hueBrightness = intensity === 0 ? 0 : Math.round((intensity / 100) * 254);
 
+    logger.log(`Updating color for lights ${lightIds.join(', ')}`);
     const promises = lightIds.map(async (lightId) => {
       try {
         await this.makeRequest(`http://${this.bridge!.ip}/api/${this.bridge!.username}/lights/${lightId}/state`, {
@@ -152,7 +156,7 @@ export class Hue {
           timeout: 5000,
         });
       } catch (error) {
-        console.error(`Failed to set color for light ${lightId}:`, error);
+        logger.error(`Failed to set color for light ${lightId}`, error);
       }
     });
 
@@ -164,6 +168,7 @@ export class Hue {
       throw new Error('Hue bridge not configured');
     }
 
+    logger.log(`Turning off lights: ${lightIds.join(', ')}`);
     const promises = lightIds.map(async (lightId) => {
       try {
         await this.makeRequest(`http://${this.bridge!.ip}/api/${this.bridge!.username}/lights/${lightId}/state`, {
@@ -176,7 +181,7 @@ export class Hue {
           timeout: 5000,
         });
       } catch (error) {
-        console.error(`Failed to turn off light ${lightId}:`, error);
+        logger.error(`Failed to turn off light ${lightId}`, error);
       }
     });
 
@@ -228,7 +233,7 @@ export class Hue {
 
       return response.status === 200 && !response.data[0]?.error;
     } catch (error) {
-      console.error('Hue connection test failed:', error);
+      logger.error('Hue connection test failed', error);
       return false;
     }
   }

@@ -17,6 +17,7 @@ import {
   getWorkspaceColorMap,
   updateWorkspaceColorMap,
 } from '../config';
+import { logger } from '../logger';
 
 suite('Lantern Extension Test Suite', () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -157,5 +158,26 @@ suite('Lantern Extension Test Suite', () => {
     const updatedMap = { ...colorMap };
     delete updatedMap[testWorkspacePath];
     await updateWorkspaceColorMap(updatedMap);
+  });
+});
+
+suite('Logger Tests', () => {
+  test('Logger should be defined and have required methods', () => {
+    assert.ok(logger);
+    assert.strictEqual(typeof logger.log, 'function');
+    assert.strictEqual(typeof logger.error, 'function');
+    assert.strictEqual(typeof logger.warn, 'function');
+    assert.strictEqual(typeof logger.info, 'function');
+    assert.strictEqual(typeof logger.show, 'function');
+    assert.strictEqual(typeof logger.dispose, 'function');
+  });
+
+  test('Logger methods should not throw errors', () => {
+    assert.doesNotThrow(() => {
+      logger.log('Test log message');
+      logger.error('Test error message');
+      logger.warn('Test warning message');
+      logger.info('Test info message');
+    });
   });
 });

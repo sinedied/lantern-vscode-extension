@@ -1,18 +1,13 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
-import {
-  setHueEnabled,
-  getHueLightIds,
-  setHueLightIds,
-  getEnabled,
-  setEnabled,
-} from './config';
+import { setHueEnabled, getHueLightIds, setHueLightIds, getEnabled, setEnabled } from './config';
+import { logger } from './logger';
 
 let lantern: Lantern;
 
 // This method is called when extension is activated
 export function activate(context: vscode.ExtensionContext) {
-  console.log('Lantern extension loaded');
+  logger.log('Lantern extension loaded');
 
   lantern = new Lantern();
 
@@ -137,7 +132,7 @@ async function toggleLantern(): Promise<void> {
 }
 
 async function enableHue(): Promise<void> {
-  console.log('Enabling Philips Hue...');
+  logger.log('Enabling Philips Hue...');
   const hueService = lantern.getHueService();
 
   try {
@@ -260,7 +255,7 @@ async function selectHueLights(): Promise<void> {
 }
 
 async function disableHue(): Promise<void> {
-  console.log('Disabling Philips Hue...');
+  logger.log('Disabling Philips Hue...');
   try {
     const hueService = lantern.getHueService();
     const lightIds = getHueLightIds();
@@ -270,7 +265,7 @@ async function disableHue(): Promise<void> {
         await hueService.turnOffLights(lightIds);
         vscode.window.showInformationMessage('Philips Hue disabled.');
       } catch (error) {
-        console.error('Failed to turn off lights during disable:', error);
+        logger.error('Failed to turn off lights during disable', error);
         vscode.window.showWarningMessage('Philips Hue disabled but failed to turn off lights.');
       }
     } else {

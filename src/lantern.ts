@@ -13,6 +13,7 @@ import {
   setHueIntensity,
   getHueDefaultColor,
 } from './config';
+import { logger } from './logger';
 
 export class Lantern {
   private hueService: Hue;
@@ -67,7 +68,7 @@ export class Lantern {
   }
 
   async assignUniqueColor(): Promise<void> {
-    console.log('Assigning unique color to workspace:', this.currentWorkspacePath);
+    logger.log(`Assigning unique color to workspace: ${this.currentWorkspacePath}`);
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
@@ -89,7 +90,7 @@ export class Lantern {
   }
 
   async assignColorManually(): Promise<void> {
-    console.log('Assigning color manually for workspace:', this.currentWorkspacePath);
+    logger.log(`Assigning color manually for workspace: ${this.currentWorkspacePath}`);
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
@@ -128,7 +129,7 @@ export class Lantern {
   }
 
   async setHueIntensity(): Promise<void> {
-    console.log('Setting Philips Hue intensity...');
+    logger.log('Setting Philips Hue intensity...');
     if (!this.hueService.isEnabled()) {
       vscode.window.showErrorMessage('Philips Hue is not enabled. Use "Lantern: Enable Philips Hue" first.');
       return;
@@ -167,7 +168,7 @@ export class Lantern {
   }
 
   async resetWorkspaceColor(): Promise<void> {
-    console.log('Resetting workspace color:', this.currentWorkspacePath);
+    logger.log(`Resetting workspace color: ${this.currentWorkspacePath}`);
     if (!this.currentWorkspacePath) {
       vscode.window.showErrorMessage('No workspace is currently open.');
       return;
@@ -217,6 +218,7 @@ export class Lantern {
       return;
     }
 
+    logger.log('Updating Philips Hue lights...');
     try {
       const lightIds = getHueLightIds();
       if (lightIds.length <= 0) {
@@ -232,7 +234,7 @@ export class Lantern {
         await this.hueService.turnOffLights(lightIds);
       }
     } catch (error) {
-      console.error('Failed to update Hue lights:', error);
+      logger.error('Failed to update Hue lights', error);
     }
   }
 
