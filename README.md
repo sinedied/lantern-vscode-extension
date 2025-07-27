@@ -1,7 +1,5 @@
 <div align="center">
-  <picture>
-    <img alt="Lantern icon" src="https://raw.githubusercontent.com/sinedied/lantern-vscode-extension/refs/heads/main/icon.png" width="128">
-  </picture>
+  <img alt="Lantern icon" src="https://raw.githubusercontent.com/sinedied/lantern-vscode-extension/refs/heads/main/icon.png" width="128">
 
   # Lantern - Light up your workspace
   *Give your VS Code workspaces unique colors with optional Philips Hue integration*
