@@ -58,3 +58,4 @@ Lantern is a VS Code extension that helps developers distinguish between many di
 - When needed, update `README.md` and `.github/copilot-instructions.md` files to reflect new features or changes.
 - Avoid using comments in the code, except for complex logic that needs explanation.
 - Code should be kept clean, simple and readable.
+- Never use the NPM `package` or `install:vsix` commands they are for human testing only. Use `npm run build` to build the extension and `npm test` to run tests.

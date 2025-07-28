@@ -18,6 +18,7 @@ Tired of losing track of which VS Code window you're working in? Lantern helps y
 - **Unique workspace colors**: Assign distinctive colors to each workspace's status bar, either manually or randomly using OKLCH color space for optimal visual distinction
 - **Philips Hue integration**: Sync your workspace colors with Philips Hue smart lights
 - **Quick toggle**: Quickly enable/disable all functionality across workspaces
+- **AI-powered color suggestions**: Get intelligent color recommendations based on your project context and preferences using GitHub Copilot
 
 ## Installation
 
@@ -35,6 +36,19 @@ The color will automatically be applied whenever you open this workspace in the 
 ### Manual color selection
 
 Want to choose a specific color? Use the `Lantern: Assign color manually` command to open a color picker and select your preferred color.
+
+### AI-powered color suggestions
+
+Let AI help you find the perfect color for your workspace! Use the `Lantern: Suggest color with AI` command to get intelligent color recommendations.
+
+The AI considers:
+- Your optional inspiration or specific requirements (e.g., "calm and professional", "energetic", "matching my brand colors")
+- Current workspace color (if any)
+- All other workspace colors to avoid duplicates
+- Project context from your README file
+- VS Code design guidelines for optimal status bar colors
+
+> **Note**: AI color suggestions require GitHub Copilot to be enabled in VS Code.
 
 ### Quick toggle
 
@@ -58,6 +72,7 @@ Access all Lantern commands through the Command Palette or click the lantern ico
 
 - `Lantern: Assign unique color` - Generate a unique color for the current workspace
 - `Lantern: Assign color manually` - Choose a specific color using the color picker
+- `Lantern: Suggest color with AI` - Get AI-powered color recommendations based on project context
 - `Lantern: Toggle on/off` - Enable/disable all Lantern functionality globally
 - `Lantern: Enable Philips Hue` - Set up Philips Hue light synchronization
 - `Lantern: Disable Philips Hue` - Turn off Philips Hue synchronization
@@ -118,6 +133,12 @@ If you don't want to share your Lantern settings with others, you can add the `.
 - Ensure `lantern.enabled` is set to `true`
 - Check that you've assigned a color using `Lantern: Assign random color` or `Lantern: Assign color manually`
 - Verify your VS Code theme supports status bar customization
+
+### AI color suggestions not working?
+
+- Ensure GitHub Copilot is enabled and authenticated in VS Code
+- Check that you have an active Copilot subscription
+- Try the command again if the first attempt fails (AI services can occasionally be unavailable)
 
 ### Philips Hue not working?
 
