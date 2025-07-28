@@ -208,3 +208,20 @@ export function hexToRgb(hex: string): RgbColor {
 
   throw new Error('Invalid hex color format. Supported formats: #f00, #ff0000, #ff0000ff');
 }
+
+export function getContrastingTextColor(backgroundColor: RgbColor): string {
+  // Calculate relative luminance using WCAG formula
+  const sRGBToLinear = (channel: number): number => {
+    const c = channel / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+
+  const r = sRGBToLinear(backgroundColor.r);
+  const g = sRGBToLinear(backgroundColor.g);
+  const b = sRGBToLinear(backgroundColor.b);
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+  // Return white for dark backgrounds, black for light backgrounds
+  // Threshold of 0.5 provides good contrast in most cases
+  return luminance < 0.5 ? '#ffffff' : '#000000';
+}

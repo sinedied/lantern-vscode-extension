@@ -8,6 +8,7 @@ import {
   oklchToRgb,
   calculateColorDistance,
   isValidHexColor,
+  getContrastingTextColor,
 } from '../colors';
 import {
   getEnabled,
@@ -83,6 +84,42 @@ suite('Lantern Extension Test Suite', () => {
 
     // Should have reasonable distance (at least 0.1 in perceptual space)
     assert.ok(distance > 0.1, `Color distance ${distance} should be > 0.1`);
+  });
+
+  test('getContrastingTextColor returns appropriate text colors', () => {
+    // Test with pure black background - should return white text
+    const blackBackground = { r: 0, g: 0, b: 0 };
+    assert.strictEqual(getContrastingTextColor(blackBackground), '#ffffff');
+
+    // Test with pure white background - should return black text
+    const whiteBackground = { r: 255, g: 255, b: 255 };
+    assert.strictEqual(getContrastingTextColor(whiteBackground), '#000000');
+
+    // Test with dark gray background - should return white text
+    const darkGrayBackground = { r: 50, g: 50, b: 50 };
+    assert.strictEqual(getContrastingTextColor(darkGrayBackground), '#ffffff');
+
+    // Test with light gray background - should return black text
+    const lightGrayBackground = { r: 200, g: 200, b: 200 };
+    assert.strictEqual(getContrastingTextColor(lightGrayBackground), '#000000');
+
+    // Test with dark red background - should return white text
+    const darkRedBackground = { r: 128, g: 0, b: 0 };
+    assert.strictEqual(getContrastingTextColor(darkRedBackground), '#ffffff');
+
+    // Test with light yellow background - should return black text
+    const lightYellowBackground = { r: 255, g: 255, b: 200 };
+    assert.strictEqual(getContrastingTextColor(lightYellowBackground), '#000000');
+
+    // Test with medium blue background - luminance around threshold
+    const mediumBlueBackground = { r: 70, g: 130, b: 180 };
+    const blueTextColor = getContrastingTextColor(mediumBlueBackground);
+    assert.ok(blueTextColor === '#ffffff' || blueTextColor === '#000000', 'Should return either white or black');
+
+    // Test edge case: medium gray (should be close to threshold)
+    const mediumGrayBackground = { r: 128, g: 128, b: 128 };
+    const grayTextColor = getContrastingTextColor(mediumGrayBackground);
+    assert.ok(grayTextColor === '#ffffff' || grayTextColor === '#000000', 'Should return either white or black');
   });
 
   test('Color distance calculation works correctly', () => {

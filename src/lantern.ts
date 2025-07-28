@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RgbColor, generateRandomColor, rgbToHex, isValidHexColor, hexToRgb } from './colors';
+import { RgbColor, generateRandomColor, rgbToHex, isValidHexColor, hexToRgb, getContrastingTextColor } from './colors';
 import { Hue } from './hue';
 import { suggestColor } from './ai';
 import {
@@ -402,9 +402,11 @@ export class Lantern {
 
     if (color) {
       const hexColor = rgbToHex(color);
+      const textColor = getContrastingTextColor(color);
       const colorCustomizations = {
         ...currentColorCustomizations,
         'statusBar.background': hexColor,
+        'statusBar.foreground': textColor,
       };
       await updateColorCustomizations(colorCustomizations);
     } else {
@@ -412,6 +414,10 @@ export class Lantern {
       const colorCustomizations = { ...currentColorCustomizations };
       if (colorCustomizations['statusBar.background']) {
         delete colorCustomizations['statusBar.background'];
+        hasChanges = true;
+      }
+      if (colorCustomizations['statusBar.foreground']) {
+        delete colorCustomizations['statusBar.foreground'];
         hasChanges = true;
       }
 
