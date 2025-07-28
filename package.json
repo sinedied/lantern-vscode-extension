@@ -32,6 +32,7 @@
   },
   "homepage": "https://github.com/sinedied/lantern-vscode-extension#readme",
   "keywords": [
+    "vscode-extension",
     "colors",
     "workspace",
     "theme",
@@ -39,8 +40,8 @@
     "productivity",
     "hue",
     "unique",
-    "vscode-extension",
-    "customization"
+    "customization",
+    "language-model-tools"
   ],
   "engines": {
     "vscode": "^1.102.0"
@@ -165,7 +166,52 @@
           "description": "Workspace-specific color (set in .vscode/settings.json to override global settings)"
         }
       }
-    }
+    },
+    "languageModelTools": [
+      {
+        "name": "set_workspace_color",
+        "displayName": "Set workspace color",
+        "modelDescription": "Set the color for the current or specified workspace. This tool allows you to programmatically assign a hex color to a VS Code workspace, which will be applied to the status bar background. The color must be in hex format (#RRGGBB). If no workspace path is provided, it will use the currently active workspace.",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "setLanternColor",
+        "icon": "lantern-on",
+        "userDescription": "Set the Lantern color for the current or specified workspace.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "color": {
+              "type": "string",
+              "description": "The hex color code to set (e.g., #ff0000). Must be in 6-character hex format.",
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            },
+            "workspacePath": {
+              "type": "string",
+              "description": "Optional absolute path to the workspace directory. If not provided, uses the current active workspace."
+            }
+          },
+          "required": ["color"]
+        }
+      },
+      {
+        "name": "get_workspace_colors_and_context",
+        "displayName": "Get workspace colors and context",
+        "modelDescription": "Retrieve information about current workspace assigned color, all used colors across workspaces to avoid duplicates, and project context from README file. Use this tool to understand the current color scheme and project context before suggesting or setting new colors.",
+        "canBeReferencedInPrompt": true,
+        "toolReferenceName": "lanternContext",
+        "icon": "list-unordered",
+        "userDescription": "Get current and other workspace colors and project context",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "includeProjectContext": {
+              "type": "boolean",
+              "description": "Whether to include project context from README files. Default is true.",
+              "default": true
+            }
+          }
+        }
+      }
+    ]
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",

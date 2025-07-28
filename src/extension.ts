@@ -2,6 +2,15 @@ import * as vscode from 'vscode';
 import { Lantern } from './lantern';
 import { getEnabled } from './config';
 import { logger } from './logger';
+import {
+  setWorkspaceColorTool,
+  getWorkspaceColorsAndContextTool,
+  SET_WORKSPACE_COLOR_TOOL_INFO,
+  GET_WORKSPACE_COLORS_TOOL_INFO,
+  SetWorkspaceColorToolParams,
+  GetWorkspaceColorsToolParams,
+} from './tools';
+import path from 'path';
 
 let lantern: Lantern;
 
@@ -61,6 +70,51 @@ export function activate(context: vscode.ExtensionContext) {
     await showLanternCommands();
   });
 
+  // Register Language Model Tools
+  const setWorkspaceColorToolDisposable = vscode.lm.registerTool(
+    SET_WORKSPACE_COLOR_TOOL_INFO.name,
+    {
+      async invoke(
+        options: vscode.LanguageModelToolInvocationOptions<SetWorkspaceColorToolParams>,
+      ): Promise<vscode.LanguageModelToolResult> {
+        const result = await setWorkspaceColorTool(lantern, options.input);
+        return new vscode.LanguageModelToolResult([
+          new vscode.LanguageModelTextPart(JSON.stringify(result, null, 2)),
+        ]);
+      },
+
+      async prepareInvocation(
+        options: vscode.LanguageModelToolInvocationPrepareOptions<SetWorkspaceColorToolParams>,
+      ): Promise<vscode.PreparedToolInvocation> {
+        const { color, workspacePath } = options.input;
+        const workspaceName = workspacePath ? path.basename(workspacePath) : 'current workspace';
+
+        return {
+          invocationMessage: `Setting workspace color to ${color} for ${workspaceName}...`,
+        };
+      },
+    },
+  );
+  const getWorkspaceColorsToolDisposable = vscode.lm.registerTool(
+    GET_WORKSPACE_COLORS_TOOL_INFO.name,
+      {
+        async invoke(
+          options: vscode.LanguageModelToolInvocationOptions<GetWorkspaceColorsToolParams>,
+        ): Promise<vscode.LanguageModelToolResult> {
+          const result = await getWorkspaceColorsAndContextTool(lantern, options.input);
+          return new vscode.LanguageModelToolResult([
+            new vscode.LanguageModelTextPart(JSON.stringify(result, null, 2)),
+          ]);
+        },
+
+        async prepareInvocation(): Promise<vscode.PreparedToolInvocation> {
+          return {
+            invocationMessage: 'Getting workspace colors and context...',
+          };
+        },
+    },
+  );
+
   context.subscriptions.push(
     assignColorDisposable,
     assignColorManuallyDisposable,
@@ -71,6 +125,8 @@ export function activate(context: vscode.ExtensionContext) {
     setHueIntensityDisposable,
     resetWorkspaceColorDisposable,
     showCommandsDisposable,
+    setWorkspaceColorToolDisposable,
+    getWorkspaceColorsToolDisposable,
     workspaceFoldersDisposable,
     windowStateDisposable,
     configurationDisposable,

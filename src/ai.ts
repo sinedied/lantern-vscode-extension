@@ -85,7 +85,7 @@ function getAllUsedColors(): string[] {
   return Object.values(workspaceColorMap).filter((color) => color && color.trim() !== '');
 }
 
-async function getProjectContext(): Promise<string | undefined> {
+export async function getProjectContext(): Promise<string | undefined> {
   try {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {

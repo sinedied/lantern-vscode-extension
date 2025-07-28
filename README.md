@@ -5,7 +5,7 @@
   *Give your VS Code workspaces unique colors with optional Philips Hue integration*
 
   [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sinedied.lantern?style=flat-square&logo=visual-studio-code)](https://marketplace.visualstudio.com/items?itemName=sinedied.lantern)
-  [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
+  [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
 
   [Features](#features) • [Installation](#installation) • [Usage](#usage) • [Additional Info](#additional-info) • [Troubleshooting](#troubleshooting)
 
@@ -49,6 +49,13 @@ The AI considers:
 - VS Code design guidelines for optimal status bar colors
 
 > **Note**: AI color suggestions require GitHub Copilot to be enabled in VS Code.
+
+#### GitHub Copilot tools
+
+Lantern contributes Language Model Tools that GitHub Copilot can use to interact with workspace colors:
+
+- **`setLanternColor`**: Set workspace colors programmatically (workspace can be specified, default to current one)
+- **`lanternContext`**: Get current and other workspace colors, along with current project context (extracted from README file)
 
 ### Quick toggle
 

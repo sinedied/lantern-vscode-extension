@@ -41,6 +41,10 @@ export class Lantern {
     return this.hueService;
   }
 
+  getCurrentWorkspacePath(): string | undefined {
+    return this.currentWorkspacePath;
+  }
+
   getCurrentWorkspaceColor(): RgbColor | undefined {
     if (!this.currentWorkspacePath) {
       return undefined;
