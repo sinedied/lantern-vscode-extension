@@ -17,7 +17,10 @@ interface PromptContext {
   projectContext?: string;
 }
 
-export async function suggestColor(inspiration?: string, currentWorkspaceColor?: string): Promise<ColorSuggestion | undefined> {
+export async function suggestColor(
+  inspiration?: string,
+  currentWorkspaceColor?: string,
+): Promise<ColorSuggestion | undefined> {
   try {
     const models = await vscode.lm.selectChatModels({
       vendor: 'copilot',
@@ -43,7 +46,11 @@ export async function suggestColor(inspiration?: string, currentWorkspaceColor?:
     });
 
     logger.log('Requesting color suggestion from AI...');
-    const request = await model.sendRequest([vscode.LanguageModelChatMessage.User(prompt)], {}, new vscode.CancellationTokenSource().token);
+    const request = await model.sendRequest(
+      [vscode.LanguageModelChatMessage.User(prompt)],
+      {},
+      new vscode.CancellationTokenSource().token,
+    );
 
     let response = '';
     for await (const fragment of request.text) {
@@ -66,14 +73,16 @@ export async function suggestColor(inspiration?: string, currentWorkspaceColor?:
     return suggestion;
   } catch (error) {
     logger.log(`Error suggesting color with AI: ${error}`);
-    vscode.window.showErrorMessage(`Failed to suggest color with AI: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    vscode.window.showErrorMessage(
+      `Failed to suggest color with AI: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
     return undefined;
   }
 }
 
 function getAllUsedColors(): string[] {
   const workspaceColorMap = getWorkspaceColorMap();
-  return Object.values(workspaceColorMap).filter(color => color && color.trim() !== '');
+  return Object.values(workspaceColorMap).filter((color) => color && color.trim() !== '');
 }
 
 async function getProjectContext(): Promise<string | undefined> {
@@ -83,8 +92,19 @@ async function getProjectContext(): Promise<string | undefined> {
       return undefined;
     }
 
-    // TODO: look for any file named "readme.*", case-insensitive
-    const readmePath = path.join(workspaceFolders[0].uri.fsPath, 'README.md');
+    const workspaceRoot = workspaceFolders[0].uri.fsPath;
+
+    // Look for any readme file in the workspace root
+    const files = await fs.readdir(workspaceRoot);
+    const readmeFile = files.find(
+      (file) => file.toLowerCase().startsWith('readme.') || file.toLowerCase() === 'readme',
+    );
+
+    if (!readmeFile) {
+      return undefined;
+    }
+
+    const readmePath = path.join(workspaceRoot, readmeFile);
     const readmeContent = await fs.readFile(readmePath, 'utf-8');
 
     // Limit content to first 5000 characters to avoid token limits
@@ -161,7 +181,6 @@ function parseAIResponse(response: string): ColorSuggestion | undefined {
         justification: parsed.justification.trim(),
       };
     }
-
   } catch {
     // Do nothing if parsing fails, just return undefined
   }
