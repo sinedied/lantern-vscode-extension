@@ -17,7 +17,7 @@
     "pretest": "npm run build:tests && npm run build && npm run lint",
     "test": "vscode-test",
     "lint": "eslint src",
-    "format": "prettier --write .",
+    "format": "prettier --write src/**/*.ts",
     "vscode:prepublish": "npm run build:package",
     "package": "npx -y vsce package",
     "release": "npx -y vsce publish",

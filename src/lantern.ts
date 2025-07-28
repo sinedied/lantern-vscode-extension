@@ -150,7 +150,7 @@ export class Lantern {
 
     const inspiration = await vscode.window.showInputBox({
       placeHolder: 'Enter inspiration or specific needs (optional)',
-      prompt: 'Describe what kind of color you\'re looking for or leave empty for a general suggestion',
+      prompt: "Describe what kind of color you're looking for or leave empty for a general suggestion",
       title: 'AI Color Suggestion',
     });
 
@@ -171,9 +171,8 @@ export class Lantern {
         cancellable: false,
       },
       async () => {
-
         suggestion = await suggestColor(inspiration || undefined, hexPreviousColor);
-      }
+      },
     );
 
     if (!suggestion) {
@@ -190,7 +189,7 @@ export class Lantern {
     const action = await vscode.window.showInformationMessage(
       `AI suggested color applied: ${suggestion.color}\n${suggestion.justification}`,
       'Keep',
-      'Revert'
+      'Revert',
     );
 
     if (action === 'Revert') {
