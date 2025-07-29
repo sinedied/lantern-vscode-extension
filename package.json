@@ -20,7 +20,8 @@
     "format": "prettier --write src/**/*.ts",
     "vscode:prepublish": "npm run build:package",
     "package": "npx -y vsce package",
-    "release": "npx -y vsce publish",
+    "release": "npx -y semantic-release && npx -y vsce publish",
+    "release:check": "npx -y semantic-release --dry-run",
     "install:vsix": "npm run -s package && code --install-extension lantern-*.vsix"
   },
   "repository": {
@@ -46,6 +47,10 @@
   ],
   "engines": {
     "vscode": "^1.102.0"
+  },
+  "release": {
+    "extends": "semantic-release-node-prep",
+    "branches": "main"
   },
   "galleryBanner": {
     "color": "#182229",
