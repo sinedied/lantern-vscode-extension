@@ -59,6 +59,8 @@ Lantern contributes Language Model Tools that GitHub Copilot can use to interact
 - **`setLanternColor`**: Set workspace colors programmatically (workspace can be specified, default to current one)
 - **`lanternContext`**: Get current and other workspace colors, along with current project context (extracted from README file)
 
+Open the the GitHub Copilot chat window and select "Agent" mode to use these tools interactively. For example, you can try this prompt: `Use tools to suggest a new color for my workspace`.
+
 ### Quick toggle
 
 Use `Lantern: Toggle on/off` to quickly disable/enable all Lantern functionality while preserving your color settings.
