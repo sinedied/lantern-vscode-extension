@@ -175,6 +175,11 @@
           "type": "boolean",
           "default": false,
           "description": "Override debugging status bar colors with Lantern colors"
+        },
+        "lantern.minimal": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable minimalistic colorization (status bar item only)"
         }
       }
     },

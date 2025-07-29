@@ -21,6 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
   lantern = new Lantern();
 
   // Apply current settings (async)
+  lantern.updateStatusBar();
   lantern.applyWorkspaceColor();
 
   // Listen for workspace folder changes to update colors and Hue lights
@@ -38,6 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
   // Listen for configuration changes to update colors and Hue lights when settings change
   const configurationDisposable = vscode.workspace.onDidChangeConfiguration(async (event) => {
     if (event.affectsConfiguration('lantern')) {
+
+      // When switching minimal mode, we need to reset colors temporarily first
+      if (event.affectsConfiguration('lantern.minimal')) {
+        await lantern.resetAppliedColors();
+      }
+
       await lantern.applyWorkspaceColor();
     }
   });

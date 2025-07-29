@@ -16,6 +16,7 @@ import {
   setHueEnabled,
   setHueLightIds,
   getOverrideDebuggingColors,
+  getMinimal,
 } from './config';
 import { logger } from './logger';
 
@@ -65,8 +66,6 @@ export class Lantern {
   }
 
   async applyWorkspaceColor(): Promise<void> {
-    this.updateStatusBar();
-
     if (!this.currentWorkspacePath) {
       // Turn off lights if no workspace is open
       await this.updateHueLights();
@@ -77,6 +76,7 @@ export class Lantern {
     const currentColor = enabled ? this.getCurrentWorkspaceColor() : undefined;
     await this.applyColor(currentColor);
     await this.updateHueLights(currentColor);
+    this.updateStatusBar();
   }
 
   async toggleLantern(): Promise<void> {
@@ -402,28 +402,83 @@ export class Lantern {
     vscode.window.showInformationMessage('Lantern: Colors reset for this workspace.');
   }
 
+  async resetAppliedColors(): Promise<void> {
+    logger.log('Resetting temporarily all applied colors and Hue lights...');
+    await this.applyColor(undefined);
+  }
+
+  updateStatusBar(): void {
+    if (!this.statusBarItem) {
+      this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
+      this.statusBarItem.tooltip = 'Lantern - Click to show commands';
+      this.statusBarItem.command = {
+        command: 'lantern.showCommands',
+        title: 'Lantern',
+      };
+      this.statusBarItem.show();
+    }
+
+    const enabled = getEnabled();
+    const minimal = getMinimal();
+
+    if (enabled && minimal && this.currentWorkspacePath) {
+      const workspaceColor = getWorkspaceColor(this.currentWorkspacePath);
+      if (workspaceColor) {
+        const rgbColor = hexToRgb(workspaceColor);
+        if (rgbColor) {
+          this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
+          this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
+        }
+      }
+    } else {
+      this.statusBarItem.backgroundColor = undefined;
+      this.statusBarItem.color = undefined;
+    }
+
+    this.statusBarItem.text = enabled ? '$(lantern-on)' : '$(lantern-off)';
+  }
+
   private async applyColor(color?: RgbColor): Promise<void> {
     const currentColorCustomizations = getColorCustomizations();
     const overrideDebuggingColors = getOverrideDebuggingColors();
+    const minimal = getMinimal();
 
     if (color) {
       const hexColor = rgbToHex(color);
       const textColor = getContrastingTextColor(color);
-      const colorCustomizations = {
-        ...currentColorCustomizations,
-        'statusBar.background': hexColor,
-        'statusBar.foreground': textColor,
-      };
+      const colorCustomizations = { ...currentColorCustomizations };
 
-      if (overrideDebuggingColors) {
-        colorCustomizations['statusBar.debuggingBackground'] = hexColor;
-        colorCustomizations['statusBar.debuggingForeground'] = textColor;
+      if (minimal) {
+        // In minimal mode, only colorize the status bar item
+        colorCustomizations['statusBarItem.errorBackground'] = hexColor;
+        colorCustomizations['statusBarItem.errorForeground'] = textColor;
+      } else {
+        // In normal mode, colorize the entire status bar
+        colorCustomizations['statusBar.background'] = hexColor;
+        colorCustomizations['statusBar.foreground'] = textColor;
+
+        if (overrideDebuggingColors) {
+          colorCustomizations['statusBar.debuggingBackground'] = hexColor;
+          colorCustomizations['statusBar.debuggingForeground'] = textColor;
+        }
       }
 
       await updateColorCustomizations(colorCustomizations);
     } else {
       let hasChanges = false;
       const colorCustomizations = { ...currentColorCustomizations };
+
+      // Remove minimal mode colors
+      if (colorCustomizations['statusBarItem.errorBackground']) {
+        delete colorCustomizations['statusBarItem.errorBackground'];
+        hasChanges = true;
+      }
+      if (colorCustomizations['statusBarItem.errorForeground']) {
+        delete colorCustomizations['statusBarItem.errorForeground'];
+        hasChanges = true;
+      }
+
+      // Remove normal mode colors
       if (colorCustomizations['statusBar.background']) {
         delete colorCustomizations['statusBar.background'];
         hasChanges = true;
@@ -478,21 +533,6 @@ export class Lantern {
     } catch (error) {
       logger.error('Failed to update Hue lights', error);
     }
-  }
-
-  private updateStatusBar(): void {
-    if (!this.statusBarItem) {
-      this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
-      this.statusBarItem.tooltip = 'Lantern - Click to show commands';
-      this.statusBarItem.command = {
-        command: 'lantern.showCommands',
-        title: 'Lantern',
-      };
-      this.statusBarItem.show();
-    }
-
-    const enabled = getEnabled();
-    this.statusBarItem.text = enabled ? '$(lantern-on)' : '$(lantern-off)';
   }
 
   private hideStatusBarIndicator(): void {

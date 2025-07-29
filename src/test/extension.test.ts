@@ -19,6 +19,8 @@ import {
   updateWorkspaceColorMap,
   getOverrideDebuggingColors,
   setOverrideDebuggingColors,
+  getMinimal,
+  setMinimal,
 } from '../config';
 import { logger } from '../logger';
 
@@ -189,6 +191,23 @@ suite('Lantern Extension Test Suite', () => {
     // Test setting debugging colors override to false
     await setOverrideDebuggingColors(false);
     const disabledState = getOverrideDebuggingColors();
+    assert.strictEqual(disabledState, false);
+  });
+
+  test('Minimal mode configuration works correctly', async () => {
+    // Test getting initial minimal mode state (should default to false)
+    const initialState = getMinimal();
+    assert.strictEqual(typeof initialState, 'boolean');
+    assert.strictEqual(initialState, false);
+
+    // Test setting minimal mode to true
+    await setMinimal(true);
+    const enabledState = getMinimal();
+    assert.strictEqual(enabledState, true);
+
+    // Test setting minimal mode to false
+    await setMinimal(false);
+    const disabledState = getMinimal();
     assert.strictEqual(disabledState, false);
   });
 

@@ -7,6 +7,7 @@ export interface LanternConfig {
   hueIntensity: number;
   workspaceColor: Record<string, string>;
   overrideDebuggingColors: boolean;
+  minimal: boolean;
 }
 
 const LANTERN_CONFIG_KEY = 'lantern';
@@ -136,4 +137,14 @@ export function getOverrideDebuggingColors(): boolean {
 export async function setOverrideDebuggingColors(enabled: boolean): Promise<void> {
   const config = getLanternConfig();
   await config.update('overrideDebuggingColors', enabled, vscode.ConfigurationTarget.Global);
+}
+
+export function getMinimal(): boolean {
+  const config = getLanternConfig();
+  return config.get<boolean>('minimal', false);
+}
+
+export async function setMinimal(enabled: boolean): Promise<void> {
+  const config = getLanternConfig();
+  await config.update('minimal', enabled, vscode.ConfigurationTarget.Global);
 }

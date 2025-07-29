@@ -97,6 +97,7 @@ Lantern stores settings globally in your VS Code user settings:
 ```json
 {
   "lantern.enabled": true,
+  "lantern.minimal": false,
   "lantern.overrideDebuggingColors": false,
   "lantern.hueEnabled": false,
   "lantern.hueLightIds": [],
@@ -125,6 +126,7 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 | `enabled`                   | Enable or disable Lantern                                 | `true`    |
 | `workspaceColor`            | Global workspace color mappings (workspace path → color)  | `{}`      |
 | `color`                     | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
+| `minimal`                   | Enable minimalistic colorization (status bar item only)   | `false`   |
 | `overrideDebuggingColors`   | Override debugging status bar colors with Lantern colors  | `false`   |
 | `hueEnabled`                | Enable Philips Hue integration                            | `false`   |
 | `hueLightIds`               | List of Hue light IDs to control                          | `[]`      |
