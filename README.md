@@ -97,6 +97,7 @@ Lantern stores settings globally in your VS Code user settings:
 ```json
 {
   "lantern.enabled": true,
+  "lantern.overrideDebuggingColors": false,
   "lantern.hueEnabled": false,
   "lantern.hueLightIds": [],
   "lantern.hueIntensity": 100,
@@ -119,15 +120,16 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 
 #### Settings reference
 
-| Setting           | Description                                               | Default   |
-| ----------------- | --------------------------------------------------------- | --------- |
-| `enabled`         | Enable or disable Lantern                                 | `true`    |
-| `workspaceColor`  | Global workspace color mappings (workspace path → color)  | `{}`      |
-| `color`           | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
-| `hueEnabled`      | Enable Philips Hue integration                            | `false`   |
-| `hueLightIds`     | List of Hue light IDs to control                          | `[]`      |
-| `hueIntensity`    | Brightness of Hue lights (0-100)                          | `100`     |
-| `hueDefaultColor` | Default color when no workspace color is set              | `#000000` |
+| Setting                     | Description                                               | Default   |
+| --------------------------- | --------------------------------------------------------- | --------- |
+| `enabled`                   | Enable or disable Lantern                                 | `true`    |
+| `workspaceColor`            | Global workspace color mappings (workspace path → color)  | `{}`      |
+| `color`                     | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
+| `overrideDebuggingColors`   | Override debugging status bar colors with Lantern colors  | `false`   |
+| `hueEnabled`                | Enable Philips Hue integration                            | `false`   |
+| `hueLightIds`               | List of Hue light IDs to control                          | `[]`      |
+| `hueIntensity`              | Brightness of Hue lights (0-100)                          | `100`     |
+| `hueDefaultColor`           | Default color when no workspace color is set              | `#000000` |
 
 > **Tip**: Use `#000000` as the default Hue color to turn lights off when no workspace color is assigned.
 

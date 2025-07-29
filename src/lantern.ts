@@ -15,6 +15,7 @@ import {
   getHueDefaultColor,
   setHueEnabled,
   setHueLightIds,
+  getOverrideDebuggingColors,
 } from './config';
 import { logger } from './logger';
 
@@ -403,6 +404,7 @@ export class Lantern {
 
   private async applyColor(color?: RgbColor): Promise<void> {
     const currentColorCustomizations = getColorCustomizations();
+    const overrideDebuggingColors = getOverrideDebuggingColors();
 
     if (color) {
       const hexColor = rgbToHex(color);
@@ -412,6 +414,12 @@ export class Lantern {
         'statusBar.background': hexColor,
         'statusBar.foreground': textColor,
       };
+
+      if (overrideDebuggingColors) {
+        colorCustomizations['statusBar.debuggingBackground'] = hexColor;
+        colorCustomizations['statusBar.debuggingForeground'] = textColor;
+      }
+
       await updateColorCustomizations(colorCustomizations);
     } else {
       let hasChanges = false;
@@ -423,6 +431,17 @@ export class Lantern {
       if (colorCustomizations['statusBar.foreground']) {
         delete colorCustomizations['statusBar.foreground'];
         hasChanges = true;
+      }
+
+      if (overrideDebuggingColors) {
+        if (colorCustomizations['statusBar.debuggingBackground']) {
+          delete colorCustomizations['statusBar.debuggingBackground'];
+          hasChanges = true;
+        }
+        if (colorCustomizations['statusBar.debuggingForeground']) {
+          delete colorCustomizations['statusBar.debuggingForeground'];
+          hasChanges = true;
+        }
       }
 
       if (hasChanges) {

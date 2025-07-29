@@ -170,6 +170,11 @@
         "lantern.color": {
           "type": "string",
           "description": "Workspace-specific color (set in .vscode/settings.json to override global settings)"
+        },
+        "lantern.overrideDebuggingColors": {
+          "type": "boolean",
+          "default": false,
+          "description": "Override debugging status bar colors with Lantern colors"
         }
       }
     },

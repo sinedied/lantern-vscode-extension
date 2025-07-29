@@ -16,6 +16,7 @@ Lantern is a VS Code extension that helps developers distinguish between many di
 - Enable/disable all Lantern functionality globally (default: enabled).
 - Enable/disable Philips Hue integration (default: disabled).
 - Choose which Philips Hue light(s) to control (default: none).
+- Override debugging status bar colors with Lantern colors (default: disabled).
 
 ## Technical details
 

@@ -17,6 +17,8 @@ import {
   setWorkspaceColor,
   getWorkspaceColorMap,
   updateWorkspaceColorMap,
+  getOverrideDebuggingColors,
+  setOverrideDebuggingColors,
 } from '../config';
 import { logger } from '../logger';
 
@@ -171,6 +173,23 @@ suite('Lantern Extension Test Suite', () => {
     await setEnabled(true);
     const enabledState = getEnabled();
     assert.strictEqual(enabledState, true);
+  });
+
+  test('Override debugging colors configuration works correctly', async () => {
+    // Test getting initial debugging colors override state (should default to false)
+    const initialState = getOverrideDebuggingColors();
+    assert.strictEqual(typeof initialState, 'boolean');
+    assert.strictEqual(initialState, false);
+
+    // Test setting debugging colors override to true
+    await setOverrideDebuggingColors(true);
+    const enabledState = getOverrideDebuggingColors();
+    assert.strictEqual(enabledState, true);
+
+    // Test setting debugging colors override to false
+    await setOverrideDebuggingColors(false);
+    const disabledState = getOverrideDebuggingColors();
+    assert.strictEqual(disabledState, false);
   });
 
   test('Workspace color system works correctly', async () => {

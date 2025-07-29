@@ -6,6 +6,7 @@ export interface LanternConfig {
   hueDefaultColor: string;
   hueIntensity: number;
   workspaceColor: Record<string, string>;
+  overrideDebuggingColors: boolean;
 }
 
 const LANTERN_CONFIG_KEY = 'lantern';
@@ -124,4 +125,14 @@ export async function setWorkspaceColor(workspacePath: string, color: string | u
     }
     await updateWorkspaceColorMap(workspaceColorMap);
   }
+}
+
+export function getOverrideDebuggingColors(): boolean {
+  const config = getLanternConfig();
+  return config.get<boolean>('overrideDebuggingColors', false);
+}
+
+export async function setOverrideDebuggingColors(enabled: boolean): Promise<void> {
+  const config = getLanternConfig();
+  await config.update('overrideDebuggingColors', enabled, vscode.ConfigurationTarget.Global);
 }
