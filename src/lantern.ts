@@ -192,7 +192,7 @@ export class Lantern {
     await setWorkspaceColor(this.currentWorkspacePath, suggestion.color);
 
     const action = await vscode.window.showInformationMessage(
-      `AI suggested color applied: ${suggestion.color}\n${suggestion.justification}`,
+      `AI suggested color applied: ${suggestion.color}. ${suggestion.justification}`,
       'Keep',
       'Revert',
     );

@@ -122,7 +122,7 @@ You are an expert color designer helping to suggest a suitable color for a VS Co
 Suggest a color that:
 1. Is suitable for VS Code status bar background (readable, not too bright/dark)
 2. Follows VS Code design guidelines for accessibility
-3. Creates good contrast with typical status bar text (white/light text)
+3. Creates good contrast with typical status bar text (white or black)
 4. Uses hex format (#RRGGBB)
 5. Is different enough from current workspace color and other workspace colors, unless user inspiration takes priority
 
@@ -151,7 +151,7 @@ Suggest a color that:
 Respond with a JSON object in this exact format:
 {
   "color": "#RRGGBB",
-  "justification": "One-line explanation of why this color was chosen"
+  "justification": "Inspiration for this color in 15-words or less. Do not start with 'Inspired by' or similar do not mention rules or guidelines."
 }
 
 The color must be:
