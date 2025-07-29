@@ -117,7 +117,8 @@ export async function setWorkspaceColor(workspacePath: string, color: string | u
   if (hasWorkspaceSpecificSetting) {
     await setWorkspaceSpecificColor(color);
   } else {
-    const workspaceColorMap = getWorkspaceColorMap();
+    // Create copy as settings objects are immutable
+    const workspaceColorMap = { ...getWorkspaceColorMap() };
     if (color === undefined) {
       delete workspaceColorMap[workspacePath];
     } else {
