@@ -117,6 +117,10 @@
       {
         "command": "lantern.showCommands",
         "title": "Lantern: Show commands"
+      },
+      {
+        "command": "lantern.toggleMinimal",
+        "title": "Lantern: Toggle minimal mode"
       }
     ],
     "configuration": {

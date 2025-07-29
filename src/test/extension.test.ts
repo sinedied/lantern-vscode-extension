@@ -211,6 +211,20 @@ suite('Lantern Extension Test Suite', () => {
     assert.strictEqual(disabledState, false);
   });
 
+  test('Minimal mode toggle functionality works correctly', async () => {
+    // Ensure we start with minimal mode disabled
+    await setMinimal(false);
+    assert.strictEqual(getMinimal(), false);
+
+    // Toggle to enabled
+    await setMinimal(true);
+    assert.strictEqual(getMinimal(), true);
+
+    // Toggle back to disabled
+    await setMinimal(false);
+    assert.strictEqual(getMinimal(), false);
+  });
+
   test('Workspace color system works correctly', async () => {
     const testWorkspacePath = '/test/workspace';
     const testColor = '#ff0000';

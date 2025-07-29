@@ -77,6 +77,10 @@ export function activate(context: vscode.ExtensionContext) {
     await showLanternCommands();
   });
 
+  const toggleMinimalDisposable = vscode.commands.registerCommand('lantern.toggleMinimal', async () => {
+    await lantern.toggleMinimal();
+  });
+
   // Register Language Model Tools
   const setWorkspaceColorToolDisposable = vscode.lm.registerTool(
     SET_WORKSPACE_COLOR_TOOL_INFO.name,
@@ -132,6 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
     setHueIntensityDisposable,
     resetWorkspaceColorDisposable,
     showCommandsDisposable,
+    toggleMinimalDisposable,
     setWorkspaceColorToolDisposable,
     getWorkspaceColorsToolDisposable,
     workspaceFoldersDisposable,
@@ -183,6 +188,11 @@ async function showLanternCommands(): Promise<void> {
       label: '$(lightbulb-sparkle) Set Philips Hue intensity',
       description: 'Adjust brightness of Philips Hue lights (0-100%)',
       command: 'lantern.setHueIntensity',
+    },
+    {
+      label: '$(circle-small-filled) Toggle minimal mode',
+      description: 'Minimal mode only colorizes the status bar item',
+      command: 'lantern.toggleMinimal',
     },
   ];
 

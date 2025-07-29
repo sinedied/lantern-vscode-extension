@@ -88,7 +88,8 @@ Access all Lantern commands through the Command Palette or click the lantern ico
 - `Lantern: Enable Philips Hue` - Set up Philips Hue light synchronization
 - `Lantern: Disable Philips Hue` - Turn off Philips Hue synchronization
 - `Lantern: Set Philips Hue intensity` - Adjust brightness of your Hue lights (0-100)
-- `Lantern: Lantern: Reset workspace color` - Remove color assignment for current workspace
+- `Lantern: Reset workspace color` - Remove color assignment for current workspace
+- `Lantern: Toggle minimal mode` - Switch between full status bar and status bar item only colorization
 
 ### Configuration
 

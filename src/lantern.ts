@@ -17,6 +17,7 @@ import {
   setHueLightIds,
   getOverrideDebuggingColors,
   getMinimal,
+  setMinimal,
 } from './config';
 import { logger } from './logger';
 
@@ -407,6 +408,16 @@ export class Lantern {
     await this.applyColor(undefined);
   }
 
+  async toggleMinimal(): Promise<void> {
+    const currentMinimal = getMinimal();
+    const newMinimal = !currentMinimal;
+
+    logger.log(`Toggling minimal mode: ${currentMinimal} -> ${newMinimal}`);
+
+    await setMinimal(newMinimal);
+    await this.applyWorkspaceColor();
+  }
+
   updateStatusBar(): void {
     if (!this.statusBarItem) {
       this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
@@ -424,11 +435,8 @@ export class Lantern {
     if (enabled && minimal && this.currentWorkspacePath) {
       const workspaceColor = getWorkspaceColor(this.currentWorkspacePath);
       if (workspaceColor) {
-        const rgbColor = hexToRgb(workspaceColor);
-        if (rgbColor) {
-          this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
-          this.statusBarItem.color = new vscode.ThemeColor('statusBarItem.errorForeground');
-        }
+        // Only setting the background color is needed (error mode)
+        this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
       }
     } else {
       this.statusBarItem.backgroundColor = undefined;
@@ -452,6 +460,7 @@ export class Lantern {
         // In minimal mode, only colorize the status bar item
         colorCustomizations['statusBarItem.errorBackground'] = hexColor;
         colorCustomizations['statusBarItem.errorForeground'] = textColor;
+        colorCustomizations['statusBarItem.errorHoverForeground'] = textColor;
       } else {
         // In normal mode, colorize the entire status bar
         colorCustomizations['statusBar.background'] = hexColor;
@@ -475,6 +484,10 @@ export class Lantern {
       }
       if (colorCustomizations['statusBarItem.errorForeground']) {
         delete colorCustomizations['statusBarItem.errorForeground'];
+        hasChanges = true;
+      }
+      if (colorCustomizations['statusBarItem.errorHoverForeground']) {
+        delete colorCustomizations['statusBarItem.errorHoverForeground'];
         hasChanges = true;
       }
 
