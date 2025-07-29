@@ -469,6 +469,14 @@ export class Lantern {
         if (overrideDebuggingColors) {
           colorCustomizations['statusBar.debuggingBackground'] = hexColor;
           colorCustomizations['statusBar.debuggingForeground'] = textColor;
+        } else {
+          // If not overriding debugging colors, ensure they are reset
+          if (colorCustomizations['statusBar.debuggingBackground']) {
+            delete colorCustomizations['statusBar.debuggingBackground'];
+          }
+          if (colorCustomizations['statusBar.debuggingForeground']) {
+            delete colorCustomizations['statusBar.debuggingForeground'];
+          }
         }
       }
 
