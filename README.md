@@ -20,6 +20,8 @@ Tired of losing track of which VS Code window you're working in? Lantern helps y
 - **Quick toggle**: Quickly enable/disable all functionality across workspaces
 - **AI-powered color suggestions**: Get intelligent color recommendations based on your project context and preferences using GitHub Copilot
 
+> **Note**: AI features requires [GitHub Copilot](https://github.com/features/copilot) to be enabled in VS Code and your GitHub account. You can get started with GitHub Copilot [for free here](https://github.com/github-copilot/pro).
+
 ## Installation
 
 Install Lantern from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=sinedied.lantern) or search for "Lantern" in the VS Code Extensions view.
@@ -39,6 +41,8 @@ Want to choose a specific color? Use the `Lantern: Assign color manually` comman
 
 ### AI-powered color suggestions
 
+> **Note**: AI features requires [GitHub Copilot](https://github.com/features/copilot) to be enabled in VS Code and your GitHub account. You can get started with GitHub Copilot [for free here](https://github.com/github-copilot/pro).
+
 Let AI help you find the perfect color for your workspace! Use the `Lantern: Suggest color with AI` command to get intelligent color recommendations.
 
 The AI considers:
@@ -47,8 +51,6 @@ The AI considers:
 - All other workspace colors to avoid duplicates
 - Project context from your README file
 - VS Code design guidelines for optimal status bar colors
-
-> **Note**: AI color suggestions require GitHub Copilot to be enabled in VS Code.
 
 #### GitHub Copilot tools
 
