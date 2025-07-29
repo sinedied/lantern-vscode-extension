@@ -111,15 +111,10 @@ suite('Lantern Extension Test Suite', () => {
     const lightYellowBackground = { r: 255, g: 255, b: 200 };
     assert.strictEqual(getContrastingTextColor(lightYellowBackground), '#000000');
 
-    // Test with medium blue background - luminance around threshold
-    const mediumBlueBackground = { r: 70, g: 130, b: 180 };
-    const blueTextColor = getContrastingTextColor(mediumBlueBackground);
-    assert.ok(blueTextColor === '#ffffff' || blueTextColor === '#000000', 'Should return either white or black');
-
-    // Test edge case: medium gray (should be close to threshold)
-    const mediumGrayBackground = { r: 128, g: 128, b: 128 };
-    const grayTextColor = getContrastingTextColor(mediumGrayBackground);
-    assert.ok(grayTextColor === '#ffffff' || grayTextColor === '#000000', 'Should return either white or black');
+    // Test light orange background (should return black text)
+    const lightOrangeBackground = { r: 255, g: 165, b: 0 };
+    const lightOrangeTextColor = getContrastingTextColor(lightOrangeBackground);
+    assert.ok(lightOrangeTextColor === '#000000', 'Should return black');
   });
 
   test('Color distance calculation works correctly', () => {

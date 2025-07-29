@@ -209,19 +209,31 @@ export function hexToRgb(hex: string): RgbColor {
   throw new Error('Invalid hex color format. Supported formats: #f00, #ff0000, #ff0000ff');
 }
 
-export function getContrastingTextColor(backgroundColor: RgbColor): string {
-  // Calculate relative luminance using WCAG formula
+function getLuminance(color: RgbColor): number {
   const sRGBToLinear = (channel: number): number => {
     const c = channel / 255;
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
   };
 
-  const r = sRGBToLinear(backgroundColor.r);
-  const g = sRGBToLinear(backgroundColor.g);
-  const b = sRGBToLinear(backgroundColor.b);
-  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  const r = sRGBToLinear(color.r);
+  const g = sRGBToLinear(color.g);
+  const b = sRGBToLinear(color.b);
 
-  // Return white for dark backgrounds, black for light backgrounds
-  // Threshold of 0.5 provides good contrast in most cases
-  return luminance < 0.5 ? '#ffffff' : '#000000';
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function getWhiteContrastRatio(color: RgbColor): number {
+  const luminance = getLuminance(color);
+  return 1.05 / (luminance + 0.05);
+}
+
+export function getContrastingTextColor(backgroundColor: RgbColor): string {
+  // Calculate WCAG contrast ratio against white
+  const ratio = getWhiteContrastRatio(backgroundColor);
+  if (ratio < 4.5) {
+    // light background, return black text
+    return '#000000';
+  }
+  // dark background, return white text
+  return '#ffffff';
 }
