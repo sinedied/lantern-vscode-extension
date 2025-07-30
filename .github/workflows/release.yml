@@ -6,6 +6,10 @@ on:
 
 jobs:
   release:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
@@ -21,3 +25,4 @@ jobs:
         if: success()
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
