@@ -19,9 +19,9 @@ Tired of losing track of which VS Code window you're working in? Lantern helps y
 
 - **Unique workspace colors**: Assign distinctive colors to each workspace's status bar, either manually or randomly using OKLCH color space for optimal visual distinction
 - **Philips Hue integration**: Sync your workspace colors with Philips Hue smart lights
-- **Peacock companion mode**: Use Peacock extension instead of built-in theming
 - **Quick toggle**: Quickly enable/disable all functionality across workspaces
 - **AI-powered color suggestions**: Get intelligent color recommendations based on your project context and preferences using GitHub Copilot
+- **Peacock synchronization**: Use Peacock extension instead of built-in theming
 
 > **Note**: AI features requires [GitHub Copilot](https://github.com/features/copilot) to be enabled in VS Code and your GitHub account. You can get started with GitHub Copilot [for free here](https://github.com/github-copilot/pro).
 
@@ -64,15 +64,15 @@ Lantern contributes Language Model Tools that GitHub Copilot can use to interact
 
 Open the the GitHub Copilot chat window and select "Agent" mode to use these tools interactively. For example, you can try this prompt: `Use tools to suggest a new color for my workspace`.
 
-### Peacock mode
+### Peacock sync
 
-Want to use the [Peacock extension](https://marketplace.visualstudio.com/items?itemName=JohnPapa.peacock) for more advanced theming options while still enjoying Lantern's Philips Hue integration or AI suggestions? Enable Peacock companion mode:
+Want to use the [Peacock extension](https://marketplace.visualstudio.com/items?itemName=JohnPapa.peacock) for more advanced theming options while still enjoying Lantern's Philips Hue integration or AI suggestions? Enable Peacock synchronization mode:
 
 1. **Install Peacock**: Install the Peacock extension [from the marketplace](https://marketplace.visualstudio.com/items?itemName=JohnPapa.peacock)
-2. **Enable Peacock mode**: Run command: `Lantern: Toggle Peacock mode`
+2. **Enable Peacock sync**: Run command: `Lantern: Toggle Peacock sync`
 3. **Set Peacock colors**: Set colors using either Peacock or Lantern commands (the `peacock.color` setting will be used)
 
-In this mode, Lantern disables its built-in theming and instead watches the `peacock.color` workspace setting.
+In this mode, Lantern disables its built-in theming and instead relies on the `peacock.color` workspace setting.
 
 > **Note**: Only valid HTML hex colors are supported for now, named colors will not work.
 
@@ -115,7 +115,7 @@ Lantern stores settings globally in your VS Code user settings:
 {
   "lantern.enabled": true,
   "lantern.minimal": false,
-  "lantern.peacockMode": false,
+  "lantern.peacockSync": false,
   "lantern.overrideDebuggingColors": false,
   "lantern.hueEnabled": false,
   "lantern.hueLightIds": [],
@@ -145,7 +145,7 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 | `workspaceColor`            | Global workspace color mappings (workspace path → color)  | `{}`      |
 | `color`                     | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
 | `minimal`                   | Enable minimalistic colorization (status bar item only)   | `false`   |
-| `peacockMode`      | use Peacock extension instead of built-in theming         | `false`   |
+| `peacockSync`      | use Peacock extension instead of built-in theming         | `false`   |
 | `overrideDebuggingColors`   | Override debugging status bar colors with Lantern colors  | `false`   |
 | `hueEnabled`                | Enable Philips Hue integration                            | `false`   |
 | `hueLightIds`               | List of Hue light IDs to control                          | `[]`      |

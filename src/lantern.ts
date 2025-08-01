@@ -18,8 +18,8 @@ import {
   getOverrideDebuggingColors,
   getMinimal,
   setMinimal,
-  getPeacockMode,
-  setPeacockMode,
+  getPeacockSync,
+  setPeacockSync,
   getPeacockColor,
 } from './config';
 import { logger } from './logger';
@@ -57,10 +57,10 @@ export class Lantern {
     }
 
     let rgbColor: RgbColor | undefined;
-    const peacockMode = getPeacockMode();
+    const peacockSync = getPeacockSync();
 
-    if (peacockMode) {
-      // In peacock companion mode, use peacock.color setting
+    if (peacockSync) {
+      // In peacock sync mode, use peacock.color setting
       const peacockColor = getPeacockColor();
       if (peacockColor && isValidHexColor(peacockColor)) {
         try {
@@ -437,17 +437,17 @@ export class Lantern {
     await this.applyWorkspaceColor();
   }
 
-  async togglePeacockMode(): Promise<void> {
-    const currentMode = getPeacockMode();
+  async togglePeacockSync(): Promise<void> {
+    const currentMode = getPeacockSync();
     const newMode = !currentMode;
 
-    logger.log(`Toggling peacock companion mode: ${currentMode} -> ${newMode}`);
+    logger.log(`Toggling peacock sync: ${currentMode} -> ${newMode}`);
 
-    await setPeacockMode(newMode);
+    await setPeacockSync(newMode);
     await this.applyWorkspaceColor();
 
     const modeText = newMode ? 'enabled' : 'disabled';
-    vscode.window.showInformationMessage(`Lantern: Peacock companion mode ${modeText}.`);
+    vscode.window.showInformationMessage(`Lantern: Peacock sync ${modeText}.`);
   }
 
   updateStatusBar(): void {
@@ -479,9 +479,9 @@ export class Lantern {
   }
 
   private async applyColor(color?: RgbColor): Promise<void> {
-    const peacockMode = getPeacockMode();
-    if (peacockMode) {
-      // Only apply VS Code coloring when not in peacock companion mode
+    const peacockSync = getPeacockSync();
+    if (peacockSync) {
+      // Only apply VS Code coloring when not in peacock sync mode
       return;
     }
 

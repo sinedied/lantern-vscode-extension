@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
-import { getEnabled, getPeacockMode } from './config';
+import { getEnabled, getPeacockSync } from './config';
 import { logger } from './logger';
 import {
   setWorkspaceColorTool,
@@ -48,8 +48,8 @@ export function activate(context: vscode.ExtensionContext) {
       await lantern.applyWorkspaceColor();
     }
 
-    // Watch for peacock.color changes when in peacock companion mode
-    if (getPeacockMode() && event.affectsConfiguration('peacock.color')) {
+    // Watch for peacock.color changes when in peacock sync mode
+    if (getPeacockSync() && event.affectsConfiguration('peacock.color')) {
       await lantern.applyWorkspaceColor();
     }
   });
@@ -86,8 +86,8 @@ export function activate(context: vscode.ExtensionContext) {
     await lantern.toggleMinimal();
   });
 
-  const togglePeacockModeDisposable = vscode.commands.registerCommand('lantern.togglePeacockMode', async () => {
-    await lantern.togglePeacockMode();
+  const togglePeacockSyncDisposable = vscode.commands.registerCommand('lantern.togglePeacockSync', async () => {
+    await lantern.togglePeacockSync();
   });
 
   // Register Language Model Tools
@@ -146,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
     resetWorkspaceColorDisposable,
     showCommandsDisposable,
     toggleMinimalDisposable,
-    togglePeacockModeDisposable,
+    togglePeacockSyncDisposable,
     setWorkspaceColorToolDisposable,
     getWorkspaceColorsToolDisposable,
     workspaceFoldersDisposable,
@@ -158,7 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 async function showLanternCommands(): Promise<void> {
   const isEnabled = getEnabled();
-  const peacockMode = getPeacockMode();
+  const peacockSync = getPeacockSync();
   const commands = [
     {
       label: isEnabled ? '$(lantern-off) Turn off Lantern' : '$(lantern-on) Turn on Lantern',
@@ -186,9 +186,9 @@ async function showLanternCommands(): Promise<void> {
       command: 'lantern.resetWorkspaceColor',
     },
     {
-      label: peacockMode ? '$(heart) Disable Peacock mode' : '$(heart-empty) Enable Peacock mode',
+      label: peacockSync ? '$(sync-ignored) Disable Peacock sync' : '$(sync) Enable Peacock sync',
       description: 'Use Peacock extension instead of built-in theming',
-      command: 'lantern.togglePeacockMode',
+      command: 'lantern.togglePeacockSync',
     },
     {
       label: '$(lightbulb) Enable Philips Hue',

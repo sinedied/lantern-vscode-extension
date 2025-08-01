@@ -123,8 +123,8 @@
         "title": "Lantern: Toggle minimal mode"
       },
       {
-        "command": "lantern.togglePeacockMode",
-        "title": "Lantern: Toggle Peacock mode"
+        "command": "lantern.togglePeacockSync",
+        "title": "Lantern: Toggle Peacock sync"
       }
     ],
     "configuration": {
@@ -189,10 +189,10 @@
           "default": false,
           "description": "Enable or disable minimalistic colorization (status bar item only)"
         },
-        "lantern.peacockMode": {
+        "lantern.peacockSync": {
           "type": "boolean",
           "default": false,
-          "description": "Enable or disable Peacock companion mode (use Peacock extension instead of built-in theming)"
+          "description": "Enable or disable Peacock synchronization (use Peacock extension instead of built-in theming)"
         }
       }
     },
