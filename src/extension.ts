@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
-import { getEnabled, getPeacockCompanionMode } from './config';
+import { getEnabled, getPeacockMode } from './config';
 import { logger } from './logger';
 import {
   setWorkspaceColorTool,
@@ -40,8 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
   const configurationDisposable = vscode.workspace.onDidChangeConfiguration(async (event) => {
     if (event.affectsConfiguration('lantern')) {
 
-      // When switching minimal or peacock mode, we need to reset colors temporarily first
-      if (event.affectsConfiguration('lantern.minimal') || event.affectsConfiguration('lantern.peacockCompanionMode')) {
+      // When switching minimal mode we need to reset colors temporarily first
+      if (event.affectsConfiguration('lantern.minimal')) {
         await lantern.resetAppliedColors();
       }
 
@@ -49,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // Watch for peacock.color changes when in peacock companion mode
-    if (getPeacockCompanionMode() && event.affectsConfiguration('peacock.color')) {
+    if (getPeacockMode() && event.affectsConfiguration('peacock.color')) {
       await lantern.applyWorkspaceColor();
     }
   });
@@ -86,8 +86,8 @@ export function activate(context: vscode.ExtensionContext) {
     await lantern.toggleMinimal();
   });
 
-  const togglePeacockCompanionModeDisposable = vscode.commands.registerCommand('lantern.togglePeacockCompanionMode', async () => {
-    await lantern.togglePeacockCompanionMode();
+  const togglePeacockModeDisposable = vscode.commands.registerCommand('lantern.togglePeacockMode', async () => {
+    await lantern.togglePeacockMode();
   });
 
   // Register Language Model Tools
@@ -146,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
     resetWorkspaceColorDisposable,
     showCommandsDisposable,
     toggleMinimalDisposable,
-    togglePeacockCompanionModeDisposable,
+    togglePeacockModeDisposable,
     setWorkspaceColorToolDisposable,
     getWorkspaceColorsToolDisposable,
     workspaceFoldersDisposable,
@@ -158,6 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 async function showLanternCommands(): Promise<void> {
   const isEnabled = getEnabled();
+  const peacockMode = getPeacockMode();
   const commands = [
     {
       label: isEnabled ? '$(lantern-off) Turn off Lantern' : '$(lantern-on) Turn on Lantern',
@@ -185,6 +186,11 @@ async function showLanternCommands(): Promise<void> {
       command: 'lantern.resetWorkspaceColor',
     },
     {
+      label: peacockMode ? '$(heart) Disable Peacock mode' : '$(heart-empty) Enable Peacock mode',
+      description: 'Use Peacock extension instead of built-in theming',
+      command: 'lantern.togglePeacockMode',
+    },
+    {
       label: '$(lightbulb) Enable Philips Hue',
       description: 'Connect to Philips Hue lights',
       command: 'lantern.enableHue',
@@ -203,11 +209,6 @@ async function showLanternCommands(): Promise<void> {
       label: '$(circle-small-filled) Toggle minimal mode',
       description: 'Minimal mode only colorizes the status bar item',
       command: 'lantern.toggleMinimal',
-    },
-    {
-      label: '$(symbol-interface) Toggle Peacock companion mode',
-      description: 'Use Peacock extension instead of built-in theming',
-      command: 'lantern.togglePeacockCompanionMode',
     },
   ];
 

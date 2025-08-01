@@ -64,13 +64,13 @@ Lantern contributes Language Model Tools that GitHub Copilot can use to interact
 
 Open the the GitHub Copilot chat window and select "Agent" mode to use these tools interactively. For example, you can try this prompt: `Use tools to suggest a new color for my workspace`.
 
-### Peacock companion mode
+### Peacock mode
 
 Want to use the [Peacock extension](https://marketplace.visualstudio.com/items?itemName=JohnPapa.peacock) for more advanced theming options while still enjoying Lantern's Philips Hue integration or AI suggestions? Enable Peacock companion mode:
 
-1. **Install Peacock**: Install the Peacock extension from the marketplace
-2. **Enable companion mode**: Run `Lantern: Toggle Peacock companion mode`
-3. **Use Peacock colors**: Set colors using either Peacock or Lantern commands (the `peacock.color` setting will be used)
+1. **Install Peacock**: Install the Peacock extension [from the marketplace](https://marketplace.visualstudio.com/items?itemName=JohnPapa.peacock)
+2. **Enable Peacock mode**: Run command: `Lantern: Toggle Peacock mode`
+3. **Set Peacock colors**: Set colors using either Peacock or Lantern commands (the `peacock.color` setting will be used)
 
 In this mode, Lantern disables its built-in theming and instead watches the `peacock.color` workspace setting.
 
@@ -96,16 +96,16 @@ Transform your physical workspace to match your digital one:
 
 Access all Lantern commands through the Command Palette or click the lantern icon in your status bar:
 
+- `Lantern: Toggle on/off` - Enable/disable all Lantern functionality globally
 - `Lantern: Assign unique color` - Generate a unique color for the current workspace
 - `Lantern: Assign color manually` - Choose a specific color using the color picker
 - `Lantern: Suggest color with AI` - Get AI-powered color recommendations based on project context
-- `Lantern: Toggle on/off` - Enable/disable all Lantern functionality globally
+- `Lantern: Reset workspace color` - Remove color assignment for current workspace
+- `Lantern: Toggle Peacock mode` - Enable/disable Peacock integration
 - `Lantern: Enable Philips Hue` - Set up Philips Hue light synchronization
 - `Lantern: Disable Philips Hue` - Turn off Philips Hue synchronization
 - `Lantern: Set Philips Hue intensity` - Adjust brightness of your Hue lights (0-100)
-- `Lantern: Reset workspace color` - Remove color assignment for current workspace
 - `Lantern: Toggle minimal mode` - Switch between full status bar and status bar item only colorization
-- `Lantern: Toggle Peacock companion mode` - Enable/disable Peacock companion mode
 
 ### Configuration
 
@@ -115,7 +115,7 @@ Lantern stores settings globally in your VS Code user settings:
 {
   "lantern.enabled": true,
   "lantern.minimal": false,
-  "lantern.peacockCompanionMode": false,
+  "lantern.peacockMode": false,
   "lantern.overrideDebuggingColors": false,
   "lantern.hueEnabled": false,
   "lantern.hueLightIds": [],
@@ -145,7 +145,7 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 | `workspaceColor`            | Global workspace color mappings (workspace path → color)  | `{}`      |
 | `color`                     | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
 | `minimal`                   | Enable minimalistic colorization (status bar item only)   | `false`   |
-| `peacockCompanionMode`      | use Peacock extension instead of built-in theming         | `false`   |
+| `peacockMode`      | use Peacock extension instead of built-in theming         | `false`   |
 | `overrideDebuggingColors`   | Override debugging status bar colors with Lantern colors  | `false`   |
 | `hueEnabled`                | Enable Philips Hue integration                            | `false`   |
 | `hueLightIds`               | List of Hue light IDs to control                          | `[]`      |
@@ -187,3 +187,5 @@ Run `Lantern: Reset workspace color` to clear color settings for the current wor
 ## Need more customization options?
 
 Check out the [Peacock extension](https://marketplace.visualstudio.com/items?itemName=JohnPapa.peacock) for more advanced workspace color management, this extension primarily focuses on minimalistic coloring and Philips Hue integration.
+
+With [Peacock mode](#peacock-mode), you can use Peacock's advanced theming while still enjoying Lantern's Hue integration and AI features.

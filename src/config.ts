@@ -8,7 +8,7 @@ export interface LanternConfig {
   workspaceColor: Record<string, string>;
   overrideDebuggingColors: boolean;
   minimal: boolean;
-  peacockCompanionMode: boolean;
+  peacockMode: boolean;
 }
 
 const LANTERN_CONFIG_KEY = 'lantern';
@@ -115,6 +115,11 @@ export function getWorkspaceColor(workspacePath: string): string | undefined {
 }
 
 export async function setWorkspaceColor(workspacePath: string, color: string | undefined): Promise<void> {
+  if (getPeacockMode()) {
+    await setPeacockColor(color);
+    return;
+  }
+
   const hasWorkspaceSpecificSetting = getWorkspaceSpecificColor() !== undefined;
   if (hasWorkspaceSpecificSetting) {
     await setWorkspaceSpecificColor(color);
@@ -150,17 +155,22 @@ export async function setMinimal(enabled: boolean): Promise<void> {
   await config.update('minimal', enabled, vscode.ConfigurationTarget.Global);
 }
 
-export function getPeacockCompanionMode(): boolean {
+export function getPeacockMode(): boolean {
   const config = getLanternConfig();
-  return config.get<boolean>('peacockCompanionMode', false);
+  return config.get<boolean>('peacockMode', false);
 }
 
-export async function setPeacockCompanionMode(enabled: boolean): Promise<void> {
+export async function setPeacockMode(enabled: boolean): Promise<void> {
   const config = getLanternConfig();
-  await config.update('peacockCompanionMode', enabled, vscode.ConfigurationTarget.Global);
+  await config.update('peacockMode', enabled, vscode.ConfigurationTarget.Global);
 }
 
 export function getPeacockColor(): string | undefined {
   const config = vscode.workspace.getConfiguration('peacock');
   return config.get<string>('color');
+}
+
+export async function setPeacockColor(color?: string): Promise<void> {
+  const config = vscode.workspace.getConfiguration('peacock');
+  await config.update('color', color, vscode.ConfigurationTarget.Workspace);
 }

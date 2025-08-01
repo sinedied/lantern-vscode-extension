@@ -18,8 +18,8 @@ import {
   getOverrideDebuggingColors,
   getMinimal,
   setMinimal,
-  getPeacockCompanionMode,
-  setPeacockCompanionMode,
+  getPeacockMode,
+  setPeacockMode,
   getPeacockColor,
 } from './config';
 import { logger } from './logger';
@@ -57,7 +57,7 @@ export class Lantern {
     }
 
     let rgbColor: RgbColor | undefined;
-    const peacockMode = getPeacockCompanionMode();
+    const peacockMode = getPeacockMode();
 
     if (peacockMode) {
       // In peacock companion mode, use peacock.color setting
@@ -437,13 +437,13 @@ export class Lantern {
     await this.applyWorkspaceColor();
   }
 
-  async togglePeacockCompanionMode(): Promise<void> {
-    const currentMode = getPeacockCompanionMode();
+  async togglePeacockMode(): Promise<void> {
+    const currentMode = getPeacockMode();
     const newMode = !currentMode;
 
     logger.log(`Toggling peacock companion mode: ${currentMode} -> ${newMode}`);
 
-    await setPeacockCompanionMode(newMode);
+    await setPeacockMode(newMode);
     await this.applyWorkspaceColor();
 
     const modeText = newMode ? 'enabled' : 'disabled';
@@ -479,7 +479,7 @@ export class Lantern {
   }
 
   private async applyColor(color?: RgbColor): Promise<void> {
-    const peacockMode = getPeacockCompanionMode();
+    const peacockMode = getPeacockMode();
     if (peacockMode) {
       // Only apply VS Code coloring when not in peacock companion mode
       return;

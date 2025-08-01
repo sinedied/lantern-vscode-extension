@@ -21,8 +21,8 @@ import {
   setOverrideDebuggingColors,
   getMinimal,
   setMinimal,
-  getPeacockCompanionMode,
-  setPeacockCompanionMode,
+  getPeacockMode,
+  setPeacockMode,
 } from '../config';
 import { logger } from '../logger';
 
@@ -248,18 +248,18 @@ suite('Lantern Extension Test Suite', () => {
 
   test('Peacock companion mode configuration works correctly', async () => {
     // Test getting initial state (should default to false)
-    const initialState = getPeacockCompanionMode();
+    const initialState = getPeacockMode();
     assert.strictEqual(typeof initialState, 'boolean');
     assert.strictEqual(initialState, false);
 
     // Test setting to true
-    await setPeacockCompanionMode(true);
-    const enabledState = getPeacockCompanionMode();
+    await setPeacockMode(true);
+    const enabledState = getPeacockMode();
     assert.strictEqual(enabledState, true);
 
     // Test setting to false
-    await setPeacockCompanionMode(false);
-    const disabledState = getPeacockCompanionMode();
+    await setPeacockMode(false);
+    const disabledState = getPeacockMode();
     assert.strictEqual(disabledState, false);
   });
 });
