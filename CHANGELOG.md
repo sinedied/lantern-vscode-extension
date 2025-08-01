@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/sinedied/lantern-vscode-extension/compare/1.3.0...1.3.1) (2025-08-01)
+
+
+### Bug Fixes
+
+* keep workspace color when enabling peacock sync ([e6b82d1](https://github.com/sinedied/lantern-vscode-extension/commit/e6b82d1c003d79cce409d65b012f3e9ae486edfc))
+
 # [1.3.0](https://github.com/sinedied/lantern-vscode-extension/compare/1.2.0...1.3.0) (2025-08-01)
 
 
