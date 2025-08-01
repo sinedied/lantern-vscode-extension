@@ -443,7 +443,17 @@ export class Lantern {
 
     logger.log(`Toggling peacock sync: ${currentMode} -> ${newMode}`);
 
+    // Get the current workspace color, if any
+    const currentColor = this.getCurrentWorkspaceColor();
+
     await setPeacockSync(newMode);
+
+    // Reapply the previous workspace color to be used in Peacock
+    if (newMode && currentColor && this.currentWorkspacePath) {
+      const hexColor = rgbToHex(currentColor);
+      await setWorkspaceColor(this.currentWorkspacePath, hexColor);
+    }
+
     await this.applyWorkspaceColor();
 
     const modeText = newMode ? 'enabled' : 'disabled';
