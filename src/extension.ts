@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { Lantern } from './lantern';
-import { getEnabled } from './config';
+import { getEnabled, getPeacockCompanionMode } from './config';
 import { logger } from './logger';
 import {
   setWorkspaceColorTool,
@@ -40,11 +40,16 @@ export function activate(context: vscode.ExtensionContext) {
   const configurationDisposable = vscode.workspace.onDidChangeConfiguration(async (event) => {
     if (event.affectsConfiguration('lantern')) {
 
-      // When switching minimal mode, we need to reset colors temporarily first
-      if (event.affectsConfiguration('lantern.minimal')) {
+      // When switching minimal or peacock mode, we need to reset colors temporarily first
+      if (event.affectsConfiguration('lantern.minimal') || event.affectsConfiguration('lantern.peacockCompanionMode')) {
         await lantern.resetAppliedColors();
       }
 
+      await lantern.applyWorkspaceColor();
+    }
+
+    // Watch for peacock.color changes when in peacock companion mode
+    if (getPeacockCompanionMode() && event.affectsConfiguration('peacock.color')) {
       await lantern.applyWorkspaceColor();
     }
   });
@@ -79,6 +84,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   const toggleMinimalDisposable = vscode.commands.registerCommand('lantern.toggleMinimal', async () => {
     await lantern.toggleMinimal();
+  });
+
+  const togglePeacockCompanionModeDisposable = vscode.commands.registerCommand('lantern.togglePeacockCompanionMode', async () => {
+    await lantern.togglePeacockCompanionMode();
   });
 
   // Register Language Model Tools
@@ -137,6 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
     resetWorkspaceColorDisposable,
     showCommandsDisposable,
     toggleMinimalDisposable,
+    togglePeacockCompanionModeDisposable,
     setWorkspaceColorToolDisposable,
     getWorkspaceColorsToolDisposable,
     workspaceFoldersDisposable,
@@ -193,6 +203,11 @@ async function showLanternCommands(): Promise<void> {
       label: '$(circle-small-filled) Toggle minimal mode',
       description: 'Minimal mode only colorizes the status bar item',
       command: 'lantern.toggleMinimal',
+    },
+    {
+      label: '$(symbol-interface) Toggle Peacock companion mode',
+      description: 'Use Peacock extension instead of built-in theming',
+      command: 'lantern.togglePeacockCompanionMode',
     },
   ];
 

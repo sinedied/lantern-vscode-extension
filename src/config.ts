@@ -8,6 +8,7 @@ export interface LanternConfig {
   workspaceColor: Record<string, string>;
   overrideDebuggingColors: boolean;
   minimal: boolean;
+  peacockCompanionMode: boolean;
 }
 
 const LANTERN_CONFIG_KEY = 'lantern';
@@ -147,4 +148,19 @@ export function getMinimal(): boolean {
 export async function setMinimal(enabled: boolean): Promise<void> {
   const config = getLanternConfig();
   await config.update('minimal', enabled, vscode.ConfigurationTarget.Global);
+}
+
+export function getPeacockCompanionMode(): boolean {
+  const config = getLanternConfig();
+  return config.get<boolean>('peacockCompanionMode', false);
+}
+
+export async function setPeacockCompanionMode(enabled: boolean): Promise<void> {
+  const config = getLanternConfig();
+  await config.update('peacockCompanionMode', enabled, vscode.ConfigurationTarget.Global);
+}
+
+export function getPeacockColor(): string | undefined {
+  const config = vscode.workspace.getConfiguration('peacock');
+  return config.get<string>('color');
 }

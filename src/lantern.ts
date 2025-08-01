@@ -18,6 +18,9 @@ import {
   getOverrideDebuggingColors,
   getMinimal,
   setMinimal,
+  getPeacockCompanionMode,
+  setPeacockCompanionMode,
+  getPeacockColor,
 } from './config';
 import { logger } from './logger';
 
@@ -54,6 +57,21 @@ export class Lantern {
     }
 
     let rgbColor: RgbColor | undefined;
+    const peacockMode = getPeacockCompanionMode();
+
+    if (peacockMode) {
+      // In peacock companion mode, use peacock.color setting
+      const peacockColor = getPeacockColor();
+      if (peacockColor && isValidHexColor(peacockColor)) {
+        try {
+          return hexToRgb(peacockColor);
+        } catch {
+          logger.error(`Invalid or unsupported Peacock color: ${peacockColor}`);
+          return undefined;
+        }
+      }
+    }
+
     const color = getWorkspaceColor(this.currentWorkspacePath);
 
     if (color && isValidHexColor(color)) {
@@ -63,6 +81,7 @@ export class Lantern {
         // Ignore invalid color
       }
     }
+
     return rgbColor;
   }
 
@@ -418,6 +437,19 @@ export class Lantern {
     await this.applyWorkspaceColor();
   }
 
+  async togglePeacockCompanionMode(): Promise<void> {
+    const currentMode = getPeacockCompanionMode();
+    const newMode = !currentMode;
+
+    logger.log(`Toggling peacock companion mode: ${currentMode} -> ${newMode}`);
+
+    await setPeacockCompanionMode(newMode);
+    await this.applyWorkspaceColor();
+
+    const modeText = newMode ? 'enabled' : 'disabled';
+    vscode.window.showInformationMessage(`Lantern: Peacock companion mode ${modeText}.`);
+  }
+
   updateStatusBar(): void {
     if (!this.statusBarItem) {
       this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 10000);
@@ -447,6 +479,12 @@ export class Lantern {
   }
 
   private async applyColor(color?: RgbColor): Promise<void> {
+    const peacockMode = getPeacockCompanionMode();
+    if (peacockMode) {
+      // Only apply VS Code coloring when not in peacock companion mode
+      return;
+    }
+
     const currentColorCustomizations = getColorCustomizations();
     const overrideDebuggingColors = getOverrideDebuggingColors();
     const minimal = getMinimal();

@@ -121,6 +121,10 @@
       {
         "command": "lantern.toggleMinimal",
         "title": "Lantern: Toggle minimal mode"
+      },
+      {
+        "command": "lantern.togglePeacockCompanionMode",
+        "title": "Lantern: Toggle Peacock companion mode"
       }
     ],
     "configuration": {
@@ -184,6 +188,15 @@
           "type": "boolean",
           "default": false,
           "description": "Enable or disable minimalistic colorization (status bar item only)"
+        },
+        "lantern.peacockCompanionMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable or disable Peacock companion mode (use Peacock extension instead of built-in theming)"
+        },
+        "peacock.color": {
+          "type": "string",
+          "description": "Current color for the Peacock extension (used by Lantern when in Peacock companion mode)"
         }
       }
     },
