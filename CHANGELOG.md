@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/sinedied/lantern-vscode-extension/compare/1.2.0...1.3.0) (2025-08-01)
+
+
+### Features
+
+* add AI features to peacock mode ([d99a9e7](https://github.com/sinedied/lantern-vscode-extension/commit/d99a9e7da7436769d4f52d4ed26ed3517e56a725))
+* add peacock companion mode ([5533cd2](https://github.com/sinedied/lantern-vscode-extension/commit/5533cd2fa2ce735402c824b505282df69ca1c80a))
+
 # [1.2.0](https://github.com/sinedied/lantern-vscode-extension/compare/1.1.0...1.2.0) (2025-07-30)
 
 
