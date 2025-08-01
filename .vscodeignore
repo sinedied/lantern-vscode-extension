@@ -15,4 +15,5 @@ vsc-extension-quickstart.md
 **/.vscode-test.*
 TODO
 *.env*
+*.vsix
 .genaiscript
