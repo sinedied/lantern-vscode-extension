@@ -184,7 +184,7 @@ If you don't want to share your Lantern settings with others, you can add the `.
 
 Run `Lantern: Reset workspace color` to clear color settings for the current workspace, or use the quick toggle to turn off all functionality while preserving settings.
 
-## Need more customization options?
+### Need more customization options?
 
 Check out the [Peacock extension](https://marketplace.visualstudio.com/items?itemName=JohnPapa.peacock) for more advanced workspace color management, this extension primarily focuses on minimalistic coloring and Philips Hue integration.
 
