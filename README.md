@@ -11,7 +11,7 @@
 
 </div>
 
-![Screenshot of lantern extension show VS Code colored status bar with matching background lights](./preview.jpg)
+![Screenshot of lantern extension show VS Code colored status bar with matching background lights](https://raw.githubusercontent.com/sinedied/lantern-vscode-extension/main/preview.jpg)
 
 Tired of losing track of which VS Code window you're working in? Lantern helps you distinguish between multiple VS Code instances by assigning unique colors to each workspace's status bar. With the Philips Hue integration, your physical workspace reflects your digital one.
 
