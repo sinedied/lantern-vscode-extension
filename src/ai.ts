@@ -1,14 +1,17 @@
 import * as vscode from 'vscode';
 import fs from 'fs/promises';
 import path from 'path';
-import { getWorkspaceColorMap } from './config';
+import { getAIModel, getWorkspaceColorMap } from './config';
 import { isValidHexColor } from './colors';
 import { logger } from './logger';
+import { ColorSuggestion, COPILOT_VENDOR, parseAIResponse, selectPreferredModel } from './ai_utils';
 
-export interface ColorSuggestion {
-  color: string;
-  justification: string;
-}
+export { ColorSuggestion } from './ai_utils';
+
+export const NO_COPILOT_MODELS_MESSAGE =
+  'No GitHub Copilot language models are available. Sign in to GitHub Copilot and check your plan or organization model policies.';
+export const AI_MODEL_UNAVAILABLE_MESSAGE =
+  'The configured AI model and Copilot Auto are unavailable. Run "Lantern: Select AI model" to choose another available model.';
 
 interface PromptContext {
   inspiration?: string;
@@ -22,19 +25,28 @@ export async function suggestColor(
   currentWorkspaceColor?: string,
 ): Promise<ColorSuggestion | undefined> {
   try {
-    const models = await vscode.lm.selectChatModels({
-      vendor: 'copilot',
-      family: 'gpt-4o',
-    });
+    const configuredModelId = getAIModel();
+    const selection = await selectPreferredModel(configuredModelId, (modelId) =>
+      vscode.lm.selectChatModels({
+        vendor: COPILOT_VENDOR,
+        id: modelId,
+      }),
+    );
 
-    if (models.length === 0) {
-      vscode.window.showErrorMessage('No suitable language model found. Please ensure GitHub Copilot is enabled.');
+    if (!selection.model) {
+      vscode.window.showErrorMessage(AI_MODEL_UNAVAILABLE_MESSAGE);
       return undefined;
     }
 
-    const model = models[0];
+    if (selection.usedFallback) {
+      vscode.window.showWarningMessage(
+        `Configured AI model "${selection.requestedModelId}" is unavailable. Lantern is using Copilot Auto for this suggestion.`,
+      );
+    }
 
-    // Get extra context information
+    const model = selection.model;
+    logger.log(`Using AI model ${model.name} (${model.id})`);
+
     const allUsedColors = getAllUsedColors();
     const projectContext = await getProjectContext();
 
@@ -46,15 +58,23 @@ export async function suggestColor(
     });
 
     logger.log('Requesting color suggestion from AI...');
-    const request = await model.sendRequest(
-      [vscode.LanguageModelChatMessage.User(prompt)],
-      {},
-      new vscode.CancellationTokenSource().token,
-    );
-
+    const cancellationTokenSource = new vscode.CancellationTokenSource();
     let response = '';
-    for await (const fragment of request.text) {
-      response += fragment;
+
+    try {
+      const request = await model.sendRequest(
+        [vscode.LanguageModelChatMessage.User(prompt)],
+        {
+          justification: 'Suggest an accessible status bar color for the current workspace.',
+        },
+        cancellationTokenSource.token,
+      );
+
+      for await (const fragment of request.text) {
+        response += fragment;
+      }
+    } finally {
+      cancellationTokenSource.dispose();
     }
 
     logger.log(`AI response: ${response}`);
@@ -72,12 +92,19 @@ export async function suggestColor(
 
     return suggestion;
   } catch (error) {
-    logger.log(`Error suggesting color with AI: ${error}`);
-    vscode.window.showErrorMessage(
-      `Failed to suggest color with AI: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    );
+    logger.error('Failed to suggest color with AI', error);
+    const errorMessage = getLanguageModelErrorMessage(error);
+    vscode.window.showErrorMessage(`Failed to suggest color with AI: ${errorMessage}`);
     return undefined;
   }
+}
+
+export function getLanguageModelErrorMessage(error: unknown): string {
+  if (error instanceof vscode.LanguageModelError) {
+    return `${error.message} (${error.code})`;
+  }
+
+  return error instanceof Error ? error.message : 'Unknown error';
 }
 
 function getAllUsedColors(): string[] {
@@ -163,26 +190,4 @@ The color must be:
 Example good status bar colors: #007ACC (VS Code blue), #16825D (green), #A56C00 (orange), #7C3AED (purple), #DC2626 (red)`;
 
   return prompt;
-}
-
-function parseAIResponse(response: string): ColorSuggestion | undefined {
-  try {
-    // Try to extract JSON from the response
-    const jsonMatch = response.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      return undefined;
-    }
-
-    const parsed = JSON.parse(jsonMatch[0]);
-
-    if (typeof parsed.color === 'string' && typeof parsed.justification === 'string') {
-      return {
-        color: parsed.color.trim(),
-        justification: parsed.justification.trim(),
-      };
-    }
-  } catch {
-    // Do nothing if parsing fails, just return undefined
-  }
-  return undefined;
 }

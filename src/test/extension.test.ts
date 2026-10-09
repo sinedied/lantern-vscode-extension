@@ -23,6 +23,8 @@ import {
   setMinimal,
   getPeacockSync,
   setPeacockSync,
+  getAIModel,
+  setAIModel,
 } from '../config';
 import { logger } from '../logger';
 
@@ -155,12 +157,28 @@ suite('Lantern Extension Test Suite', () => {
     // Check that our commands are registered
     assert.ok(commands.includes('lantern.assignUniqueColor'), 'assignUniqueColor command not found');
     assert.ok(commands.includes('lantern.assignColorManually'), 'assignColorManually command not found');
+    assert.ok(commands.includes('lantern.suggestColorWithAI'), 'suggestColorWithAI command not found');
+    assert.ok(commands.includes('lantern.selectAIModel'), 'selectAIModel command not found');
     assert.ok(commands.includes('lantern.toggle'), 'toggle command not found');
     assert.ok(commands.includes('lantern.enableHue'), 'enableHue command not found');
     assert.ok(commands.includes('lantern.disableHue'), 'disableHue command not found');
     assert.ok(commands.includes('lantern.setHueIntensity'), 'setHueIntensity command not found');
     assert.ok(commands.includes('lantern.resetWorkspaceColor'), 'resetWorkspaceColor command not found');
     assert.ok(commands.includes('lantern.showCommands'), 'showCommands command not found');
+  });
+
+  test('AI model configuration works correctly', async () => {
+    const previousModel = getAIModel();
+
+    try {
+      await setAIModel('test-model');
+      assert.strictEqual(getAIModel(), 'test-model');
+
+      await setAIModel('  ');
+      assert.strictEqual(getAIModel(), 'auto');
+    } finally {
+      await setAIModel(previousModel);
+    }
   });
 
   test('Global toggle configuration works correctly', async () => {

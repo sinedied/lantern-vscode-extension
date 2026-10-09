@@ -39,7 +39,6 @@ export function activate(context: vscode.ExtensionContext) {
   // Listen for configuration changes to update colors and Hue lights when settings change
   const configurationDisposable = vscode.workspace.onDidChangeConfiguration(async (event) => {
     if (event.affectsConfiguration('lantern')) {
-
       // When switching minimal mode we need to reset colors temporarily first
       if (event.affectsConfiguration('lantern.minimal')) {
         await lantern.resetAppliedColors();
@@ -62,6 +61,9 @@ export function activate(context: vscode.ExtensionContext) {
   });
   const suggestColorWithAIDisposable = vscode.commands.registerCommand('lantern.suggestColorWithAI', async () => {
     await lantern.suggestColorWithAI();
+  });
+  const selectAIModelDisposable = vscode.commands.registerCommand('lantern.selectAIModel', async () => {
+    await lantern.selectAIModel();
   });
   const toggleDisposable = vscode.commands.registerCommand('lantern.toggle', async () => {
     await lantern.toggleLantern();
@@ -91,54 +93,45 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   // Register Language Model Tools
-  const setWorkspaceColorToolDisposable = vscode.lm.registerTool(
-    SET_WORKSPACE_COLOR_TOOL_INFO.name,
-    {
-      async invoke(
-        options: vscode.LanguageModelToolInvocationOptions<SetWorkspaceColorToolParams>,
-      ): Promise<vscode.LanguageModelToolResult> {
-        const result = await setWorkspaceColorTool(lantern, options.input);
-        return new vscode.LanguageModelToolResult([
-          new vscode.LanguageModelTextPart(JSON.stringify(result, null, 2)),
-        ]);
-      },
-
-      async prepareInvocation(
-        options: vscode.LanguageModelToolInvocationPrepareOptions<SetWorkspaceColorToolParams>,
-      ): Promise<vscode.PreparedToolInvocation> {
-        const { color, workspacePath } = options.input;
-        const workspaceName = workspacePath ? path.basename(workspacePath) : 'current workspace';
-
-        return {
-          invocationMessage: `Setting workspace color to ${color} for ${workspaceName}...`,
-        };
-      },
+  const setWorkspaceColorToolDisposable = vscode.lm.registerTool(SET_WORKSPACE_COLOR_TOOL_INFO.name, {
+    async invoke(
+      options: vscode.LanguageModelToolInvocationOptions<SetWorkspaceColorToolParams>,
+    ): Promise<vscode.LanguageModelToolResult> {
+      const result = await setWorkspaceColorTool(lantern, options.input);
+      return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(JSON.stringify(result, null, 2))]);
     },
-  );
-  const getWorkspaceColorsToolDisposable = vscode.lm.registerTool(
-    GET_WORKSPACE_COLORS_TOOL_INFO.name,
-      {
-        async invoke(
-          options: vscode.LanguageModelToolInvocationOptions<GetWorkspaceColorsToolParams>,
-        ): Promise<vscode.LanguageModelToolResult> {
-          const result = await getWorkspaceColorsAndContextTool(lantern, options.input);
-          return new vscode.LanguageModelToolResult([
-            new vscode.LanguageModelTextPart(JSON.stringify(result, null, 2)),
-          ]);
-        },
 
-        async prepareInvocation(): Promise<vscode.PreparedToolInvocation> {
-          return {
-            invocationMessage: 'Getting workspace colors and context...',
-          };
-        },
+    async prepareInvocation(
+      options: vscode.LanguageModelToolInvocationPrepareOptions<SetWorkspaceColorToolParams>,
+    ): Promise<vscode.PreparedToolInvocation> {
+      const { color, workspacePath } = options.input;
+      const workspaceName = workspacePath ? path.basename(workspacePath) : 'current workspace';
+
+      return {
+        invocationMessage: `Setting workspace color to ${color} for ${workspaceName}...`,
+      };
     },
-  );
+  });
+  const getWorkspaceColorsToolDisposable = vscode.lm.registerTool(GET_WORKSPACE_COLORS_TOOL_INFO.name, {
+    async invoke(
+      options: vscode.LanguageModelToolInvocationOptions<GetWorkspaceColorsToolParams>,
+    ): Promise<vscode.LanguageModelToolResult> {
+      const result = await getWorkspaceColorsAndContextTool(lantern, options.input);
+      return new vscode.LanguageModelToolResult([new vscode.LanguageModelTextPart(JSON.stringify(result, null, 2))]);
+    },
+
+    async prepareInvocation(): Promise<vscode.PreparedToolInvocation> {
+      return {
+        invocationMessage: 'Getting workspace colors and context...',
+      };
+    },
+  });
 
   context.subscriptions.push(
     assignColorDisposable,
     assignColorManuallyDisposable,
     suggestColorWithAIDisposable,
+    selectAIModelDisposable,
     toggleDisposable,
     enableHueDisposable,
     disableHueDisposable,
@@ -179,6 +172,11 @@ async function showLanternCommands(): Promise<void> {
       label: '$(sparkle) Suggest color with AI',
       description: 'Get an AI-powered color suggestion',
       command: 'lantern.suggestColorWithAI',
+    },
+    {
+      label: '$(hubot) Select AI model',
+      description: 'Choose which GitHub Copilot model Lantern uses',
+      command: 'lantern.selectAIModel',
     },
     {
       label: '$(refresh) Reset workspace color',

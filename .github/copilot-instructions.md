@@ -7,6 +7,7 @@ Lantern is a VS Code extension that helps developers distinguish between many di
 - User has to explicitly activate the colorization feature for each project/workspace using the command palette "Lantern: Assign unique color". This will pick up a random hue using oklch color space and the current saturation and lightness values of the status bar, and save the settings to global user settings. This command can be run multiple times to get a different color for the same project/workspace.
 - The extension will then apply the color to the status bar background of the VS Code UI.
 - A status bar indicator (lantern icon) is always visible for quick access to commands, but does not change color.
+- Users can request AI-powered color suggestions through GitHub Copilot. Lantern uses Copilot Auto by default, allows users to select another currently available model, and falls back to Auto if a saved model becomes unavailable.
 - User can optionally enable Philips Hue integration to sync the color with a Philips Hue light bulb, allowing the light bulb to change color when switching between projects/workspaces. To do that, the user has to run the command "Lantern: Enable Philips Hue integration" and follow the instructions to connect to their Philips Hue bridge and choose which light(s) to control (one or more can be selected).
 - User can optionally enable "Peacock sync" which disables Lantern's built-in status bar coloring and instead watches the `peacock.color` workspace setting to sync Philips Hue lights with colors set by the Peacock extension.
 - Global toggle functionality: User can quickly enable/disable all Lantern functionality (colored status bar and Philips Hue) using the "Lantern: Toggle on/off" command. This works as a global switch for all workspaces and is separate from other settings.
@@ -14,6 +15,7 @@ Lantern is a VS Code extension that helps developers distinguish between many di
 ## Configurable settings
 
 - Choose which color to use for the colorization (default: assigned randomly)
+- Choose which GitHub Copilot model to use for AI color suggestions (default: `auto`).
 - Enable/disable all Lantern functionality globally (default: enabled).
 - Enable/disable minimalistic colorization (status bar item only) (default: disabled).
 - Enable/disable Peacock synchronization mode (use Peacock extension colors for Hue sync) (default: disabled).
@@ -46,6 +48,7 @@ Lantern is a VS Code extension that helps developers distinguish between many di
     "workspaceColor": {
       "/path/to/project": "#ff0000"
     },
+    "aiModel": "auto",
     "hueEnabled": true,
     "hueLightIds": ["1", "2"]
   }

@@ -1,8 +1,9 @@
 import * as vscode from 'vscode';
 import { RgbColor, generateRandomColor, rgbToHex, isValidHexColor, hexToRgb, getContrastingTextColor } from './colors';
 import { Hue } from './hue';
-import { suggestColor } from './ai';
+import { getLanguageModelErrorMessage, NO_COPILOT_MODELS_MESSAGE, suggestColor } from './ai';
 import {
+  getAIModel,
   getColorCustomizations,
   updateColorCustomizations,
   getWorkspaceColor,
@@ -21,8 +22,14 @@ import {
   getPeacockSync,
   setPeacockSync,
   getPeacockColor,
+  setAIModel,
 } from './config';
 import { logger } from './logger';
+import { COPILOT_VENDOR, DEFAULT_AI_MODEL_ID } from './ai_utils';
+
+interface AIModelQuickPickItem extends vscode.QuickPickItem {
+  modelId: string;
+}
 
 export class Lantern {
   private hueService: Hue;
@@ -221,6 +228,56 @@ export class Lantern {
       await setWorkspaceColor(this.currentWorkspacePath, hexPreviousColor);
       vscode.window.showInformationMessage('Reverted to previous color.');
     }
+  }
+
+  async selectAIModel(): Promise<void> {
+    let models: vscode.LanguageModelChat[];
+
+    try {
+      models = await vscode.lm.selectChatModels({ vendor: COPILOT_VENDOR });
+    } catch (error) {
+      logger.error('Failed to load GitHub Copilot language models', error);
+      vscode.window.showErrorMessage(
+        `Failed to load GitHub Copilot language models: ${getLanguageModelErrorMessage(error)}`,
+      );
+      return;
+    }
+
+    if (models.length === 0) {
+      vscode.window.showErrorMessage(NO_COPILOT_MODELS_MESSAGE);
+      return;
+    }
+
+    const currentModelId = getAIModel();
+    const items: AIModelQuickPickItem[] = models
+      .map((model) => ({
+        label: model.id === DEFAULT_AI_MODEL_ID ? `$(sparkle) ${model.name}` : model.name,
+        description: model.id,
+        detail: `${model.family} · ${model.maxInputTokens.toLocaleString()} max input tokens`,
+        picked: model.id === currentModelId,
+        modelId: model.id,
+      }))
+      .sort((left, right) => {
+        if (left.modelId === DEFAULT_AI_MODEL_ID && right.modelId !== DEFAULT_AI_MODEL_ID) {
+          return -1;
+        }
+        if (right.modelId === DEFAULT_AI_MODEL_ID && left.modelId !== DEFAULT_AI_MODEL_ID) {
+          return 1;
+        }
+        return left.label.localeCompare(right.label);
+      });
+
+    const selected = await vscode.window.showQuickPick(items, {
+      placeHolder: `Current model: ${currentModelId}`,
+      title: 'Select AI Model',
+    });
+
+    if (!selected) {
+      return;
+    }
+
+    await setAIModel(selected.modelId);
+    vscode.window.showInformationMessage(`Lantern: AI model set to ${selected.label.replace('$(sparkle) ', '')}.`);
   }
 
   async enableHue(): Promise<void> {

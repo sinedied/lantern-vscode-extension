@@ -23,7 +23,7 @@ Tired of losing track of which VS Code window you're working in? Lantern helps y
 - **AI-powered color suggestions**: Get intelligent color recommendations based on your project context and preferences using GitHub Copilot
 - **Peacock synchronization**: Use Peacock extension instead of built-in theming
 
-> **Note**: AI features requires [GitHub Copilot](https://github.com/features/copilot) to be enabled in VS Code and your GitHub account. You can get started with GitHub Copilot [for free here](https://github.com/github-copilot/pro).
+> **Note**: AI features require [GitHub Copilot](https://github.com/features/copilot) to be enabled in VS Code and your GitHub account. You can get started with GitHub Copilot [for free here](https://github.com/github-copilot/pro).
 
 ## Installation
 
@@ -44,9 +44,11 @@ Want to choose a specific color? Use the `Lantern: Assign color manually` comman
 
 ### AI-powered color suggestions
 
-> **Note**: AI features requires [GitHub Copilot](https://github.com/features/copilot) to be enabled in VS Code and your GitHub account. You can get started with GitHub Copilot [for free here](https://github.com/github-copilot/pro).
+> **Note**: AI features require [GitHub Copilot](https://github.com/features/copilot) to be enabled in VS Code and your GitHub account. You can get started with GitHub Copilot [for free here](https://github.com/github-copilot/pro).
 
-Let AI help you find the perfect color for your workspace! Use the `Lantern: Suggest color with AI` command to get intelligent color recommendations.
+Let AI help you find the perfect color for your workspace! Use the `Lantern: Suggest color with AI` command to get intelligent color recommendations. Lantern uses Copilot Auto by default for cost-aware model routing.
+
+Use `Lantern: Select AI model` to choose another available Copilot model. Lantern saves the model ID globally in the `lantern.aiModel` setting. If that model later becomes unavailable, Lantern notifies you and falls back to Auto for the current suggestion.
 
 The AI considers:
 - Your optional inspiration or specific requirements (e.g., "calm and professional", "energetic", "matching my brand colors")
@@ -100,6 +102,7 @@ Access all Lantern commands through the Command Palette or click the lantern ico
 - `Lantern: Assign unique color` - Generate a unique color for the current workspace
 - `Lantern: Assign color manually` - Choose a specific color using the color picker
 - `Lantern: Suggest color with AI` - Get AI-powered color recommendations based on project context
+- `Lantern: Select AI model` - Choose which available GitHub Copilot model Lantern uses
 - `Lantern: Reset workspace color` - Remove color assignment for current workspace
 - `Lantern: Toggle Peacock mode` - Enable/disable Peacock integration
 - `Lantern: Enable Philips Hue` - Set up Philips Hue light synchronization
@@ -114,6 +117,7 @@ Lantern stores settings globally in your VS Code user settings:
 ```json
 {
   "lantern.enabled": true,
+  "lantern.aiModel": "auto",
   "lantern.minimal": false,
   "lantern.peacockSync": false,
   "lantern.overrideDebuggingColors": false,
@@ -139,18 +143,19 @@ For workspace-specific color configuration, you can also add this to your `.vsco
 
 #### Settings reference
 
-| Setting                     | Description                                               | Default   |
-| --------------------------- | --------------------------------------------------------- | --------- |
-| `enabled`                   | Enable or disable Lantern                                 | `true`    |
-| `workspaceColor`            | Global workspace color mappings (workspace path → color)  | `{}`      |
-| `color`                     | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
-| `minimal`                   | Enable minimalistic colorization (status bar item only)   | `false`   |
-| `peacockSync`      | use Peacock extension instead of built-in theming         | `false`   |
-| `overrideDebuggingColors`   | Override debugging status bar colors with Lantern colors  | `false`   |
-| `hueEnabled`                | Enable Philips Hue integration                            | `false`   |
-| `hueLightIds`               | List of Hue light IDs to control                          | `[]`      |
-| `hueIntensity`              | Brightness of Hue lights (0-100)                          | `100`     |
-| `hueDefaultColor`           | Default color when no workspace color is set              | `#000000` |
+| Setting                   | Description                                               | Default   |
+| ------------------------- | --------------------------------------------------------- | --------- |
+| `enabled`                 | Enable or disable Lantern                                 | `true`    |
+| `aiModel`                 | Copilot model ID used for AI color suggestions            | `auto`    |
+| `workspaceColor`          | Global workspace color mappings (workspace path → color)  | `{}`      |
+| `color`                   | Workspace-specific color (set in `.vscode/settings.json`) | Not set   |
+| `minimal`                 | Enable minimalistic colorization (status bar item only)   | `false`   |
+| `peacockSync`             | Use Peacock extension instead of built-in theming         | `false`   |
+| `overrideDebuggingColors` | Override debugging status bar colors with Lantern colors  | `false`   |
+| `hueEnabled`              | Enable Philips Hue integration                            | `false`   |
+| `hueLightIds`             | List of Hue light IDs to control                          | `[]`      |
+| `hueIntensity`            | Brightness of Hue lights (0-100)                          | `100`     |
+| `hueDefaultColor`         | Default color when no workspace color is set              | `#000000` |
 
 > **Tip**: Use `#000000` as the default Hue color to turn lights off when no workspace color is assigned.
 
@@ -171,7 +176,8 @@ If you don't want to share your Lantern settings with others, you can add the `.
 ### AI color suggestions not working?
 
 - Ensure GitHub Copilot is enabled and authenticated in VS Code
-- Check that you have an active Copilot subscription
+- Check that your Copilot plan and organization policies allow at least one language model
+- Run `Lantern: Select AI model` and choose Auto or another available model
 - Try the command again if the first attempt fails (AI services can occasionally be unavailable)
 
 ### Philips Hue not working?

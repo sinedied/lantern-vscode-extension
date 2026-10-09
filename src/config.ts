@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
+import { DEFAULT_AI_MODEL_ID, normalizeAIModelId } from './ai_utils';
 
 export interface LanternConfig {
+  aiModel: string;
   hueEnabled: boolean;
   hueLightIds: string[];
   hueDefaultColor: string;
@@ -40,6 +42,16 @@ export function getEnabled(): boolean {
 export async function setEnabled(enabled: boolean): Promise<void> {
   const config = getLanternConfig();
   await config.update('enabled', enabled, vscode.ConfigurationTarget.Global);
+}
+
+export function getAIModel(): string {
+  const config = getLanternConfig();
+  return normalizeAIModelId(config.get<string>('aiModel', DEFAULT_AI_MODEL_ID));
+}
+
+export async function setAIModel(modelId: string): Promise<void> {
+  const config = getLanternConfig();
+  await config.update('aiModel', normalizeAIModelId(modelId), vscode.ConfigurationTarget.Global);
 }
 
 export function getHueLightIds(): string[] {
