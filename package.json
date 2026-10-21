@@ -16,7 +16,7 @@
     "check:types": "tsc --noEmit",
     "pretest": "npm run build:tests && npm run build && npm run lint",
     "test": "npm run test:unit && vscode-test",
-    "test:unit": "node --test out/test/ai.node-test.js",
+    "test:unit": "node --test out/test/ai.node-test.js out/test/status_bar_colors.node-test.js",
     "lint": "eslint src",
     "format": "prettier --write src/**/*.ts",
     "vscode:prepublish": "npm run build:package",

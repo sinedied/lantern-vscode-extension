@@ -26,6 +26,7 @@ import {
 } from './config';
 import { logger } from './logger';
 import { COPILOT_VENDOR, DEFAULT_AI_MODEL_ID } from './ai_utils';
+import { applyNormalStatusBarColors, removeNormalStatusBarColors } from './status_bar_colors';
 
 interface AIModelQuickPickItem extends vscode.QuickPickItem {
   modelId: string;
@@ -559,7 +560,7 @@ export class Lantern {
     if (color) {
       const hexColor = rgbToHex(color);
       const textColor = getContrastingTextColor(color);
-      const colorCustomizations = { ...currentColorCustomizations };
+      let colorCustomizations = { ...currentColorCustomizations };
 
       if (minimal) {
         // In minimal mode, only colorize the status bar item
@@ -568,8 +569,7 @@ export class Lantern {
         colorCustomizations['statusBarItem.errorHoverForeground'] = textColor;
       } else {
         // In normal mode, colorize the entire status bar
-        colorCustomizations['statusBar.background'] = hexColor;
-        colorCustomizations['statusBar.foreground'] = textColor;
+        colorCustomizations = applyNormalStatusBarColors(colorCustomizations, hexColor, textColor);
 
         if (overrideDebuggingColors) {
           colorCustomizations['statusBar.debuggingBackground'] = hexColor;
@@ -588,7 +588,7 @@ export class Lantern {
       await updateColorCustomizations(colorCustomizations);
     } else {
       let hasChanges = false;
-      const colorCustomizations = { ...currentColorCustomizations };
+      let colorCustomizations = { ...currentColorCustomizations };
 
       // Remove minimal mode colors
       if (colorCustomizations['statusBarItem.errorBackground']) {
@@ -605,14 +605,9 @@ export class Lantern {
       }
 
       // Remove normal mode colors
-      if (colorCustomizations['statusBar.background']) {
-        delete colorCustomizations['statusBar.background'];
-        hasChanges = true;
-      }
-      if (colorCustomizations['statusBar.foreground']) {
-        delete colorCustomizations['statusBar.foreground'];
-        hasChanges = true;
-      }
+      const normalColorCleanup = removeNormalStatusBarColors(colorCustomizations);
+      colorCustomizations = normalColorCleanup.colorCustomizations;
+      hasChanges ||= normalColorCleanup.hasChanges;
 
       if (overrideDebuggingColors) {
         if (colorCustomizations['statusBar.debuggingBackground']) {
