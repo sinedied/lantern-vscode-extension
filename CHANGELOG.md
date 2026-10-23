@@ -1,3 +1,11 @@
+## [1.3.2](https://github.com/sinedied/lantern-vscode-extension/compare/1.3.1...1.3.2) (2026-10-23)
+
+
+### Bug Fixes
+
+* preserve color when window loses focus ([b3e4829](https://github.com/sinedied/lantern-vscode-extension/commit/b3e482914f48d5f2f7858853a71c564307c78ea6))
+* restore AI color suggestions ([e9c603a](https://github.com/sinedied/lantern-vscode-extension/commit/e9c603a323d6788afff273141d399995010e546d))
+
 ## [1.3.1](https://github.com/sinedied/lantern-vscode-extension/compare/1.3.0...1.3.1) (2025-08-01)
 
 
