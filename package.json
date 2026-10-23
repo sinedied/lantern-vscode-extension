@@ -16,7 +16,7 @@
     "check:types": "tsc --noEmit",
     "pretest": "npm run build:tests && npm run build && npm run lint",
     "test": "npm run test:unit && vscode-test",
-    "test:unit": "node --test out/test/ai.node-test.js out/test/status_bar_colors.node-test.js",
+    "test:unit": "node --test out/test/ai.node-test.js out/test/error_utils.node-test.js out/test/status_bar_colors.node-test.js",
     "lint": "eslint src",
     "format": "prettier --write src/**/*.ts",
     "vscode:prepublish": "npm run build:package",
@@ -255,6 +255,7 @@
     ]
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.19.43",
     "@types/vscode": "1.102.0",
@@ -264,12 +265,12 @@
     "@vscode/test-electron": "^3.1.0",
     "@vscode/vsce": "^4.0.0",
     "esbuild": "^0.28.2",
-    "eslint": "^9.39.5",
+    "eslint": "^10.13.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^3.9.10",
     "semantic-release": "^25.0.9",
     "semantic-release-node-prep": "^3.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "prettier": {
     "tabWidth": 2,

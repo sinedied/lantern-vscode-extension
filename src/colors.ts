@@ -105,7 +105,7 @@ export function generateRandomColor(existingColor?: RgbColor, maxAttempts: numbe
     const newOklch = generateStatusBarColor();
     const newColor = oklchToRgb(newOklch);
 
-    let distance = existingOklch ? calculateColorDistance(newOklch, existingOklch) : 1;
+    const distance = existingOklch ? calculateColorDistance(newOklch, existingOklch) : 1;
 
     if (distance > bestDistance) {
       bestDistance = distance;

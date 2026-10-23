@@ -25,6 +25,7 @@ import {
   setAIModel,
 } from './config';
 import { logger } from './logger';
+import { getErrorMessage } from './error_utils';
 import { COPILOT_VENDOR, DEFAULT_AI_MODEL_ID } from './ai_utils';
 import { applyNormalStatusBarColors, removeNormalStatusBarColors } from './status_bar_colors';
 
@@ -126,7 +127,7 @@ export class Lantern {
       await setEnabled(true);
     }
 
-    let currentColor = this.getCurrentWorkspaceColor();
+    const currentColor = this.getCurrentWorkspaceColor();
     const newColor = generateRandomColor(currentColor);
     const hexColor = rgbToHex(newColor);
 
@@ -345,17 +346,18 @@ export class Lantern {
         vscode.window.showInformationMessage('Philips Hue enabled successfully!');
 
         await this.selectHueLights();
-      } catch (error: any) {
-        if (error.message?.includes('link button not pressed')) {
+      } catch (error) {
+        const errorMessage = getErrorMessage(error);
+        if (errorMessage.includes('link button not pressed')) {
           vscode.window.showErrorMessage(
             'Bridge button was not pressed. Please try again and press the button on your Hue bridge.',
           );
         } else {
-          vscode.window.showErrorMessage(`Failed to connect to Hue bridge: ${error.message}`);
+          vscode.window.showErrorMessage(`Failed to connect to Hue bridge: ${errorMessage}`);
         }
       }
-    } catch (error: any) {
-      vscode.window.showErrorMessage(`Failed to setup Philips Hue: ${error.message}`);
+    } catch (error) {
+      vscode.window.showErrorMessage(`Failed to setup Philips Hue: ${getErrorMessage(error)}`);
     }
   }
 
@@ -399,8 +401,8 @@ export class Lantern {
       vscode.window.showInformationMessage(`Selected lights: ${lightNames}`);
 
       await this.applyWorkspaceColor();
-    } catch (error: any) {
-      vscode.window.showErrorMessage(`Failed to get Hue lights: ${error.message}`);
+    } catch (error) {
+      vscode.window.showErrorMessage(`Failed to get Hue lights: ${getErrorMessage(error)}`);
     }
   }
 
@@ -423,8 +425,8 @@ export class Lantern {
       }
 
       await setHueEnabled(false);
-    } catch (error: any) {
-      vscode.window.showErrorMessage(`Failed to disable Philips Hue: ${error.message}`);
+    } catch (error) {
+      vscode.window.showErrorMessage(`Failed to disable Philips Hue: ${getErrorMessage(error)}`);
     }
   }
 

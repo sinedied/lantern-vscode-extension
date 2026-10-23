@@ -38,7 +38,7 @@ export async function setWorkspaceColorTool(
     }
 
     // Determine workspace path
-    let targetWorkspacePath = workspacePath ?? lantern.getCurrentWorkspacePath();
+    const targetWorkspacePath = workspacePath ?? lantern.getCurrentWorkspacePath();
     if (!targetWorkspacePath) {
       return {
         success: false,

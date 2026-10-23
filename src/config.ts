@@ -81,12 +81,12 @@ export async function setHueIntensity(intensity: number): Promise<void> {
   await config.update('hueIntensity', clampedIntensity, vscode.ConfigurationTarget.Global);
 }
 
-export function getColorCustomizations(): any {
+export function getColorCustomizations(): Record<string, unknown> {
   const config = getWorkbenchConfig();
-  return config.get<any>('colorCustomizations', {});
+  return config.get<Record<string, unknown>>('colorCustomizations', {});
 }
 
-export async function updateColorCustomizations(colorCustomizations: any): Promise<void> {
+export async function updateColorCustomizations(colorCustomizations: Record<string, unknown>): Promise<void> {
   const config = getWorkbenchConfig();
   await config.update('colorCustomizations', colorCustomizations, vscode.ConfigurationTarget.Workspace);
 }

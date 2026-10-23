@@ -43,3 +43,20 @@ test('removeNormalStatusBarColors reports no changes when Lantern colors are abs
     'editor.background': '#101010',
   });
 });
+
+test('applying and removing colors preserves nested theme customizations', () => {
+  const current = {
+    'editor.background': '#101010',
+    '[Default Dark Modern]': {
+      'editor.background': '#202020',
+      'statusBar.background': '#303030',
+    },
+  };
+  const applied = applyNormalStatusBarColors(current, '#ff00a0', '#000000');
+  const cleanup = removeNormalStatusBarColors(applied);
+
+  assert.deepStrictEqual(cleanup.colorCustomizations, current);
+  assert.strictEqual(applied['[Default Dark Modern]'], current['[Default Dark Modern]']);
+  assert.strictEqual(cleanup.colorCustomizations['[Default Dark Modern]'], current['[Default Dark Modern]']);
+  assert.strictEqual(current['editor.background'], '#101010');
+});

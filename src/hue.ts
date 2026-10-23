@@ -15,6 +15,36 @@ export interface HueLight {
   xy?: [number, number];
 }
 
+interface HueLightResponse {
+  name: string;
+  state: {
+    on: boolean;
+    xy?: [number, number];
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function isHueLightResponse(value: unknown): value is HueLightResponse {
+  if (
+    !isRecord(value) ||
+    typeof value.name !== 'string' ||
+    !isRecord(value.state) ||
+    typeof value.state.on !== 'boolean'
+  ) {
+    return false;
+  }
+  const xy = value.state.xy;
+  return (
+    xy === undefined ||
+    (Array.isArray(xy) &&
+      xy.length === 2 &&
+      xy.every((coordinate: unknown) => typeof coordinate === 'number' && Number.isFinite(coordinate)))
+  );
+}
+
 export class Hue {
   private bridge: HueBridge | undefined;
 
@@ -26,7 +56,7 @@ export class Hue {
   private async makeRequest(
     url: string,
     options: RequestInit & { timeout?: number } = {},
-  ): Promise<{ data: any; status: number }> {
+  ): Promise<{ data: unknown; status: number }> {
     const { timeout = 5000, ...fetchOptions } = options;
 
     const controller = new AbortController();
@@ -40,7 +70,7 @@ export class Hue {
 
       clearTimeout(timeoutId);
 
-      const data = await response.json();
+      const data: unknown = await response.json();
       return { data, status: response.status };
     } catch (error) {
       clearTimeout(timeoutId);
@@ -70,7 +100,15 @@ export class Hue {
   async discoverBridges(): Promise<HueBridge[]> {
     try {
       const response = await this.makeRequest('https://discovery.meethue.com/', { timeout: 5000 });
-      return response.data.map((bridge: any) => ({ ip: bridge.internalipaddress }));
+      if (!Array.isArray(response.data)) {
+        throw new Error('Invalid Hue bridge discovery response');
+      }
+      return response.data.map((bridge: unknown) => {
+        if (!isRecord(bridge) || typeof bridge.internalipaddress !== 'string') {
+          throw new Error('Invalid Hue bridge discovery response');
+        }
+        return { ip: bridge.internalipaddress };
+      });
     } catch (error) {
       logger.error('Failed to discover Hue bridges', error);
       return [];
@@ -86,21 +124,27 @@ export class Hue {
         timeout: 120000,
       });
 
-      const result = response.data[0];
-      if (result.success) {
+      if (!Array.isArray(response.data)) {
+        throw new Error('Invalid Hue user response');
+      }
+      const result: unknown = response.data[0];
+      if (!isRecord(result)) {
+        throw new Error('Invalid Hue user response');
+      }
+      if (isRecord(result.success) && typeof result.success.username === 'string') {
         const username = result.success.username;
         await this.saveBridgeConfig({ ip: bridgeIp, username });
         logger.log(`Created Hue user`);
 
         return username;
-      } else if (result.error) {
+      } else if (isRecord(result.error) && typeof result.error.description === 'string') {
         throw new Error(result.error.description);
       }
+      throw new Error('Invalid Hue user response');
     } catch (error) {
       logger.error('Failed to create Hue user', error);
       throw error;
     }
-    return undefined;
   }
 
   async getLights(): Promise<HueLight[]> {
@@ -112,15 +156,20 @@ export class Hue {
       const response = await this.makeRequest(`http://${this.bridge.ip}/api/${this.bridge.username}/lights`, {
         timeout: 5000,
       });
+      if (!isRecord(response.data)) {
+        throw new Error('Invalid Hue lights response');
+      }
 
       const lights: HueLight[] = [];
       for (const [id, lightData] of Object.entries(response.data)) {
-        const light = lightData as any;
+        if (!isHueLightResponse(lightData)) {
+          throw new Error(`Invalid Hue light response for light ${id}`);
+        }
         lights.push({
           id,
-          name: light.name,
-          on: light.state.on,
-          xy: light.state.xy,
+          name: lightData.name,
+          on: lightData.state.on,
+          xy: lightData.state.xy,
         });
       }
 
@@ -231,7 +280,13 @@ export class Hue {
         timeout: 5000,
       });
 
-      return response.status === 200 && !response.data[0]?.error;
+      if (Array.isArray(response.data) && isRecord(response.data[0]) && isRecord(response.data[0].error)) {
+        return false;
+      }
+      if (!isRecord(response.data)) {
+        throw new Error('Invalid Hue configuration response');
+      }
+      return response.status === 200;
     } catch (error) {
       logger.error('Hue connection test failed', error);
       return false;
